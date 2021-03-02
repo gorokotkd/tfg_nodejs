@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <%- include('head') %>
+  </head>
+  <body>
+
+    <%- include('menus') %>
+
+    <main class="container">
+
+      <div class="starter-template text-center py-5 px-3">
+        <h1><%= title %></h1>
+        
+        <h3>Algoritmos de Compresión</h3>
+        <p>GZip, LZma, LZma2, LZss, Brotli</p>
+
+        <form method="post" enctype="multipart/form-data">
+          <label for="file-submit">Selecciona el fichero a probar</label>
+          <input type="file" id="file-submit" class="form-control" required>
+          <div class="row"><br></div>
+          <button class="btn btn-primary" type="submit">Enviar!</button>
+        </form>
+        
+      </div>
+    
+    </main>
+    
+  </body>
+</html>
