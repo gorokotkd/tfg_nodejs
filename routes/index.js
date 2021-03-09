@@ -3,11 +3,16 @@ var projectController = require('../controller/controller');
 var router = express.Router();
 
 
+//Middleware
+
+
+var multipart = require('connect-multiparty');
+var multipartMiddleware = multipart({uploadDir: './uploads'});
 
 
 router.get('/', projectController.index);
 router.get('/tctest', projectController.tctest);
-router.post('/tctest', projectController.fileCompress);
+router.post('/tctest', multipartMiddleware, projectController.fileCompress);
 
 /* GET home page. *//*
 router.get('/', function(req, res, next) {
