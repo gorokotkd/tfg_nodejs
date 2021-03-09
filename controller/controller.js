@@ -25,8 +25,8 @@ var controller = {
         if(req.files){
             var filePath = req.files.file.path;
             var fileName = filePath.split('\\')[1];
-            var fileExt = fileName.split('.')[1];
-/*
+            //var fileExt = fileName.split('.')[1];
+
             gzip(filePath).then((compressed) => {
                 return res.status(200).render(
                     'result',
@@ -36,8 +36,9 @@ var controller = {
                         file: compressed
                     }
                 );
-            })*/
 
+            })
+/*
             return res.status(200).render(
                 'result',
                 {
@@ -46,8 +47,18 @@ var controller = {
                     files: req.files
                     //file: compressed
                 }
-            );
+            );*/
                 
+            }else{
+                return res.status(200).render(
+                    'result',
+                    {
+                        title: 'Resultados de la Compresión',
+                        page: 'resultCompresion',
+                        files: "Error al enviar los archivos"
+                        //file: compressed
+                    }
+                );
             }
         }
 

@@ -1,0 +1,16 @@
+Privada
+openssl req -out ../users/csr/ocsp-server.csr -new -newkey rsa:2048 -keyout ../users/private_keys/ocsp-server.key
+openssl ca -in certreqs/ocsp-server.csr -out crt/ocsp-server.crt -config conf_file.cnf 
+
+
+Iniciar servidor
+openssl ocsp -port 12000 -index db/intermed-ca.index.txt -CA crt/intermed-ca.crt -rsigner crt/ocsp-server.crt -rkey private/ocsp-server.key -text -out log.txt
+
+Cliente
+openssl ocsp -CAfile crt/intermed-ca.crt -issuer crt/intermed-ca.crt -url http://localhost:12000 -cert crt/user1.crt -resp_text -noverify
+openssl ocsp -CAfile crt/intermed-ca.crt -issuer crt/intermed-ca.crt -url http://localhost:12000 -cert crt/user2.crt -resp_text -noverify
+
+EXPORTAR
+openssl pkcs12 -export -out user1.p12 -in crt/user1.crt -inkey ../users/private_keys/user1.key
+Extraer certificado y clave
+openssl pkcs12 -in user1.p12 -out crt/user1_V2.crt
