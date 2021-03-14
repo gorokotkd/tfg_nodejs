@@ -1,1 +1,4 @@
-Algorithm, Compression Ratio
+key,value
+OriginalFile,8433491
+Brotli,7005819
+Gzip,56

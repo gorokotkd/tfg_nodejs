@@ -46,51 +46,71 @@ var controller = {
         console.log(req.files);
         if(req.files){
             var filePath = req.files.file.path;
+            var fileSize = req.files.file.size;
             var fileName = filePath.split('\\')[1];
             //var fileExt = fileName.split('.')[1];
+                                                        //Algorithm, Compression Speed
+            fs.writeFileSync('./data/compress-time.csv','key,value\n');
+                                                        //Algorithm, Decompression Speed
+            fs.writeFileSync('./data/decompress-time.csv','key,value\n');
+                                                        //Algorithm, Compression Ratio
+            fs.writeFileSync('./data/compress-ratio.csv','key,value\n');
+            fs.writeFileSync('./data/compress-ratio.csv', 'OriginalFile,'+fileSize+"\n", {flag: 'a'});
 
-            fs.writeFileSync('./data/compress-time.csv','Algorithm, Compression Speed\n');
-            fs.writeFileSync('./data/decompress-time.csv','Algorithm, Decompression Speed\n');
-            fs.writeFileSync('./data/compress-ratio.csv','Algorithm, Compression Ratio\n');
-            //fs.writeFileSync('./data/compress-time.csv','Algorithm, Compression Speed\n');
 
-
-            var start = performance.now();
+            var start_gzip = performance.now();
             gzip(filePath).then((compressed) => {//GZIP COMPRESSION
-                var fin = performance.now();
-                var string = "Gzip, " + (fin - start).toString() + "\n";
-                fs.writeFileSync('./data/compress-time.csv',string, {flag: 'a'});
+                var fin_gzip = performance.now();
+                var string_gzip = "Gzip," + (fin_gzip - start_gzip).toString() + "\n";
+                fs.writeFileSync('./data/compress-time.csv',string_gzip, {flag: 'a'});
+                fs.writeFileSync('./data/compress-ratio.csv','Gzip,'+Buffer.byteLength(compressed)+"\n", {flag: 'a'});
 
-                start = performance.now();
+                start_gzip = performance.now();
                 ungzip(compressed).then((buf) => {
-                    fin = performance.now();
-                    string = "Gzip, " + (fin - start).toString() + "\n";
-                    fs.writeFileSync('./data/decompress-time.csv',string, {flag: 'a'});
+                    fin_gzip = performance.now();
+                    string_gzip = "Gzip," + (fin_gzip - start_gzip).toString() + "\n";
+                    fs.writeFileSync('./data/decompress-time.csv',string_gzip, {flag: 'a'});
                 });
                 
             });
-
-            brotli.compress(fs.readFileSync(filePath))
             
+            var start_brotli = performance.now();
+            var comp_buf = brotli.compress(fs.readFileSync(filePath))
+            var fin_brotli = performance.now();
+            var string_brotli = "Brotli," + (fin_brotli - start_brotli).toString() + "\n";
+            fs.writeFileSync('./data/compress-time.csv',string_brotli, {flag: 'a'});
+            fs.writeFileSync('./data/compress-ratio.csv','Brotli,'+Buffer.byteLength(comp_buf)+"\n", {flag: 'a'});
+
+            start_brotli = performance.now();
+            brotli.decompress(comp_buf);
+            fin_brotli = performance.now();
+            string_brotli = "Brotli," + (fin_brotli - start_brotli).toString() + "\n";
+            fs.writeFileSync('./data/decompress-time.csv',string_brotli, {flag: 'a'});
+
             
 
 
-            const csv = fs.readFileSync('./data/compress-time.csv').toString();
-            const data = d3.csvParse(csv);
+            var csv = fs.readFileSync('./data/compress-time.csv').toString();
+            var data = d3.csvParse(csv);
             output('./public/compress-time', d3nBar({data: data}));
+
+            var csv = fs.readFileSync('./data/decompress-time.csv').toString();
+            var data = d3.csvParse(csv);
+            output('./public/decompress-time', d3nBar({data: data}));
+
+            var csv = fs.readFileSync('./data/compress-ratio.csv').toString();
+            var data = d3.csvParse(csv);
+            output('./public/compress-ratio', d3nBar({data: data}));
+
+
             fs.unlinkSync(filePath);    
-            /* return res.status(200).render(
+            return res.status(200).render(
                 'result',
                 {
                     title: 'Resultados de la Compresión',
-                    page: 'resultCompresion',
-                    gzip: {
-                        time: fin - start,
-                        fileName: fileName, 
-                        compression: compressed
-                    },
+                    page: 'resultCompresion'
                 }
-            );*/
+            );
         }else{
             return res.status(200).render(
                 'result',
