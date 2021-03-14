@@ -1,13 +1,14 @@
 'use strict'
 
 const {gzip, ungzip} = require('node-gzip');
+const brotli = require('brotli');
 const {performance} = require('perf_hooks');
 const fs = require('fs');
 const output = require('d3node-output');
 const d3 = require('d3-node')().d3;
 const d3nBar = require('d3node-barchart');
 
-
+/*
 let createBarchart = new Promise((resolve, reject) => {
     const csv = fs.readFileSync('./data/data.csv').toString();
     const data = d3.csvParse(csv);
@@ -20,7 +21,8 @@ let createBarchart = new Promise((resolve, reject) => {
     }
 
     
-});
+});*/
+
 
 
 var controller = {
@@ -46,41 +48,49 @@ var controller = {
             var filePath = req.files.file.path;
             var fileName = filePath.split('\\')[1];
             //var fileExt = fileName.split('.')[1];
+
+            fs.writeFileSync('./data/compress-time.csv','Algorithm, Compression Speed\n');
+            fs.writeFileSync('./data/decompress-time.csv','Algorithm, Decompression Speed\n');
+            fs.writeFileSync('./data/compress-ratio.csv','Algorithm, Compression Ratio\n');
+            //fs.writeFileSync('./data/compress-time.csv','Algorithm, Compression Speed\n');
+
+
             var start = performance.now();
-            
-            gzip(filePath).then((compressed) => {
+            gzip(filePath).then((compressed) => {//GZIP COMPRESSION
                 var fin = performance.now();
+                var string = "Gzip, " + (fin - start).toString() + "\n";
+                fs.writeFileSync('./data/compress-time.csv',string, {flag: 'a'});
 
-                createBarchart.then((mes) => {
-                    console.log(mes);
-                    return res.status(200).render(
-                        'result',
-                        {
-                            title: 'Resultados de la Compresión',
-                            page: 'resultCompresion',
-                            gzip: {
-                                time: fin - start,
-                                fileName: fileName, 
-                                compression: compressed
-                            },
-                        }
-                    );
+                start = performance.now();
+                ungzip(compressed).then((buf) => {
+                    fin = performance.now();
+                    string = "Gzip, " + (fin - start).toString() + "\n";
+                    fs.writeFileSync('./data/decompress-time.csv',string, {flag: 'a'});
                 });
-/*
-                return res.status(200).render(
-                    'result',
-                    {
-                        title: 'Resultados de la Compresión',
-                        page: 'resultCompresion',
-                        gzip: {
-                            time: fin - start,
-                            fileName: fileName, 
-                            compression: compressed
-                        },
-                    }
-                );*/
+                
+            });
 
-            });  
+            brotli.compress(fs.readFileSync(filePath))
+            
+            
+
+
+            const csv = fs.readFileSync('./data/compress-time.csv').toString();
+            const data = d3.csvParse(csv);
+            output('./public/compress-time', d3nBar({data: data}));
+            fs.unlinkSync(filePath);    
+            /* return res.status(200).render(
+                'result',
+                {
+                    title: 'Resultados de la Compresión',
+                    page: 'resultCompresion',
+                    gzip: {
+                        time: fin - start,
+                        fileName: fileName, 
+                        compression: compressed
+                    },
+                }
+            );*/
         }else{
             return res.status(200).render(
                 'result',
