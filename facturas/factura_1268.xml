@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<T:TicketBai xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:T="urn:ticketbai:emision" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.w3.org/2001/XMLSchema ticketBai_schema.xsd">
+    <Cabecera Id="_5068">
+        <IDVersionTBAI>1.2</IDVersionTBAI>
+    </Cabecera>
+    <Sujetos Id="_5069">
+        <Emisor>
+            <NIF>22398122D</NIF>
+            <ApellidosNombreRazonSocial>canara bank</ApellidosNombreRazonSocial>
+        </Emisor>
+        <Destinatarios>
+            <IDDestinatario>
+                <NIF>25993456Y</NIF>
+                <ApellidosNombreRazonSocial>28C2PeHKvWW1fJofDMebXkLUmkF8nmxdgbYMXChOkKyWxFYWyw8bUz58FGAll1WjWJZWuAM1n7MUeqKopZZwxh01FvmR68OwGOXsA6IllibkRimGnqC3jJ6</ApellidosNombreRazonSocial>
+                <CodigoPostal>fKOyV</CodigoPostal>
+                <Direccion>b8nJylTYLRDy7YQQIGBtyxnL7mWePQvMzJpgPeFg4DIVpqRJlS8v9n87mpX5fBjao0mAPIX8mgPJuRRpRf1LXeyh727nw9rahi7TeoNwsV9fq6p7ZynaNXFQTqqdPEe3Sjlz5uupA26c3gQoWyeNMOuwXYWOZsX2AJn19grDLmhIS4AYdsi6rvADTP3DLOhxZRWF8MTxzrRQpRwzKqsW9hgnvSaBFk8eEiXdZ</Direccion>
+            </IDDestinatario>
+        </Destinatarios>
+        <VariosDestinatarios>S</VariosDestinatarios>
+        <EmitidaPorTercerosODestinatario>D</EmitidaPorTercerosODestinatario>
+    </Sujetos>
+    <Factura Id="_5070">
+        <CabeceraFactura>
+            <NumFactura>5305</NumFactura>
+            <FechaExpedicionFactura>19-05-2021</FechaExpedicionFactura>
+            <HoraExpedicionFactura>16:16:03</HoraExpedicionFactura>
+            <SerieFactura>056kAXsGPOnacBescwb</SerieFactura>
+            <FacturaEmitidaSustitucionSimplificada>S</FacturaEmitidaSustitucionSimplificada>
+        </CabeceraFactura>
+        <DatosFactura>
+            <DescripcionFactura>qWOGZrgYMaIDGzgbQvTXgaADb0nNarhuR9zpVLwLYFlyQEI2DhDmqdvVa1sIGgpJfFdtsUwn6vO5ykaKad</DescripcionFactura>
+            <DetallesFactura>
+                <IDDetalleFactura>
+                    <DescripcionDetalle>QSNwkXUvPvSGR</DescripcionDetalle>
+                    <Cantidad>1</Cantidad>
+                    <ImporteUnitario>68.87</ImporteUnitario>
+                    <ImporteTotal>64.17</ImporteTotal>
+                    <Descuento>15.84</Descuento>
+                </IDDetalleFactura>
+                <IDDetalleFactura>
+                    <DescripcionDetalle>LU8U8bk1YwWMhkxojHnfEZyRAqZuPNabfa49FyHuHmz2AiHSd7am9gA4mhRK0AbPa19hu5Dz1rF05KaTH4kH2bK6tiJmF0C</DescripcionDetalle>
+                    <Cantidad>2</Cantidad>
+                    <ImporteUnitario>47.63</ImporteUnitario>
+                    <ImporteTotal>115.26</ImporteTotal>
+                </IDDetalleFactura>
+            </DetallesFactura>
+            <ImporteTotalFactura>179.43</ImporteTotalFactura>
+            <FechaOperacion>15-12-2012</FechaOperacion>
+            <RetencionSoportada>49032.13</RetencionSoportada>
+            <BaseImponibleACoste>72516.58</BaseImponibleACoste>
+            <Claves>
+                <IDClave>
+                    <ClaveRegimenIvaOpTrascendencia>05</ClaveRegimenIvaOpTrascendencia>
+                </IDClave>
+            </Claves>
+        </DatosFactura>
+        <TipoDesglose>
+            <DesgloseTipoOperacion>
+                <PrestacionServicios>
+                    <Sujeta>
+                        <Exenta>
+                            <DetalleExenta>
+                                <CausaExencion>E6</CausaExencion>
+                                <BaseImponible>64.17</BaseImponible>
+                            </DetalleExenta>
+                        </Exenta>
+                        <NoExenta>
+                            <DetalleNoExenta>
+                                <TipoNoExenta>S1</TipoNoExenta>
+                                <DesgloseIVA>
+                                    <DetalleIVA>
+                                        <BaseImponible>148.29</BaseImponible>
+                                        <TipoImpositivo>21</TipoImpositivo>
+                                        <CuotaImpuesto>31.14</CuotaImpuesto>
+                                        <TipoRecargoEquivalencia>40.13</TipoRecargoEquivalencia>
+                                        <CuotaRecargoEquivalencia>83759.47</CuotaRecargoEquivalencia>
+                                        <OperacionEnRecargoDeEquivalenciaORegimenSimplificado>S</OperacionEnRecargoDeEquivalenciaORegimenSimplificado>
+                                    </DetalleIVA>
+                                </DesgloseIVA>
+                            </DetalleNoExenta>
+                        </NoExenta>
+                    </Sujeta>
+                </PrestacionServicios>
+            </DesgloseTipoOperacion>
+        </TipoDesglose>
+    </Factura>
+    <HuellaTBAI Id="_5071">
+        <Software>
+            <LicenciaTBAI>6h77</LicenciaTBAI>
+            <EntidadDesarrolladora>
+                <NIF>40139321C</NIF>
+            </EntidadDesarrolladora>
+            <Nombre>0Ts2VNrXDJWBRxaJzucHU9m</Nombre>
+            <Version>SgQ</Version>
+        </Software>
+    </HuellaTBAI>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#_5068"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>KS6OYDQCfMo0CZk7Inv9+dxnmkE=</DigestValue></Reference><Reference URI="#_5069"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>19snt2wMHM+Arp1ccqTsKt3WQGQ=</DigestValue></Reference><Reference URI="#_5070"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>g93c+zM0tzmLQlFIgmXTOmSiZ3Y=</DigestValue></Reference><Reference URI="#_5071"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>AlHdmi94nEfUx5CIGOLJsuIMhEE=</DigestValue></Reference></SignedInfo><SignatureValue>ioYvTgoBT7VcSFUI3vqcTIrb2HehYbOO1w9KET7KeQ9Ap3OQ5VeW+27HpQMhmDIK2JKaM9BHoC//iVb0az3Hd+Hv7oHl5jyDkLR9zai5nGsvhYzkTEE9vqgbTWCZkvFBZ998mRqdo9ZrvXotpigolRc5n+sNtk2p1KrgFoYBzfcF1EpfZGN6fNmULUQIzXYipvNlEGrEcWvI8kiSl5143bIge2zse92FCZHKzxAJv2BV6CAFs1R5O76G/MmuNQlaOiMsOjjeDTAcPQi5hCeegyHCvEfx1fvO42fyOSXDtosjuqoEriqRoH44femXaRwv4F/db/+5E4LuJ8pfsHQq1Q==</SignatureValue></Signature></T:TicketBai>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<T:TicketBai xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:T="urn:ticketbai:emision" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.w3.org/2001/XMLSchema ticketBai_schema.xsd">
+    <Cabecera Id="_7492">
+        <IDVersionTBAI>1.2</IDVersionTBAI>
+    </Cabecera>
+    <Sujetos Id="_7493">
+        <Emisor>
+            <NIF>96063856D</NIF>
+            <ApellidosNombreRazonSocial>volkswagen ag</ApellidosNombreRazonSocial>
+        </Emisor>
+        <Destinatarios>
+            <IDDestinatario>
+                <IDOtro>
+                    <IDType>06</IDType>
+                    <ID>sPB8dHxztwp</ID>
+                    <CodigoPais>LY</CodigoPais>
+                </IDOtro>
+                <ApellidosNombreRazonSocial>vMUCoZA4FONyX4dPnVsnV1ctSxGW1rLyFAHJOC613XsHB9f9dkjRYnIf62htXcyDHprTrBRT0DZCm</ApellidosNombreRazonSocial>
+                <CodigoPostal>qVD9D</CodigoPostal>
+                <Direccion>G9EvkZXS7SFKcuTi4crCCfowVHHiMFiGpNcGu88s53399fq7mDBHKOu76xkB51zApiJzEHuA7dSl5uUD3llo7AJIUcq</Direccion>
+            </IDDestinatario>
+        </Destinatarios>
+        <VariosDestinatarios>S</VariosDestinatarios>
+        <EmitidaPorTercerosODestinatario>T</EmitidaPorTercerosODestinatario>
+    </Sujetos>
+    <Factura Id="_7494">
+        <CabeceraFactura>
+            <NumFactura>44522</NumFactura>
+            <FechaExpedicionFactura>19-05-2021</FechaExpedicionFactura>
+            <HoraExpedicionFactura>16:17:57</HoraExpedicionFactura>
+            <SerieFactura>N4It9ja4LnbVxQWO</SerieFactura>
+            <FacturaEmitidaSustitucionSimplificada>S</FacturaEmitidaSustitucionSimplificada>
+        </CabeceraFactura>
+        <DatosFactura>
+            <DescripcionFactura>BkW2wnCDKh9qoFXcs87ywc2l5lHxqGWfacGsjh3zj1AqfwImj75izNcxaLzQwH9IOXZHtG8Qk6VsScIhRaG2SBtv3doBCcBmOsdDepmfe2BaHGyuNL6RCIZDhtlw2PWGVsxLSPVw9RCCIjGJC3gs0gUnOZrGIXL6wwJVWYQfJBGouVgLcJHwxU5jJkGsUlOmcNgF7GRoK3Fr</DescripcionFactura>
+            <DetallesFactura>
+                <IDDetalleFactura>
+                    <DescripcionDetalle>bZaZo2P9rAyx86JRNzcLo2lQhDnbhjalh75ela8tzTsKKCCJVAxKLlX5ECWjTcveECxYsPxxmyqNUk3qOQAFwzjkPXH1HJJKA40K1iwNsBBc9065lONhdINXI42pkPAMlzUOovHQOavjiGJ</DescripcionDetalle>
+                    <Cantidad>2</Cantidad>
+                    <ImporteUnitario>30.21</ImporteUnitario>
+                    <ImporteTotal>46.79</ImporteTotal>
+                    <Descuento>21.75</Descuento>
+                </IDDetalleFactura>
+                <IDDetalleFactura>
+                    <DescripcionDetalle>BSHTJIPmsw2qXEEtDh0Q7VIYhYsQ3psUGpviTDElIHhDHGeQuoSRlorl1s85Nyd69uxbJDwMsrvJxdEm2dTfFwRjrJOGqIf7OmsXc4FR9QDS3oGGVgsL8DXvhGsZeGkVLhcUKrd8EZQ3fZwVzZQtgbBY69yLXoP7iiD9SLiYY9zA5kny9WUnwiz4XRenlhsKzWGv2e9BWQwTiUo16IwAtYe2TyPdsktlxVguQXDrm1</DescripcionDetalle>
+                    <Cantidad>1</Cantidad>
+                    <ImporteUnitario>32.72</ImporteUnitario>
+                    <ImporteTotal>39.59</ImporteTotal>
+                </IDDetalleFactura>
+            </DetallesFactura>
+            <ImporteTotalFactura>86.38</ImporteTotalFactura>
+            <FechaOperacion>24-06-2013</FechaOperacion>
+            <RetencionSoportada>58288.73</RetencionSoportada>
+            <BaseImponibleACoste>52923.16</BaseImponibleACoste>
+            <Claves>
+                <IDClave>
+                    <ClaveRegimenIvaOpTrascendencia>09</ClaveRegimenIvaOpTrascendencia>
+                </IDClave>
+            </Claves>
+        </DatosFactura>
+        <TipoDesglose>
+            <DesgloseFactura>
+                <Sujeta>
+                    <NoExenta>
+                        <DetalleNoExenta>
+                            <TipoNoExenta>S1</TipoNoExenta>
+                            <DesgloseIVA>
+                                <DetalleIVA>
+                                    <BaseImponible>49.64</BaseImponible>
+                                    <TipoImpositivo>21</TipoImpositivo>
+                                    <CuotaImpuesto>10.42</CuotaImpuesto>
+                                    <TipoRecargoEquivalencia>17.18</TipoRecargoEquivalencia>
+                                    <OperacionEnRecargoDeEquivalenciaORegimenSimplificado>S</OperacionEnRecargoDeEquivalenciaORegimenSimplificado>
+                                </DetalleIVA>
+                            </DesgloseIVA>
+                        </DetalleNoExenta>
+                    </NoExenta>
+                </Sujeta>
+            </DesgloseFactura>
+        </TipoDesglose>
+    </Factura>
+    <HuellaTBAI Id="_7495">
+        <Software>
+            <LicenciaTBAI>eV4UmM7RCOq4hWN</LicenciaTBAI>
+            <EntidadDesarrolladora>
+                <NIF>66994126W</NIF>
+            </EntidadDesarrolladora>
+            <Nombre>i9bfnMxjrnaf3pA1xqzrGD0WtYodrhfT2EdJ</Nombre>
+            <Version>zfM7U</Version>
+        </Software>
+    </HuellaTBAI>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#_7492"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>aR3S/UYZE25hKqNtFRJF5aq+7Vo=</DigestValue></Reference><Reference URI="#_7493"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>ShZNqmmROrHqLFTffVqxntl9v+8=</DigestValue></Reference><Reference URI="#_7494"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>9SvuzLKl4akH9tZIL3pKnH4Iosw=</DigestValue></Reference><Reference URI="#_7495"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>xA5U1wJh6mTZ20L79D9Me7Lmpfc=</DigestValue></Reference></SignedInfo><SignatureValue>n93qw6Vu50xbG+rtfU7Psr8X4f9g+3q5rEQyk4UkAyjHwZ4mBg+ukWlng04DnvFd1u4QLW7yGy2rHteRj9VcMlXL8PHE5x7ROQAyB6ruZhKPVIDJc7R4P2tBgElo+cjkiSWV9300DfZYCcy1hzj9FPcg/uhE7FSksNgFr7+sIQedV99kSiugKEPN1GAkabitiY5p8O61UtTjbzmVzhqo39PXRZ0no8QbKs4mgqeT7X9qGC4UrYBcUVgtgcXHKMPpjQxzn8s3cIF0DstIrsJu+2xgZn40IwvACRUZIsstRQFKqTZHuffqWE2wT+gA2iO8ygkeHuiYDeLT/GcnuXyvog==</SignatureValue></Signature></T:TicketBai>

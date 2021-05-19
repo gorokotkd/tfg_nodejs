@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<T:TicketBai xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:T="urn:ticketbai:emision" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.w3.org/2001/XMLSchema ticketBai_schema.xsd">
+    <Cabecera Id="_1712">
+        <IDVersionTBAI>1.2</IDVersionTBAI>
+    </Cabecera>
+    <Sujetos Id="_1713">
+        <Emisor>
+            <NIF>69872017H</NIF>
+            <ApellidosNombreRazonSocial>cincinnati children's hospital medical center</ApellidosNombreRazonSocial>
+        </Emisor>
+        <Destinatarios>
+            <IDDestinatario>
+                <IDOtro>
+                    <IDType>02</IDType>
+                    <ID>6uf</ID>
+                </IDOtro>
+                <ApellidosNombreRazonSocial>gq1Lji</ApellidosNombreRazonSocial>
+                <CodigoPostal>2Rq</CodigoPostal>
+                <Direccion>bPUXr6yLXqxTfUyh4TlM2inNsPjeq0NDq3U6crZlHQaejPfOx5PAw9kNAIjKfk5yg02J0wtYQQOvAA7CowTzbwANKQVJCCEY6K7EuQxOdfiywLEoYFUzlAkKsLYUv13iwmZ9</Direccion>
+            </IDDestinatario>
+        </Destinatarios>
+        <VariosDestinatarios>S</VariosDestinatarios>
+        <EmitidaPorTercerosODestinatario>T</EmitidaPorTercerosODestinatario>
+    </Sujetos>
+    <Factura Id="_1714">
+        <CabeceraFactura>
+            <NumFactura>88321</NumFactura>
+            <FechaExpedicionFactura>19-05-2021</FechaExpedicionFactura>
+            <HoraExpedicionFactura>16:13:23</HoraExpedicionFactura>
+            <SerieFactura>nyI5ugB3Qm3k</SerieFactura>
+            <FacturaEmitidaSustitucionSimplificada>S</FacturaEmitidaSustitucionSimplificada>
+        </CabeceraFactura>
+        <DatosFactura>
+            <DescripcionFactura>J9tL5V1cnxvQNelx8BZlf767hXY2YbS0jRrHYArQo2dGRxjDlmpooWlSIVHNGQjNFyLF07G5kMW0Vpr6XpFMahf0FayQXu3y9I6cVeDR3lNwzbnHOGxPqEck9jVRuCPn0hwuPr6</DescripcionFactura>
+            <DetallesFactura>
+                <IDDetalleFactura>
+                    <DescripcionDetalle>H9L6vu38hrtynvHsX4PWe2Nw1Ni6rQMdHi9qsZrkJB3WWiV8d0wfxs1YpdQkqUFiHS8sE2z9w2jSMMyMNDDW00GwjIUSteUfUi6kVeo7KtV3FeKBZxDi198oPhAw6eeOmJq9UALwKYKYYq38aUcWZ3g1JcYF5NUCzC5IjOaE0A0gQJiAHbUW7vzIOAHqHo44lHTof</DescripcionDetalle>
+                    <Cantidad>2</Cantidad>
+                    <ImporteUnitario>8.69</ImporteUnitario>
+                    <ImporteTotal>2.53</ImporteTotal>
+                    <Descuento>15.29</Descuento>
+                </IDDetalleFactura>
+            </DetallesFactura>
+            <ImporteTotalFactura>2.53</ImporteTotalFactura>
+            <FechaOperacion>13-04-2020</FechaOperacion>
+            <RetencionSoportada>99852.34</RetencionSoportada>
+            <BaseImponibleACoste>6436.83</BaseImponibleACoste>
+            <Claves>
+                <IDClave>
+                    <ClaveRegimenIvaOpTrascendencia>08</ClaveRegimenIvaOpTrascendencia>
+                </IDClave>
+            </Claves>
+        </DatosFactura>
+        <TipoDesglose>
+            <DesgloseFactura>
+                <Sujeta>
+                    <NoExenta>
+                        <DetalleNoExenta>
+                            <TipoNoExenta>S1</TipoNoExenta>
+                            <DesgloseIVA>
+                                <DetalleIVA>
+                                    <BaseImponible>-13.20</BaseImponible>
+                                    <TipoImpositivo>21</TipoImpositivo>
+                                    <CuotaImpuesto>-2.77</CuotaImpuesto>
+                                    <CuotaRecargoEquivalencia>67568.76</CuotaRecargoEquivalencia>
+                                </DetalleIVA>
+                            </DesgloseIVA>
+                        </DetalleNoExenta>
+                    </NoExenta>
+                </Sujeta>
+            </DesgloseFactura>
+        </TipoDesglose>
+    </Factura>
+    <HuellaTBAI Id="_1715">
+        <Software>
+            <LicenciaTBAI>wDHoHmkUS9AvZ7Et7l</LicenciaTBAI>
+            <EntidadDesarrolladora>
+                <NIF>34015410C</NIF>
+            </EntidadDesarrolladora>
+            <Nombre>5EErmnWy6epvtUddsf3VBvgAId0371i9DrnSALuZl5FLWhyfnC6kLQMLPRGk9tadq8DJD</Nombre>
+            <Version>bb9MirOfWbbwxvYdfD</Version>
+        </Software>
+    </HuellaTBAI>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#_1712"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>eU1I1fYsbSwN1G3wCQ0nz/BAkpk=</DigestValue></Reference><Reference URI="#_1713"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>AOEtsLIItxVDNA/e9dllqsJvuIw=</DigestValue></Reference><Reference URI="#_1714"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>lGhZT1AJJQTx8vaZFjrY32JNuIA=</DigestValue></Reference><Reference URI="#_1715"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>Eb82IRxMqpx48vQ77hH2g/ijSaA=</DigestValue></Reference></SignedInfo><SignatureValue>eoVIltpvqdVV4fs1V8QHSxe6ArF4/hW3r2HMi6piq4O7pEeqnUX1dQPGAd3vsZsidWrAdZi3dbUMoEbIhULpzVJGaxpcZR9HC0s61foy/f2fvxs1LmuDAPbAtXHdutZkHTvQYq6yhQED2jJrK1dkHBF/+APGTNRHd1POdINoJALbmrvwJrnwr6944f2QTImqzDA335FFWbU+zHI5WSx2NDGJrBOq3qqOTVft4lXB3R3WGghSjMlfecBXMcF1iZtEYHXHVdHCC3fOYUjxz7dyHKZzaY1oPh0meCjPWaBV/1xhs/lE+wP7ZmuBb/EaBi0NcPcIlWucI52fIql1tvjYyA==</SignatureValue></Signature></T:TicketBai>

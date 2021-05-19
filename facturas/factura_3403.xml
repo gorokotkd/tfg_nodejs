@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<T:TicketBai xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:T="urn:ticketbai:emision" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.w3.org/2001/XMLSchema ticketBai_schema.xsd">
+    <Cabecera Id="_13608">
+        <IDVersionTBAI>1.2</IDVersionTBAI>
+    </Cabecera>
+    <Sujetos Id="_13609">
+        <Emisor>
+            <NIF>09375737V</NIF>
+            <ApellidosNombreRazonSocial>etisalat</ApellidosNombreRazonSocial>
+        </Emisor>
+        <Destinatarios>
+            <IDDestinatario>
+                <NIF>77707201E</NIF>
+                <ApellidosNombreRazonSocial>Y12IiZoDPAzTuykiuEeOVRKjjXmkqPrWRdJODzp3DEYsqvOU5dK2SKMCAZvV9yvFt4MIAmGceBiKUeLQqXZO3r0pqlSQKAx7zAkZUPh</ApellidosNombreRazonSocial>
+                <CodigoPostal>by7mo4Uzz</CodigoPostal>
+                <Direccion>BvgIe3nFCUCEbPL1jpWoqoe34OzcGBIEBson0EAZ4YInD72bnuKaDirezF4H2N8FIX0vGx0zfNopPUqcxi0qI2cNfoKHx3RnoQPnNYurPE7TPLdtLbjOAWNRWEyKzC4QW8I1b2DuY25sveJBY6kJrVAc6mFeFi1JsTKtra5pXqt2hH9BevHunj1uDeVD3s5aggfx5wWVykEveDBBcrbbTb2FIOuihpBIxd</Direccion>
+            </IDDestinatario>
+        </Destinatarios>
+        <VariosDestinatarios>S</VariosDestinatarios>
+        <EmitidaPorTercerosODestinatario>D</EmitidaPorTercerosODestinatario>
+    </Sujetos>
+    <Factura Id="_13610">
+        <CabeceraFactura>
+            <NumFactura>96681</NumFactura>
+            <FechaExpedicionFactura>19-05-2021</FechaExpedicionFactura>
+            <HoraExpedicionFactura>16:22:47</HoraExpedicionFactura>
+            <SerieFactura>9</SerieFactura>
+            <FacturaEmitidaSustitucionSimplificada>S</FacturaEmitidaSustitucionSimplificada>
+        </CabeceraFactura>
+        <DatosFactura>
+            <DescripcionFactura>PngsVD7wm4544LcZM5hdkwIjttoARWmftxgHEkfInXw3W1KEL3WkJ6MbnOuEJ2FVd12XYw4n5zDsP7xKz5tIn0OB09qNZSB5cnbvsZAnOHOMI5Gqex8NSojMWca5aeNzBNxnCsdCOOlpbbgqYOrvj6Z4BGJH2mGMUvmgIkXjJjED40ZiQSr5ncw</DescripcionFactura>
+            <DetallesFactura>
+                <IDDetalleFactura>
+                    <DescripcionDetalle>WCoSDPnJ</DescripcionDetalle>
+                    <Cantidad>1</Cantidad>
+                    <ImporteUnitario>5.05</ImporteUnitario>
+                    <ImporteTotal>6.11</ImporteTotal>
+                </IDDetalleFactura>
+            </DetallesFactura>
+            <ImporteTotalFactura>6.11</ImporteTotalFactura>
+            <FechaOperacion>04-12-2014</FechaOperacion>
+            <RetencionSoportada>4739.22</RetencionSoportada>
+            <BaseImponibleACoste>77566.47</BaseImponibleACoste>
+            <Claves>
+                <IDClave>
+                    <ClaveRegimenIvaOpTrascendencia>15</ClaveRegimenIvaOpTrascendencia>
+                </IDClave>
+            </Claves>
+        </DatosFactura>
+        <TipoDesglose>
+            <DesgloseTipoOperacion>
+                <Entrega>
+                    <Sujeta>
+                        <Exenta>
+                            <DetalleExenta>
+                                <CausaExencion>E6</CausaExencion>
+                                <BaseImponible>6.11</BaseImponible>
+                            </DetalleExenta>
+                        </Exenta>
+                    </Sujeta>
+                </Entrega>
+            </DesgloseTipoOperacion>
+        </TipoDesglose>
+    </Factura>
+    <HuellaTBAI Id="_13611">
+        <Software>
+            <LicenciaTBAI>5</LicenciaTBAI>
+            <EntidadDesarrolladora>
+                <NIF>07942475T</NIF>
+            </EntidadDesarrolladora>
+            <Nombre>K4TE5GhLHvxf50dAOI4zI95w3BfNEZ5BLC1</Nombre>
+            <Version>0MSPGB70W7q1Bm</Version>
+        </Software>
+    </HuellaTBAI>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#_13608"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>zq+quW0fgv6AGjQHgvfbWgDB6Io=</DigestValue></Reference><Reference URI="#_13609"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>qc+/THqpvzdFtbhoNyEFH6z8gBs=</DigestValue></Reference><Reference URI="#_13610"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>O76JLnM1YZxpA3P/Xu7lpUgBR3w=</DigestValue></Reference><Reference URI="#_13611"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>VBBgeU6/sM9XL9Y8xT+x4h3UvNw=</DigestValue></Reference></SignedInfo><SignatureValue>QRsfCIX/gHlzX3wW8gSh9+QkRppWDsHDqQ/qW4bBaMA9jlke7QP4XC8jChpxAuXmIhJJAm3Pt4U4LS0aWIRo+gfdo825X2J7ZapfnmfGProc2Rvo1yV6c22Q07EqAOuQtcmyzDATvTMwZFz5JBpFez8cXrx+7uUMLPzJby8+RBYmTwNBDqjq6IbeFYqmojw2aRYlE9DkMXCImFOyEO5yWJkSb+aVoQeOVmv0RYk29oSUW2DVFybeVS0pxzEs7C9O10XukJ6wB9q+UHUFrS4RYFOTc6BEFZRW0ziSF2DE81dvw8SE3LjKwRa0R4TpDdUCWeIR3A8Awyp6RAQDXrAVmg==</SignatureValue></Signature></T:TicketBai>

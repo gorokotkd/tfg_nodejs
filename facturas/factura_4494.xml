@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<T:TicketBai xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:T="urn:ticketbai:emision" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.w3.org/2001/XMLSchema ticketBai_schema.xsd">
+    <Cabecera Id="_17972">
+        <IDVersionTBAI>1.2</IDVersionTBAI>
+    </Cabecera>
+    <Sujetos Id="_17973">
+        <Emisor>
+            <NIF>73355745M</NIF>
+            <ApellidosNombreRazonSocial>palo alto networks</ApellidosNombreRazonSocial>
+        </Emisor>
+        <Destinatarios>
+            <IDDestinatario>
+                <NIF>63046344D</NIF>
+                <ApellidosNombreRazonSocial>7K7mAPwx0AyFKseG0GLglUxEwvN2fzlfGz5qPOVjIDqnNiUmYNlk4H4fmjKzBdo7xyV92y1qRq05doDA3iperFmykG9e88LesHIqG0HJ</ApellidosNombreRazonSocial>
+                <CodigoPostal>zBiUbtASOtTDcW08XLP</CodigoPostal>
+                <Direccion>PoIzzlHWRGRWDNPqeUWXDta6b0iMohJWsUxSZUgVXYib4nybrL6kUI4HafXJ7XHRzZbGY4x8aH7q7oAjZ9drGUDNAFatR7yoMpX1zjSv9vFzSCkBd4Q3nt34xdJgLbdyXX0G5gj6Qkov8xnHEBK0KYEP3ns017mnd8yWoiAcjfjSGrirVtqVNUCBl9ZE4hBG0mZwmjYZLQJLrZtJYbymv8fMbvvTfV</Direccion>
+            </IDDestinatario>
+        </Destinatarios>
+        <VariosDestinatarios>S</VariosDestinatarios>
+        <EmitidaPorTercerosODestinatario>N</EmitidaPorTercerosODestinatario>
+    </Sujetos>
+    <Factura Id="_17974">
+        <CabeceraFactura>
+            <NumFactura>6842</NumFactura>
+            <FechaExpedicionFactura>19-05-2021</FechaExpedicionFactura>
+            <HoraExpedicionFactura>16:26:09</HoraExpedicionFactura>
+            <SerieFactura>Ddg</SerieFactura>
+            <FacturaEmitidaSustitucionSimplificada>S</FacturaEmitidaSustitucionSimplificada>
+        </CabeceraFactura>
+        <DatosFactura>
+            <DescripcionFactura>sBR0JTG0j3CX5miYaBNtAYbfLTXHDN9SOj4IDoJ063DQFzfKqarM51PK81HkNUgMWmQacV8s9p3mzz4gmKHrXphuIXqSLFMGlV0GB7ZlW24z8iVafoajr3OP0ffLX8dAwPgSXjTjfjSm85nOKWUYvVjZLcd8FY3Un8TYvBXB</DescripcionFactura>
+            <DetallesFactura>
+                <IDDetalleFactura>
+                    <DescripcionDetalle>OD1YWfAFKrLYZUxcpN5DthrmZv4VfwUBBodTkiDkN61MGdMODvWO1D1EMCxKeyAILNebiRi93zNBV47677S72hpzkHyWW464EXZc3a3LZJZBw0rV3UkRhpQZYo7ZITkVC1tltCkcMjxFyNdYXwoonGkOEbLR4Ggwl</DescripcionDetalle>
+                    <Cantidad>1</Cantidad>
+                    <ImporteUnitario>54.72</ImporteUnitario>
+                    <ImporteTotal>66.21</ImporteTotal>
+                </IDDetalleFactura>
+            </DetallesFactura>
+            <ImporteTotalFactura>66.21</ImporteTotalFactura>
+            <FechaOperacion>20-03-2019</FechaOperacion>
+            <RetencionSoportada>95192.91</RetencionSoportada>
+            <BaseImponibleACoste>94804.61</BaseImponibleACoste>
+            <Claves>
+                <IDClave>
+                    <ClaveRegimenIvaOpTrascendencia>07</ClaveRegimenIvaOpTrascendencia>
+                </IDClave>
+            </Claves>
+        </DatosFactura>
+        <TipoDesglose>
+            <DesgloseTipoOperacion>
+                <PrestacionServicios>
+                    <Sujeta>
+                        <NoExenta>
+                            <DetalleNoExenta>
+                                <TipoNoExenta>S1</TipoNoExenta>
+                                <DesgloseIVA>
+                                    <DetalleIVA>
+                                        <BaseImponible>54.72</BaseImponible>
+                                        <TipoImpositivo>21</TipoImpositivo>
+                                        <CuotaImpuesto>11.49</CuotaImpuesto>
+                                        <TipoRecargoEquivalencia>29.75</TipoRecargoEquivalencia>
+                                        <OperacionEnRecargoDeEquivalenciaORegimenSimplificado>N</OperacionEnRecargoDeEquivalenciaORegimenSimplificado>
+                                    </DetalleIVA>
+                                </DesgloseIVA>
+                            </DetalleNoExenta>
+                        </NoExenta>
+                    </Sujeta>
+                </PrestacionServicios>
+            </DesgloseTipoOperacion>
+        </TipoDesglose>
+    </Factura>
+    <HuellaTBAI Id="_17975">
+        <Software>
+            <LicenciaTBAI>p3UPHsX6U5C</LicenciaTBAI>
+            <EntidadDesarrolladora>
+                <NIF>62489368R</NIF>
+            </EntidadDesarrolladora>
+            <Nombre>tBBPNWax2D1GuEKs30qUJHKuFhb</Nombre>
+            <Version>tyGTOAu8heuK9NPZSYt</Version>
+        </Software>
+    </HuellaTBAI>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#_17972"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>mfUW+pG9MFzoaud0Hu5Ekeyg9hA=</DigestValue></Reference><Reference URI="#_17973"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>Y4jHNgbg4VpzwD3CGcZXfIaU4b0=</DigestValue></Reference><Reference URI="#_17974"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>dDFVfXDy1mAdtqu3lXrwt4L+E3k=</DigestValue></Reference><Reference URI="#_17975"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>xGBtBxQ0gEqpJkzmI33fmuTDQus=</DigestValue></Reference></SignedInfo><SignatureValue>fezJh6C/IfCkTdhs4rKxPte3kgS1w2ODZ1LQo7tNnt4a/JzQNHOzd12hPC1SyYa/cqeIDwriFJ18gaLmD9M/O88f0kf8+7w5Kq+JJR2scNKvNMziGc7ealQ2/jWFDi0rmTaBMgKZ0xD0Mc5uAlvZuNh87y62dTlyS30n6TXTLyTi1VlRJtGJaivRY9n4pSCegzxWNjPUkROEEDEH6hX8vwt0HzOGcCfURBa3rLpY5Pg/qPUwHxoN1F+T6N1CLcymzuPFrrStrzXdKR3Zaetn0984Ez7Vtx7Fop4wilCMLZcqAMkLtR63MAnAR5pl/etNRndYEaYdyLZqOWm82+o4qQ==</SignatureValue></Signature></T:TicketBai>

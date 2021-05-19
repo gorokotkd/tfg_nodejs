@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<T:TicketBai xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:T="urn:ticketbai:emision" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.w3.org/2001/XMLSchema ticketBai_schema.xsd">
+    <Cabecera Id="_6668">
+        <IDVersionTBAI>1.2</IDVersionTBAI>
+    </Cabecera>
+    <Sujetos Id="_6669">
+        <Emisor>
+            <NIF>91019926W</NIF>
+            <ApellidosNombreRazonSocial>marine nationale</ApellidosNombreRazonSocial>
+        </Emisor>
+        <Destinatarios>
+            <IDDestinatario>
+                <NIF>01695486H</NIF>
+                <ApellidosNombreRazonSocial>QZ96DCRQvklZrvEWW65aOpNxC7ire</ApellidosNombreRazonSocial>
+                <CodigoPostal>sQnNYJrAAmQtIt1ldU</CodigoPostal>
+                <Direccion>EennLsGCfT44wRm7rNpe887KIn7Xg9Ii3jbqD6ckqA7PkLRU4WhsBudeZTwCKOw54jqjuiTm9N6</Direccion>
+            </IDDestinatario>
+        </Destinatarios>
+        <VariosDestinatarios>S</VariosDestinatarios>
+        <EmitidaPorTercerosODestinatario>D</EmitidaPorTercerosODestinatario>
+    </Sujetos>
+    <Factura Id="_6670">
+        <CabeceraFactura>
+            <NumFactura>48841</NumFactura>
+            <FechaExpedicionFactura>19-05-2021</FechaExpedicionFactura>
+            <HoraExpedicionFactura>16:17:19</HoraExpedicionFactura>
+            <SerieFactura>z4Vy</SerieFactura>
+            <FacturaEmitidaSustitucionSimplificada>N</FacturaEmitidaSustitucionSimplificada>
+        </CabeceraFactura>
+        <DatosFactura>
+            <DescripcionFactura>0LSNXNyDgi1AxUTsgPcE0XZEQi7mTjazAN1a1mDOrJ3R4iIbw6zadZbBDWwlLY4di9mU2F2WnErpSTcRPwfTTHxVKFBNfj4yuwCZn</DescripcionFactura>
+            <DetallesFactura>
+                <IDDetalleFactura>
+                    <DescripcionDetalle>BP0wbiqe</DescripcionDetalle>
+                    <Cantidad>2</Cantidad>
+                    <ImporteUnitario>50.61</ImporteUnitario>
+                    <ImporteTotal>122.48</ImporteTotal>
+                </IDDetalleFactura>
+            </DetallesFactura>
+            <ImporteTotalFactura>122.48</ImporteTotalFactura>
+            <FechaOperacion>26-11-2014</FechaOperacion>
+            <RetencionSoportada>14217.92</RetencionSoportada>
+            <BaseImponibleACoste>46548.46</BaseImponibleACoste>
+            <Claves>
+                <IDClave>
+                    <ClaveRegimenIvaOpTrascendencia>12</ClaveRegimenIvaOpTrascendencia>
+                </IDClave>
+            </Claves>
+        </DatosFactura>
+        <TipoDesglose>
+            <DesgloseTipoOperacion>
+                <PrestacionServicios>
+                    <Sujeta>
+                        <NoExenta>
+                            <DetalleNoExenta>
+                                <TipoNoExenta>S1</TipoNoExenta>
+                                <DesgloseIVA>
+                                    <DetalleIVA>
+                                        <BaseImponible>101.22</BaseImponible>
+                                        <TipoImpositivo>21</TipoImpositivo>
+                                        <CuotaImpuesto>21.26</CuotaImpuesto>
+                                        <TipoRecargoEquivalencia>47.65</TipoRecargoEquivalencia>
+                                        <CuotaRecargoEquivalencia>40211.12</CuotaRecargoEquivalencia>
+                                        <OperacionEnRecargoDeEquivalenciaORegimenSimplificado>S</OperacionEnRecargoDeEquivalenciaORegimenSimplificado>
+                                    </DetalleIVA>
+                                </DesgloseIVA>
+                            </DetalleNoExenta>
+                        </NoExenta>
+                    </Sujeta>
+                </PrestacionServicios>
+            </DesgloseTipoOperacion>
+        </TipoDesglose>
+    </Factura>
+    <HuellaTBAI Id="_6671">
+        <Software>
+            <LicenciaTBAI>2FWwWpGG</LicenciaTBAI>
+            <EntidadDesarrolladora>
+                <NIF>78669449L</NIF>
+            </EntidadDesarrolladora>
+            <Nombre>DCpOxlDawpOFJBGXLf</Nombre>
+            <Version>XdGn</Version>
+        </Software>
+    </HuellaTBAI>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#_6668"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>XA4rPIp3E7sVkzhKr4FG7FIiYRc=</DigestValue></Reference><Reference URI="#_6669"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>egEIqHD+k2G9BjmOO0muCSqyPws=</DigestValue></Reference><Reference URI="#_6670"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>c/iUu1jphfi3mpSNlpE+kFgMAb8=</DigestValue></Reference><Reference URI="#_6671"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>tuLziG9bc7DA0mBCcaISYfyfOVA=</DigestValue></Reference></SignedInfo><SignatureValue>gRpkXMsPKRyg1jAfkHArPU/Y+y8A6/c+AqMPbmxJybB5yO9meloSHITjHjq0z1BzM+EfNyUGJQ4MgBKwxBBFg09j883RXdSLkNstBiLAPuEalHrjnqzh0D5MSU7w4cGQpotFC++7xzRt9zWVzuK2YGAJTDPhgNOvjbI4G+AnjwUq+3AJcWuRZy9OyogWAn0JnLsFdLuCxnE8M17L11/1jgU7SYz12HuELNI0Uf/fo+ucKZ55Gq2cjKalhd0FXxQEb9Czh7D3WqayDkPz4nJtbcQraejXraRuhsMVZgp/FFvR8mrrw6L8a0342CvWJUjJDKw0GYHMUnaD5UyrzpKsOQ==</SignatureValue></Signature></T:TicketBai>

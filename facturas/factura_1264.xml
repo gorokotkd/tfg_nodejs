@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<T:TicketBai xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:T="urn:ticketbai:emision" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.w3.org/2001/XMLSchema ticketBai_schema.xsd">
+    <Cabecera Id="_5052">
+        <IDVersionTBAI>1.2</IDVersionTBAI>
+    </Cabecera>
+    <Sujetos Id="_5053">
+        <Emisor>
+            <NIF>89175500S</NIF>
+            <ApellidosNombreRazonSocial>the cheesecake factory</ApellidosNombreRazonSocial>
+        </Emisor>
+        <Destinatarios>
+            <IDDestinatario>
+                <NIF>79569875H</NIF>
+                <ApellidosNombreRazonSocial>zfjY09XUYYRvgovUFKtZR1SY73y3t2Dg4q4LyDzw</ApellidosNombreRazonSocial>
+                <CodigoPostal>9F</CodigoPostal>
+                <Direccion>8RKVID7uptBTU86ILq7VbaXLDgJ6IrvaHlAf1hVAXowdLi</Direccion>
+            </IDDestinatario>
+        </Destinatarios>
+        <VariosDestinatarios>S</VariosDestinatarios>
+        <EmitidaPorTercerosODestinatario>T</EmitidaPorTercerosODestinatario>
+    </Sujetos>
+    <Factura Id="_5054">
+        <CabeceraFactura>
+            <NumFactura>32621</NumFactura>
+            <FechaExpedicionFactura>19-05-2021</FechaExpedicionFactura>
+            <HoraExpedicionFactura>16:16:03</HoraExpedicionFactura>
+            <SerieFactura>pm0edgZDlL7V</SerieFactura>
+            <FacturaEmitidaSustitucionSimplificada>S</FacturaEmitidaSustitucionSimplificada>
+        </CabeceraFactura>
+        <DatosFactura>
+            <DescripcionFactura>up8EyhlteKK</DescripcionFactura>
+            <DetallesFactura>
+                <IDDetalleFactura>
+                    <DescripcionDetalle>7cFaS</DescripcionDetalle>
+                    <Cantidad>2</Cantidad>
+                    <ImporteUnitario>25.68</ImporteUnitario>
+                    <ImporteTotal>41.02</ImporteTotal>
+                    <Descuento>17.46</Descuento>
+                </IDDetalleFactura>
+                <IDDetalleFactura>
+                    <DescripcionDetalle>feCZrhUcOiBOdQUlnE5PFwxYW3wSwQrXnbbvsZExKDRr9HZ</DescripcionDetalle>
+                    <Cantidad>2</Cantidad>
+                    <ImporteUnitario>18.84</ImporteUnitario>
+                    <ImporteTotal>15.04</ImporteTotal>
+                    <Descuento>25.25</Descuento>
+                </IDDetalleFactura>
+            </DetallesFactura>
+            <ImporteTotalFactura>56.06</ImporteTotalFactura>
+            <FechaOperacion>28-05-2015</FechaOperacion>
+            <RetencionSoportada>93576.37</RetencionSoportada>
+            <BaseImponibleACoste>88585.98</BaseImponibleACoste>
+            <Claves>
+                <IDClave>
+                    <ClaveRegimenIvaOpTrascendencia>10</ClaveRegimenIvaOpTrascendencia>
+                </IDClave>
+            </Claves>
+        </DatosFactura>
+        <TipoDesglose>
+            <DesgloseFactura>
+                <Sujeta>
+                    <NoExenta>
+                        <DetalleNoExenta>
+                            <TipoNoExenta>S1</TipoNoExenta>
+                            <DesgloseIVA>
+                                <DetalleIVA>
+                                    <BaseImponible>16.44</BaseImponible>
+                                    <TipoImpositivo>21</TipoImpositivo>
+                                    <CuotaImpuesto>3.45</CuotaImpuesto>
+                                    <TipoRecargoEquivalencia>33.34</TipoRecargoEquivalencia>
+                                    <CuotaRecargoEquivalencia>44106.03</CuotaRecargoEquivalencia>
+                                    <OperacionEnRecargoDeEquivalenciaORegimenSimplificado>S</OperacionEnRecargoDeEquivalenciaORegimenSimplificado>
+                                </DetalleIVA>
+                            </DesgloseIVA>
+                        </DetalleNoExenta>
+                    </NoExenta>
+                </Sujeta>
+                <NoSujeta>
+                    <DetalleNoSujeta>
+                        <Causa>RL</Causa>
+                        <Importe>951.42</Importe>
+                    </DetalleNoSujeta>
+                </NoSujeta>
+            </DesgloseFactura>
+        </TipoDesglose>
+    </Factura>
+    <HuellaTBAI Id="_5055">
+        <Software>
+            <LicenciaTBAI>ag8aa6c</LicenciaTBAI>
+            <EntidadDesarrolladora>
+                <NIF>11016970Q</NIF>
+            </EntidadDesarrolladora>
+            <Nombre>ked3Zwka</Nombre>
+            <Version>QwIUIrhp</Version>
+        </Software>
+    </HuellaTBAI>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#_5052"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>aHr+P703ew1a9iMBe3P1bgJxCj4=</DigestValue></Reference><Reference URI="#_5053"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>/3Do2oGtws+dUBikI3Om23SI4h8=</DigestValue></Reference><Reference URI="#_5054"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>R4mPUwbjCvO6mGzwj73LrP/rvT0=</DigestValue></Reference><Reference URI="#_5055"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>i1WxD/5yCIAwaB2UcPL7e+DhMFw=</DigestValue></Reference></SignedInfo><SignatureValue>xzrBeW9bjcv9VOSrrjHoyKKjXctEycU7oAdufenzRIC0PTGS7Hu+IHU0Xo4BWKH6wEAGciq5kItcs/Ehl05SYXP9xccJzXgSXnoZgKjTGOCv9l7K08X9O9o1AMnpJLsy6AkofkvGwdcpYh0PkdTjj9eGGCWYEXbCruUgMxcVY8ntgUkIxYftGc+HXHd8YFQhLqd2F3LrbZMJ2NzTu31y87Vu27Qd4z9yXdSAyn/bx1RMiKQLyXItukRDCPnc8BShePMkYf3LOCwi10tHgCCBzZhgjfm6Mkvlo5907TJvXH+Kdbjt84PnWDB9mAa86IL6xx1ZyEN5BmbOogsNmDbdNQ==</SignatureValue></Signature></T:TicketBai>

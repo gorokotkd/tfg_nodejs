@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<T:TicketBai xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:T="urn:ticketbai:emision" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.w3.org/2001/XMLSchema ticketBai_schema.xsd">
+    <Cabecera Id="_4244">
+        <IDVersionTBAI>1.2</IDVersionTBAI>
+    </Cabecera>
+    <Sujetos Id="_4245">
+        <Emisor>
+            <NIF>20455186K</NIF>
+            <ApellidosNombreRazonSocial>university of ottawa</ApellidosNombreRazonSocial>
+        </Emisor>
+        <Destinatarios>
+            <IDDestinatario>
+                <NIF>90449977Q</NIF>
+                <ApellidosNombreRazonSocial>RX2E2xi3W3DXvd1mAdvsulojtshrOW1t0</ApellidosNombreRazonSocial>
+                <CodigoPostal>i203QnZbxj</CodigoPostal>
+                <Direccion>sxpNTpwyEME0T84r9iMbCiyK4q7N2KC1oiAdUQIln32FFVClEchIoCdcDejGwwOcs17XCoJ9yg3LPBXmSEMYCHfG0pXrk3Pf5vckTMLUDbzLfIhhssZ7Xw</Direccion>
+            </IDDestinatario>
+        </Destinatarios>
+        <VariosDestinatarios>S</VariosDestinatarios>
+        <EmitidaPorTercerosODestinatario>D</EmitidaPorTercerosODestinatario>
+    </Sujetos>
+    <Factura Id="_4246">
+        <CabeceraFactura>
+            <NumFactura>32156</NumFactura>
+            <FechaExpedicionFactura>19-05-2021</FechaExpedicionFactura>
+            <HoraExpedicionFactura>16:15:23</HoraExpedicionFactura>
+            <SerieFactura>AwqWAIQytMHj4MBA97wM</SerieFactura>
+            <FacturaEmitidaSustitucionSimplificada>S</FacturaEmitidaSustitucionSimplificada>
+        </CabeceraFactura>
+        <DatosFactura>
+            <DescripcionFactura>MfS2cqV2tQHe3</DescripcionFactura>
+            <DetallesFactura>
+                <IDDetalleFactura>
+                    <DescripcionDetalle>n351zU65QxCeRXsv0LBiiiJncABhGlyx3mPWRMKJe6g6Qw6zzeCMfM87oFq433FWvv9DocFTNNqVXsOcBLXg0qweHvzXUhdoFitgyi5MPPgk6</DescripcionDetalle>
+                    <Cantidad>2</Cantidad>
+                    <ImporteUnitario>13.32</ImporteUnitario>
+                    <ImporteTotal>32.23</ImporteTotal>
+                </IDDetalleFactura>
+                <IDDetalleFactura>
+                    <DescripcionDetalle>RBrzw1o7KUjou8oCwFpZ4ZSIc4GZcN1mW9pL7aM1OsfzoXMLai1VbSgC8hFNGeRw8ylJbNbXAyPSOJgija3Ulsd2UICwO2eyValfgvmqBI2FNTkBNLIAMK0fvutNZqhAjM595M3svmph</DescripcionDetalle>
+                    <Cantidad>2</Cantidad>
+                    <ImporteUnitario>44.06</ImporteUnitario>
+                    <ImporteTotal>106.63</ImporteTotal>
+                </IDDetalleFactura>
+                <IDDetalleFactura>
+                    <DescripcionDetalle>climwAhRiX72IWRhtSX4LWJwvAPQIvAtQCkAoy9v6814gou5yNZJzYra1cYkkbiOhvGtOhbApngcU4YA3yPbPqLsSc2NlhpvFk4NjRZ9nqvBHISBH3fK6TxwlNgDqv74hqXiwIMu8OtbSZQe01kYLtDAW8pQrFREIhKss6XnO6eRXY59VqbllO4JFncQW</DescripcionDetalle>
+                    <Cantidad>2</Cantidad>
+                    <ImporteUnitario>66.34</ImporteUnitario>
+                    <ImporteTotal>160.54</ImporteTotal>
+                </IDDetalleFactura>
+            </DetallesFactura>
+            <ImporteTotalFactura>299.40</ImporteTotalFactura>
+            <FechaOperacion>11-05-2021</FechaOperacion>
+            <RetencionSoportada>636.53</RetencionSoportada>
+            <BaseImponibleACoste>4129.15</BaseImponibleACoste>
+            <Claves>
+                <IDClave>
+                    <ClaveRegimenIvaOpTrascendencia>02</ClaveRegimenIvaOpTrascendencia>
+                </IDClave>
+            </Claves>
+        </DatosFactura>
+        <TipoDesglose>
+            <DesgloseFactura>
+                <Sujeta>
+                    <Exenta>
+                        <DetalleExenta>
+                            <CausaExencion>E2</CausaExencion>
+                            <BaseImponible>160.54</BaseImponible>
+                        </DetalleExenta>
+                    </Exenta>
+                    <NoExenta>
+                        <DetalleNoExenta>
+                            <TipoNoExenta>S1</TipoNoExenta>
+                            <DesgloseIVA>
+                                <DetalleIVA>
+                                    <BaseImponible>247.44</BaseImponible>
+                                    <TipoImpositivo>21</TipoImpositivo>
+                                    <CuotaImpuesto>51.96</CuotaImpuesto>
+                                </DetalleIVA>
+                            </DesgloseIVA>
+                        </DetalleNoExenta>
+                    </NoExenta>
+                </Sujeta>
+            </DesgloseFactura>
+        </TipoDesglose>
+    </Factura>
+    <HuellaTBAI Id="_4247">
+        <Software>
+            <LicenciaTBAI>HNvUJ7ntASU84jHPcD</LicenciaTBAI>
+            <EntidadDesarrolladora>
+                <NIF>66244346E</NIF>
+            </EntidadDesarrolladora>
+            <Nombre>VMEEDdKK6x1COp5y0jc7mLwn7iRAjoa23uYNIPTRNkVgKHSLqyqb2VwaTYWipp69yNMT47MnTgFoeDsFVnunwdXjgjrFxRGr54</Nombre>
+            <Version>VNfy</Version>
+        </Software>
+    </HuellaTBAI>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#_4244"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>wS5+SnHhU77N8F3Lv3l18qVdI2Y=</DigestValue></Reference><Reference URI="#_4245"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>QY143dbSOeSka/mSxL73DCqrQUE=</DigestValue></Reference><Reference URI="#_4246"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>Z0PmzIxMnqk6BzQ9f5kMhA7i4po=</DigestValue></Reference><Reference URI="#_4247"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>+QW8+c+70fZtqsnUXRQQ30iT77I=</DigestValue></Reference></SignedInfo><SignatureValue>SCp3/chWS45SWdj+vCSPdOPTaJLUscosTJO1yY+NvSaQnCeVkj9lQGww6GDZB2293Wh0ktilhMFt8zLumD+IjWdJcjOdGYBWRD4qBmV/RcnxHJnqnB8koyyD2sJK5Tq9BBa8VhZo2QjS4jvvGV6W+FzrGrQSYEU+ydnsSaVEQK6lUWugbp/+AD+pW/lh3PNJPRCWctT0KrZhGsD4JtOADy1CjYRqL1GB4e+Pqh9fdSx4XkymAeOG6xQPI0Biodl/gVi9L+7cIroKulSdd3QJyDbPrsi18U5s75Rt/Sa4fpku8yslQSk76GnP8sMY5nAjrpyLIauinJZEDWIccyeN0Q==</SignatureValue></Signature></T:TicketBai>

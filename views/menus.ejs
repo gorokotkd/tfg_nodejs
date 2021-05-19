@@ -18,6 +18,12 @@
           <% } else { %>
             <li class="nav-item"><a class="nav-link" href="/tctest">Pruebas TC</a></li>
           <% } %>
+
+          <% if(page == "insercion"){ %>
+            <li class="nav-item"><a class="nav-link active" href="#">Pruebas de Inserción</a></li>
+          <% } else { %>
+            <li class="nav-item"><a class="nav-link" href="/insercion">Pruebas de Inserción</a></li>
+          <% } %>
         </ul>
       </div>
     </div>

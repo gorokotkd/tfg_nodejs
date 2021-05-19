@@ -11,6 +11,7 @@ var multipartMiddleware = multipart({uploadDir: './uploads'});
 router.get('/', projectController.index);
 router.get('/tctest', projectController.tctest);
 router.post('/tctest', multipartMiddleware, projectController.fileCompress);
+router.get('/insercion', projectController.insercionFacturas);
 
 /* GET home page. *//*
 router.get('/', function(req, res, next) {

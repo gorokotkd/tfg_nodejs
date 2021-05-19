@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<T:TicketBai xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:T="urn:ticketbai:emision" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.w3.org/2001/XMLSchema ticketBai_schema.xsd">
+    <Cabecera Id="_6896">
+        <IDVersionTBAI>1.2</IDVersionTBAI>
+    </Cabecera>
+    <Sujetos Id="_6897">
+        <Emisor>
+            <NIF>78723372F</NIF>
+            <ApellidosNombreRazonSocial>hsbc global banking and markets</ApellidosNombreRazonSocial>
+        </Emisor>
+        <Destinatarios>
+            <IDDestinatario>
+                <NIF>65758589W</NIF>
+                <ApellidosNombreRazonSocial>hfu</ApellidosNombreRazonSocial>
+                <CodigoPostal>YYzwAo</CodigoPostal>
+                <Direccion>HhXct3UkZGSfKXTuSQ7aVZFObY8hmvM4lr9li6WeXikBCrvToSUoldZ6hsoKj1rhk6zcUbFmodcF9AmVV</Direccion>
+            </IDDestinatario>
+        </Destinatarios>
+        <VariosDestinatarios>S</VariosDestinatarios>
+        <EmitidaPorTercerosODestinatario>T</EmitidaPorTercerosODestinatario>
+    </Sujetos>
+    <Factura Id="_6898">
+        <CabeceraFactura>
+            <NumFactura>62181</NumFactura>
+            <FechaExpedicionFactura>19-05-2021</FechaExpedicionFactura>
+            <HoraExpedicionFactura>16:17:29</HoraExpedicionFactura>
+            <SerieFactura>m7BvJHcfZok</SerieFactura>
+            <FacturaEmitidaSustitucionSimplificada>S</FacturaEmitidaSustitucionSimplificada>
+        </CabeceraFactura>
+        <DatosFactura>
+            <DescripcionFactura>1gLlpnys6ZIuS6Vf4u25AU2yMPPYUinUPlgmgkBjRzv3Hm5dDezCG4sAzF4jn8Gu87QUN7gexNQCpYTKLI1dKgkwkWV9jbVtu2cJbIkFuacsjvXEct6GWvScyYWTR9FxluYSnXCIIQ8wTQ9QsYNYPVf</DescripcionFactura>
+            <DetallesFactura>
+                <IDDetalleFactura>
+                    <DescripcionDetalle>msIz2BSingA6ySxKH3UrcxsbW9ohNnKU0Ovd896EGJ9sJ0wV8MscCJEcAxUaKk93t30qE1CH9ECI4xVKnl1oe1LHqCy8C4zaendfIyo14uAOkhCo5IXAWbBBhRHe1Fpr0rJeUeCFkZt9jdw9UML17L83VrL1cBtdnCfMdIOOks3ImrkohwYUvuuSlDLEHSThagdqxIxe9ZbmcWMDoirFRpA8PsP6mI7</DescripcionDetalle>
+                    <Cantidad>2</Cantidad>
+                    <ImporteUnitario>58.57</ImporteUnitario>
+                    <ImporteTotal>141.74</ImporteTotal>
+                </IDDetalleFactura>
+                <IDDetalleFactura>
+                    <DescripcionDetalle>7KvRQlbWfTSY0Hwtxgp9BTPFT2XINWNgnhKfSzM9iXzvVMGMariRxeE4DJumqF2Oa</DescripcionDetalle>
+                    <Cantidad>2</Cantidad>
+                    <ImporteUnitario>43.24</ImporteUnitario>
+                    <ImporteTotal>104.64</ImporteTotal>
+                </IDDetalleFactura>
+            </DetallesFactura>
+            <ImporteTotalFactura>246.38</ImporteTotalFactura>
+            <FechaOperacion>09-03-2015</FechaOperacion>
+            <RetencionSoportada>55740.11</RetencionSoportada>
+            <BaseImponibleACoste>94651.01</BaseImponibleACoste>
+            <Claves>
+                <IDClave>
+                    <ClaveRegimenIvaOpTrascendencia>01</ClaveRegimenIvaOpTrascendencia>
+                </IDClave>
+            </Claves>
+        </DatosFactura>
+        <TipoDesglose>
+            <DesgloseFactura>
+                <Sujeta>
+                    <Exenta>
+                        <DetalleExenta>
+                            <CausaExencion>E4</CausaExencion>
+                            <BaseImponible>141.74</BaseImponible>
+                        </DetalleExenta>
+                    </Exenta>
+                    <NoExenta>
+                        <DetalleNoExenta>
+                            <TipoNoExenta>S1</TipoNoExenta>
+                            <DesgloseIVA>
+                                <DetalleIVA>
+                                    <BaseImponible>203.62</BaseImponible>
+                                    <TipoImpositivo>21</TipoImpositivo>
+                                    <CuotaImpuesto>42.76</CuotaImpuesto>
+                                    <TipoRecargoEquivalencia>98.63</TipoRecargoEquivalencia>
+                                    <OperacionEnRecargoDeEquivalenciaORegimenSimplificado>N</OperacionEnRecargoDeEquivalenciaORegimenSimplificado>
+                                </DetalleIVA>
+                            </DesgloseIVA>
+                        </DetalleNoExenta>
+                    </NoExenta>
+                </Sujeta>
+            </DesgloseFactura>
+        </TipoDesglose>
+    </Factura>
+    <HuellaTBAI Id="_6899">
+        <Software>
+            <LicenciaTBAI>3l4ViJBVQXi1v7Tkmi</LicenciaTBAI>
+            <EntidadDesarrolladora>
+                <NIF>70248070K</NIF>
+            </EntidadDesarrolladora>
+            <Nombre>HnhGxCX3P</Nombre>
+            <Version>QCb2fEArp5</Version>
+        </Software>
+    </HuellaTBAI>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#_6896"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>zOYVWhDB/3+VzTq1BkAwJZA7VKg=</DigestValue></Reference><Reference URI="#_6897"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>XkaDSFr0ukY9DERSVtKmBsjnvkM=</DigestValue></Reference><Reference URI="#_6898"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>OPzSsTCUeLyfnqkvVFZS08x72X4=</DigestValue></Reference><Reference URI="#_6899"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>bTWJsw6cYnWp5RW52w+iIObHdIs=</DigestValue></Reference></SignedInfo><SignatureValue>lb3zTipSy8PC4bXl1KE7JGXeIewmD6i97wXqhE7JnJ3O4DUqAa9iUc8AYHuzzMX/dHaKrIC3RQ0Wn5BC7dKrloxBxSDMeyC6BDpi2fjQTO1BILdkMBWzpWTGTKSpivdzXSf9Kvbhf32mKyC7jRI6zRCG3pbG8ledC5W991G2echqzvcBTf38bJbU3D5brv/rGWx8nX18xz+h4ejcEVL/bMxgBnGi8sYCWBnciBDnm1xr0lpK2+3c5dnr/j5i+oCLt5DCopkdGF3tIWnzTzYnW6NRfvFAfE89s8oJk3Bp/P7tfyUvnOmUeahLdXNhj2iEKJm5gx3XNPORqDiJmeYxCg==</SignatureValue></Signature></T:TicketBai>

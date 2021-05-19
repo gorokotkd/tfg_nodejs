@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <%- include('head') %>
+  </head>
+  <body>
+
+    <%- include('menus') %>
+
+    <main class="container">
+
+      <div class="starter-template text-center py-5 px-3">
+        <h1><%= title %></h1>
+        <p class="lead">Welcome to <%= title %></p>
+        <p><%= page %></p>
+      </div>
+      <div>
+        <h2>Tiempo de Compresión</h2>
+        <canvas id="compress_time_chart" width="400px" height="300px"></canvas>
+    </div>
+    <div>
+      <h2>Ratio de Compresión</h2>
+      <canvas id="compress_ratio_chart" width="400px" height="300px"></canvas>
+    </div>
+    <div>
+      <h2>Tiempo de Inserción</h2>
+      <canvas id="insert_chart" width="400px" height="300px"></canvas>
+    </div>
+    <%- script_time %>
+    <%- script_ratio %>
+    <%- script_insert %>
+    </main>
+    
+  </body>
+</html>
