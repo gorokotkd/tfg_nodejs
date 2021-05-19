@@ -7,6 +7,7 @@ const fs = require('fs');
 const output = require('d3node-output');
 const d3 = require('d3-node')().d3;
 const d3nBar = require('d3node-barchart');
+const chart = require('chartjs');
 
 /*
 let createBarchart = new Promise((resolve, reject) => {
