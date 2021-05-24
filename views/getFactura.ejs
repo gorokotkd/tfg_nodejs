@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <%- include('head') %>
+  </head>
+  <body>
+    <%- include('menus') %>
+    <main class="container">
+
+      <div class="starter-template text-center py-5 px-3">
+        <h1><%= title %></h1>
+
+        <form method="get" action="gr">
+            <label for="file">Intruce el Identificador de la Factura</label>
+            <input type="text" style="text-align:center;" placeholder="TBAI-12345678A-210121-abcdefghijklm-123" class="form-control" name="id" id="id" required>
+            <div class="row"><br></div>
+            <button class="btn btn-primary" type="submit">Enviar!</button>
+        </form>
+
+      </div>
+      
+      <div>
+    </div>
+    </main>
+    
+  </body>
+</html>

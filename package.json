@@ -19,11 +19,13 @@
     "ejs": "~2.6.1",
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
+    "lzbase62": "^2.0.0",
     "lzma-native": "^8.0.1",
     "moment": "^2.29.1",
     "mongoose": "^5.12.10",
     "morgan": "~1.9.1",
     "node-gzip": "^1.1.2",
+    "qrcode": "^1.4.4",
     "sleep": "^6.3.0",
     "xmldom": "^0.6.0",
     "xpath": "0.0.32"

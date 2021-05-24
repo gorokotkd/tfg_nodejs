@@ -9,18 +9,18 @@ var multipartMiddleware = multipart({uploadDir: './uploads'});
 
 
 router.get('/', projectController.index);
+
+/**PRUEBAS TECNICAS DE COMPRESION */
 router.get('/tctest', projectController.tctest);
-router.post('/tctest', multipartMiddleware, projectController.fileCompress);
-router.get('/insercion', projectController.insercionFacturas);
 
-/* GET home page. *//*
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express', page:'index' });
-});
+/**INSERCION DE FACTURAS */
+router.get('/insercion', projectController.insertFactura);
+router.post('/insercion', multipartMiddleware, projectController.insercionFacturas);
 
-router.get('/tctest', function(req, res, next) {
-  res.render('index', { title: 'Express', page:'tctest' });
-});*/
+/**OBTENCION DE FACTURAS */
+router.get('/getfactura', projectController.getFactura);
+router.get('/gr', projectController.gr);
+
 
 
 

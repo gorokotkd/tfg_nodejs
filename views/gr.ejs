@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%- include('head') %>
+</head>
+
+<body>
+    <%- include('menus') %>
+        <main class="container">
+
+            <div class="starter-template text-center py-5 px-3">
+                <h1>
+                    <%= title %>
+                </h1>
+
+                <div class="alert alert-danger" role="alert" style="display: none;" id="tbai_error">
+                    El Identificador introducido no tiene el formato correcto "TBAI-12345678A-210121-abcdefghijklm-123"
+                </div>
+                <div id="data" style="display: block;">
+                    
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th scope="row">Identificador</th>
+                                <td><%= tbai_id %></td>
+                            </tr>
+                            <tr class="table-secondary">
+                                <th scope="row">Nif del Emisor</th>
+                                <td><%= nif_emisor %></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Serie Factura</th>
+                                <td><%= serie_factura %></td>
+                            </tr>
+                            <tr class="table-secondary">
+                                <th scope="row">Número de Factura</th>
+                                <td><%= num_factura %></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Importe Factura</th>
+                                <td><%= importe_factura %></td>
+                            </tr>
+                            <tr class="table-secondary">
+                                <th scope="row">Fecha de Emisión</th>
+                                <td><%= fecha_exp %></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div id="charts">
+                        <h3>Tiempo de recuperación de BD</h3>
+                        <canvas id="get_factura_chart"></canvas>
+                    </div>                   
+                </div>
+                <%- script %>
+                <%- error %>
+            </div>
+
+            <div>
+            </div>
+        </main>
+
+</body>
+
+</html>

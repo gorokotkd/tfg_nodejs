@@ -24,7 +24,14 @@
           <% } else { %>
             <li class="nav-item"><a class="nav-link" href="/insercion">Pruebas de Inserción</a></li>
           <% } %>
+          <% if(page == "getFactura"){ %>
+            <li class="nav-item"><a class="nav-link active" href="#">Búsqueda de Facturas</a></li>
+          <% } else { %>
+            <li class="nav-item"><a class="nav-link" href="/getfactura">Búsqueda de Facturas</a></li>
+          <% } %>
         </ul>
       </div>
     </div>
   </nav>
+
+  <br>

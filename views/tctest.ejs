@@ -11,19 +11,19 @@
 
       <div class="starter-template text-center py-5 px-3">
         <h1><%= title %></h1>
-        
-        <h3>Algoritmos de Compresión</h3>
-        <p>GZip, LZma, LZma2, LZss, Brotli</p>
-
-        <form method="post" enctype="multipart/form-data">
-          <label for="file">Selecciona el fichero a probar</label>
-          <input type="file" id="file-submit" class="form-control" name="file" id="file" required>
-          <div class="row"><br></div>
-          <button class="btn btn-primary" type="submit">Enviar!</button>
-        </form>
-        
       </div>
-    
+      <div>
+        <h2>Tiempo de Compresión</h2>
+        <canvas id="compress_time_chart" width="400px" height="300px"></canvas>
+    </div>
+    <div>
+      <h2>Ratio de Compresión</h2>
+      <canvas id="compress_ratio_chart" width="400px" height="300px"></canvas>
+    </div>
+    <div>
+    </div>
+    <%- script_time %>
+    <%- script_ratio %>
     </main>
     
   </body>
