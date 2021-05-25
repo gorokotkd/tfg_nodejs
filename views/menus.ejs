@@ -24,6 +24,11 @@
           <% } else { %>
             <li class="nav-item"><a class="nav-link" href="/insercion">Pruebas de Inserción</a></li>
           <% } %>
+          <% if(page == "insertMany"){ %>
+            <li class="nav-item"><a class="nav-link active" href="#">Inserción Agrupada</a></li>
+          <% } else { %>
+            <li class="nav-item"><a class="nav-link" href="/insertmany">Inserción Agrupada</a></li>
+          <% } %>
           <% if(page == "getFactura"){ %>
             <li class="nav-item"><a class="nav-link active" href="#">Búsqueda de Facturas</a></li>
           <% } else { %>

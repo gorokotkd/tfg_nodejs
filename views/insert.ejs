@@ -43,7 +43,10 @@
             contentType: false,
             cache: false,
             success: function(result){
-              var canvas = document.getElementById('qrcode');
+              if(result.tbai_id == -1){//Error
+
+              }else{
+                var canvas = document.getElementById('qrcode');
               QRCode.toCanvas(canvas, 'localhost:3000/gr?id='+result.tbai_id, function(err){
               //QRCode.toCanvas(canvas, '158.227.112.237:3000/gr?id='+result.tbai_id, function(err){
                 if(err){
@@ -54,7 +57,9 @@
                 $('#qrcode_label').show();
               });
 
-              createCharts(result.stats)
+              createCharts(result.stats);
+              }
+             
 
             }
 
@@ -77,7 +82,14 @@
 
           const config = {
             type: "bar",
-            data: data
+            data: data,
+            options : {
+              scales : {
+                y: {
+                  beginAtZero: true
+                }
+              }
+            }
           };
 
 

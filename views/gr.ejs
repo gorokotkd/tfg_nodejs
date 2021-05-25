@@ -51,9 +51,17 @@
                     <div id="charts">
                         <h3>Tiempo de recuperación de BD</h3>
                         <canvas id="get_factura_chart"></canvas>
+                        <div id="agrupadas-chart" style="display: none;">
+                            <h3>Tiempo de Descompresión</h3>
+                            <canvas id="descompresion-chart"></canvas>
+                            <h3>Tiempo de recuperación en la Agrupación</h3>
+                            <canvas id="recuperacion-agrupacion-chart"></canvas>
+                        </div>
                     </div>                   
                 </div>
                 <%- script %>
+                <%- script_decom %>
+                <%- script_busqueda_fact %>
                 <%- error %>
             </div>
 

@@ -17,7 +17,7 @@
                 </h1>
 
                 <form id="form">
-                    <select class="form-select">
+                    <select class="form-select" id="numFacturas">
                         <option selected value="50">Selecciona el número de facturas a insertar</option>
                         <option value="50">50</option>
                         <option value="100">100</option>
@@ -108,7 +108,7 @@
                         <option value="4350">4350</option>
                         <option value="4400">4400</option>
                         <option value="4450">4450</option>
-                        <option value="4500">44500</option>
+                        <option value="4500">4450</option>
                         <option value="4550">4550</option>
                         <option value="4600">4600</option>
                         <option value="4650">4650</option>
@@ -121,8 +121,150 @@
                         <option value="5000">5000</option>
                     </select>
                     <div class="row"><br></div>
-                    <button type="submit" id="submit">Enviar!</button>
+                    <button type="button" id="submit" class="btn btn-primary" onclick=enviarForm()>Enviar!</button>
                 </form>
+                <br><br>
+                <img src="loading.gif" id="loading_gif" style="display: none; margin-left: auto; margin-right: auto;"
+                    width="5%" height="5%" />
+                <br>
+                <canvas id="qrcode" width="400" height="400"></canvas>
+                <br>
+                <label id="qrcode_label" for="qrcode" style="display: none;"></label>
+                <br>
+                <div id="charts-div" style="display: none;">
+                    <h3>Tiempo de Inserción en BD</h3>
+                    <canvas id="insert-chart"></canvas>
+
+                    <h3>Tiempo de Compresión de Datos</h3>
+                    <canvas id="compress-chart"></canvas>
+                </div>
+
+
+
+                <script>
+                    function enviarForm() {
+                        $('#loading_gif').show();
+                        $('#charts-div').hide();
+                        $('#qrcode').hide();
+                        $('#loading_gif').show();
+                        //$('#qrcode_label').text(res.tbai_id);
+                        $('#qrcode_label').hide();
+                        $.ajax({
+                            type: "get",
+                            url: "/insertmanyagrupadas?num=" + $('#numFacturas').val(),
+                            cache: false,
+                            success: function (res) {
+                                var canvas = document.getElementById('qrcode');
+                                var context = canvas.getContext('2d');
+                                context.clearRect(0, 0, canvas.width, canvas.height);
+
+                                QRCode.toCanvas(canvas, 'localhost:3000/gr?id=' + res.tbai_id, function (err) {
+                                    //QRCode.toCanvas(canvas, '158.227.112.237:3000/gr?id='+result.tbai_id, function(err){
+                                    if (err) {
+                                        console.log(err);
+                                    }
+                                    $('#loading_gif').hide();
+                                    $('#qrcode').show();
+                                    $('#qrcode_label').text(res.tbai_id);
+                                    $('#qrcode_label').show();
+                                });
+
+                                createCharts(res.stats);
+                            }
+                        });
+                    }
+
+                    function createCharts(stats) {
+
+                        var ctx = document.getElementById('insert-chart');
+
+                        if(Chart.getChart('insert-chart')!=null){
+                            Chart.getChart('insert-chart').destroy();
+                        }
+
+                        if(Chart.getChart('compress-chart') != null){
+                            Chart.getChart('compress-chart').destroy();
+                        }
+
+                        
+                        
+                        /*
+                        var context = ctx.getContext('2d');
+                        context.clearRect(0,0,ctx.width, ctx.height);
+                        context.restore();*/
+
+                        var labels = ["MongoDB", "Cassandra"];
+                        var data = {
+                            labels: labels,
+                            datasets: [{
+                                label: "Tiempo de Inserción de Datos en BD",
+                                data: [stats.insert_mongo, stats.insert_cassandra],
+                                backgroundColor: ["rgba(255, 99, 132, 0.2)", "rgba(54, 162, 235, 0.2)"],
+                                borderColor: ["rgb(255, 99, 132)", "rgb(54, 162, 235)"],
+                                borderWidth: 1
+                            }]
+                        };
+
+                        var config = {
+                            type: 'bar',
+                            data: data,
+                            options: {
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        };
+                        let insert_chart = new Chart(ctx, config);
+
+
+                        var ctx_compress = document.getElementById('compress-chart');
+
+
+                        var labels_compress = ["Cassandra", "MongoDB Total"];
+                        labels_compress.push();
+                        var dataset_data = [stats.comprimir_total_cassandra, stats.comprimir_mongo.reduce((a, b) => a + b, 0)];
+                        var dataset_color = ["rgba(54, 162, 235, 0.2)", "rgba(255, 99, 132, 0.2)"];
+                        var dataset_border = ['rgb(54, 162, 235)', 'rgb(255, 99, 132)'];
+
+                        for (var i = 1; i <= stats.comprimir_mongo.length; i++) {
+                            labels_compress.push("MongoDB Part_" + i);
+                            dataset_data.push(stats.comprimir_mongo[i - 1]);
+                            dataset_color.push("rgba(153, 102, 255, 0.2)");
+                            dataset_border.push('rgb(153, 102, 255)');
+                        }
+
+
+                        var data_compres = {
+                            labels: labels_compress,
+                            datasets: [{
+                                label: "Tiempo de Compresión de Datos",
+                                data: dataset_data,
+                                backgroundColor: dataset_color,
+                                borderColor: dataset_border,
+                                borderWidth: 1
+                            }]
+                        };
+
+                        var config_compress = {
+                            type: 'bar',
+                            data: data_compres,
+                            options: {
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        };
+                        let compress_chart = new Chart(ctx_compress, config_compress);
+                        $('#charts-div').show();
+
+                    }
+
+                </script>
+
             </div>
             <div>
             </div>

@@ -16,6 +16,8 @@ router.get('/tctest', projectController.tctest);
 /**INSERCION DE FACTURAS */
 router.get('/insercion', projectController.insertFactura);
 router.post('/insercion', multipartMiddleware, projectController.insercionFacturas);
+router.get('/insertmany', projectController.insertManyView);
+router.get('/insertmanyagrupadas', projectController.insertMany);
 
 /**OBTENCION DE FACTURAS */
 router.get('/getfactura', projectController.getFactura);

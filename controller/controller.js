@@ -19,6 +19,9 @@ var DATA = require('../functions/getData');
 const mongoUrl = "mongodb://localhost:27017";
 const dbName = 'ticketbai';
 
+const FACTURAS_AGRUPADAS_PATH = "../facturas/";
+const MB = 1000000;
+
 
 function compress_lzma_file(file) {
     return new Promise((resolve) => {
@@ -29,11 +32,21 @@ function compress_lzma_file(file) {
 }
 
 function insert_mongo(data) {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
         const fact = new Factura();
         fact.collection.insertOne(data, { ordered: false }, (err, docs) => {
-            if (err) { console.log(err) }
+            if (err) { reject(err) }
             else { resolve("Insertados " + docs.length + " datos"); }
+        });
+    });
+}
+
+function insert_agrupadas_mongo(data) {
+    return new Promise((resolve) => {
+        const group = new AgrupacionFactura();
+        group.collection.insertMany(data, { ordered: false }, (err, docs) => {
+            if (err) { console.log(err); }
+            else { resolve("Insertadas " + docs.length + " agrupaciones"); }
         });
     });
 }
@@ -70,29 +83,131 @@ var controller = {
             }
         );
     },
+    insertManyView: async function (req, res) {
+        res.status(200).render('insertMany', {
+            title: 'Inserción múltiple de facturas',
+            page: 'insertMany'
+        });
+    },
+    insertMany: async function (req, res) {
+
+        var num_agrupadas = req.query.num;
+        await mongoose.connect(mongoUrl + "/" + dbName).then(() => { console.log("Conexión a MongoDB realizada correctamente") });
+        const client = new cassandra.Client({
+            contactPoints: ['127.0.0.1'],
+            keyspace: 'ticketbai',
+            localDataCenter: 'datacenter1'
+        });
+
+        client.connect()
+            .then(function () {
+                console.log('Connected to cluster with %d host(s): %j', client.hosts.length, client.hosts.keys());
+                //console.log('Keyspaces: %j', Object.keys(client.metadata.keyspaces));
+            })
+            .catch(function (err) {
+                console.error('There was an error when connecting', err);
+                return client.shutdown().then(() => { throw err; });
+            });
+
+        var tbai_list = [];
+        var agrupacion = fs.readFileSync(FACTURAS_AGRUPADAS_PATH + "grupo_" + num_agrupadas + "_1.xml").toString();
+        tbai_list.push(DATA.getIdentTBAI(agrupacion));
+
+        var nif = DATA.getNif(agrupacion);
+        var fecha_inicio_agrupacion = DATA.getFechaExp(agrupacion);
+        var fecha_fin_agrupacion = moment(fecha_inicio_agrupacion, "DD-MM-YYYY").add(7, "d").format("DD-MM-YYYY");
+
+        for (var i = 2; i < num_agrupadas; i++) {
+            let factura = fs.readFileSync(FACTURAS_AGRUPADAS_PATH + "grupo_" + num_agrupadas + "_" + i + ".xml").toString();
+            agrupacion += factura;
+            tbai_list.push(DATA.getIdentTBAI(factura));
+        }
+
+        var compresion_start = performance.now();
+        var agrupacion_compress = await compressData(agrupacion);
+        var compresion_fin = performance.now();
+
+        const insert_query = "insert into facturas_agrupadas (nif, fecha_inicio, agrupacion, fecha_fin, tbai_id_list) values (?,?,?,?,?)";
+        const params = [
+            nif,
+            moment(fecha_inicio_agrupacion, "DD-MM-YYYY").format("YYYY-MM-DD"),
+            agrupacion_compress,
+            moment(fecha_fin_agrupacion, "DD-MM-YYYY").format("YYYY-MM-DD"),
+            tbai_list
+        ];
+        var insertar_cassandra_start = performance.now();
+        await client.execute(insert_query, params, { prepare: true });
+        var insert_cassandra_fin = performance.now();
+
+        /**Comprobación de particiones para insertar en Mongo */
+
+        var data_to_insert = {};
+        data_to_insert.nif = nif;
+        data_to_insert.fechaInicio = moment(fecha_inicio_agrupacion, "DD-MM-YYYY").toDate();
+        data_to_insert.fechaFin = moment(fecha_fin_agrupacion, "DD-MM-YYYY").toDate();
+        data_to_insert.idents = tbai_list;
+        data_to_insert.agrupacion = agrupacion_compress;
+
+        let numParticiones = 0;
+        //BYTES DE TODO EL DOCUMENTO A INSERTAR EN LA BD (NO PUEDE SUPERAR LOS 16MB)
+        let bytes = new TextEncoder().encode(JSON.stringify(data_to_insert)).byteLength;
+        //CALCULO EL NUMERO DE PARTICIONES DEL DOCUMENTO
+        if (bytes % (15 * MB) == 0) {
+            numParticiones = Math.floor(bytes / (15 * MB));
+        } else {
+            numParticiones = 1 + Math.floor(bytes / (15 * MB));
+        }
+        var insert_array = [];
+        var comprimir_mongo = [];
+        if (numParticiones == 1) {
+            insert_array.push(data_to_insert);
+            comprimir_mongo.push(compresion_fin - compresion_start);
+        } else {
+            for (var j = 0; j < numParticiones; j++) {
+                var agrupacion_mongo = "";
+                var tbai_part_list = [];
+                for (var k = Math.round(((j * num_agrupadas) / numParticiones)) + 1; k <= Math.round((j + 1) * num_agrupadas) / numParticiones; k++) {
+                    let factura = fs.readFileSync(FACTURAS_AGRUPADAS_PATH + "grupo_" + num_agrupadas + "_" + k + ".xml").toString();
+                    agrupacion_mongo += factura;
+                    tbai_part_list.push(DATA.getIdentTBAI(factura));
+                }
+                var compress_mongo_start = performance.now();
+                let agrupacion_mongo_compress = await compressData(agrupacion_mongo);
+                var compress_mongo_fin = performance.now();
+                let new_data_to_insert = {};
+                new_data_to_insert.nif = nif;
+                new_data_to_insert.fechaInicio = moment(fecha_inicio_agrupacion, "DD-MM-YYYY").toDate();
+                new_data_to_insert.fechaFin = moment(fecha_fin_agrupacion, "DD-MM-YYYY").toDate();
+                new_data_to_insert.idents = tbai_part_list;
+                new_data_to_insert.agrupacion = agrupacion_mongo_compress;
+
+                insert_array.push(new_data_to_insert);
+                comprimir_mongo.push(compress_mongo_fin - compress_mongo_start);
+            }
+        }
+
+        var insert_mongo_start = performance.now();
+        await insert_agrupadas_mongo(insert_array);
+        var insert_mongo_fin = performance.now();
+
+        res.status(200).send({
+            tbai_id: tbai_list[tbai_list.length - 1],
+            stats: {
+                insert_cassandra: insert_cassandra_fin - insertar_cassandra_start,
+                insert_mongo: insert_mongo_fin - insert_mongo_start,
+                comprimir_total_cassandra: compresion_fin - compresion_start,
+                comprimir_mongo: comprimir_mongo
+            }
+        });
+
+
+    },
     tctest: async function (req, res) {
         var num = req.query.num;
         if (num == null || num == 0 || num > 5000) {
             num = 100;
         }
-        /*
-                await mongoose.connect(mongoUrl+"/"+dbName).then(() => {console.log("Conexión a MongoDB realizada correctamente")});
-                const client = new cassandra.Client({
-                    contactPoints: ['127.0.0.1'],
-                    keyspace: 'ticketbai',
-                    localDataCenter: 'datacenter1'
-                });
-        
-                client.connect()
-                    .then(function () {
-                        console.log('Connected to cluster with %d host(s): %j', client.hosts.length, client.hosts.keys());
-                        //console.log('Keyspaces: %j', Object.keys(client.metadata.keyspaces));
-                    })
-                    .catch(function (err) {
-                        console.error('There was an error when connecting', err);
-                        return client.shutdown().then(() => { throw err; });
-                });
-        */
+
         var gzip_time_list = [];
         var brotli_time_list = [];
         var lzma_time_list = [];
@@ -103,10 +218,6 @@ var controller = {
         var lzma_ratio_list = [];
         var lzss_ratio_list = [];
 
-        var mongo_insert_list = [];
-        var cassandra_insert_list = [];
-
-        var idents_list = [];
 
         var labels = [];
         for (var i = 1; i <= num; i++) {
@@ -133,37 +244,6 @@ var controller = {
             var compress_lzss = await lzss.compress(factura);
             var lzss_compresion_fin = performance.now();
 
-            //INSERCION en MONGODB
-            /*      var insercion_mongo_start = performance.now();
-                  let json = {};
-                  json._id = DATA.getIdentTBAI(factura);
-                  json.NIF = DATA.getNif(factura);
-                  json.FechaExpedicionFactura = moment(DATA.getFechaExp(factura), "DD-MM-YYYY").toDate();
-                  json.HoraExpedicionFactura = moment(DATA.getHoraExpedionFactura(factura), "hh:mm:ss").toDate();
-                  json.ImporteTotalFactura = DATA.getImporteTotalFactura(factura);
-                  json.SerieFactura = DATA.getSerieFactura(factura);
-                  json.NumFactura = DATA.getNumFactura(factura);
-                  json.Descripcion = DATA.getDescripcion(factura);
-                  json.FacturaComprimida = compress_gzip.toString("base64");
-                  json.Status = 0;
-                  await insert_mongo(json);
-                  var insercion_mongo_fin = performance.now();
-      
-                  //Insercion en Cassandra
-                  var insercion_cassandra_start = performance.now();
-                  const insertQuery = "insert into facturas (nif, fecha, tbai_id, importe, num_factura, serie, xml) values (?, ?, ?, ?, ?, ?, ?)";
-                  const params = [
-                      DATA.getNif(factura),
-                      moment(DATA.getFechaExp(factura), "DD-MM-YYYY").toDate(),
-                      DATA.getIdentTBAI(factura),
-                      DATA.getImporteTotalFactura(factura),
-                      DATA.getNumFactura(factura),
-                      DATA.getSerieFactura(factura),
-                      compress_gzip.toString('base64')
-                  ];
-                  await client.execute(insertQuery, params, { prepare: true });
-                  var insercion_cassandra_fin = performance.now();
-      */
 
             gzip_time_list.push(gzip_compresion_fin - gzip_compresion_start);
             brotli_time_list.push(brotli_compresion_fin - brotli_compresion_start);
@@ -354,7 +434,7 @@ var controller = {
                     console.error('There was an error when connecting', err);
                     return client.shutdown().then(() => { throw err; });
                 });
-            
+
 
             var result_mongo = await findByTBAI(tbai_id);
 
@@ -363,24 +443,74 @@ var controller = {
 
 
             let script = ' <script> ' +
-            'var ctx = document.getElementById("get_factura_chart");' +
-            'const labels = ["MongoDB", "Cassandra"];' +
-            'const data = {' +
-            'labels: labels,'+
-            'datasets:[{'+
-            'label: "Tiempo de Obtención de Datos (milisegundos)",' +
-            'data: ['+(result_mongo.stats.busqueda_datos)+','+(result_cassandra.stats.busqueda_datos)+'],' +
-            'backgroundColor: ["rgba(255, 99, 132, 0.2)", "rgba(54, 162, 235, 0.2)"],' +
-            'borderColor: ["rgb(255, 99, 132)","rgb(54, 162, 235)"],'+
-            'borderWidth: 1'+
-            '}]' +
-            '};'+
+                '$("#agrupadas-chart").hide();'+
+                'if(Chart.getChart("get_factura_chart") != null){'+
+                'Chart.getChart("get_factura_chart").destroy();}'+
+                'if(Chart.getChart("descompresion-chart") != null){'+
+                'Chart.getChart("descompresion-chart").destroy();}'+
+                'if(Chart.getChart("recuperacion-agrupacion-chart") != null){'+
+                'Chart.getChart("recuperacion-agrupacion-chart").destroy();}'+
+                'var ctx = document.getElementById("get_factura_chart");' +
+                'const labels = ["MongoDB", "Cassandra"];' +
+                'const data = {' +
+                'labels: labels,' +
+                'datasets:[{' +
+                'label: "Tiempo de Obtención de Datos (milisegundos)",' +
+                'data: [' + (result_mongo.stats.busqueda_datos) + ',' + (result_cassandra.stats.busqueda_datos) + '],' +
+                'backgroundColor: ["rgba(255, 99, 132, 0.2)", "rgba(54, 162, 235, 0.2)"],' +
+                'borderColor: ["rgb(255, 99, 132)","rgb(54, 162, 235)"],' +
+                'borderWidth: 1' +
+                '}]' +
+                '};' +
 
-            'const config = {' +
-            'type: "bar",' +
-            'data: data' +
-            '};' +
-            'var chart = new Chart(ctx, config);</script>';
+                'const config = {' +
+                'type: "bar",' +
+                'data: data' +
+                '};' +
+                'var chart = new Chart(ctx, config);</script>';
+                var script_decom = "";
+                var script_busqueda_fact = "";
+                if(result_mongo.agrupada){
+                    script_decom = ' <script> ' +
+                        '$("#agrupadas-chart").show();'+
+                        'var ctx_decom = document.getElementById("descompresion-chart");' +
+                        'const labels_decom = ["MongoDB", "Cassandra"];' +
+                        'const data_decom = {' +
+                        'labels: labels_decom,' +
+                        'datasets:[{' +
+                        'label: "Tiempo de descompresión (milisegundos)",' +
+                        'data: [' + (result_mongo.stats.descompresion) + ',' + (result_cassandra.stats.descompresion) + '],' +
+                        'backgroundColor: ["rgba(255, 99, 132, 0.2)", "rgba(54, 162, 235, 0.2)"],' +
+                        'borderColor: ["rgb(255, 99, 132)","rgb(54, 162, 235)"],' +
+                        'borderWidth: 1' +
+                        '}]' +
+                        '};' +
+
+                        'const config_decom = {' +
+                        'type: "bar",' +
+                        'data: data_decom' +
+                        '};' +
+                        'var chart = new Chart(ctx_decom, config_decom);</script>';
+                    script_busqueda_fact = ' <script> ' +
+                        'var ctx_busqueda_fact = document.getElementById("recuperacion-agrupacion-chart");' +
+                        'const labels_busqueda_fact = ["MongoDB", "Cassandra"];' +
+                        'const data_busqueda_fact = {' +
+                        'labels: labels_busqueda_fact,' +
+                        'datasets:[{' +
+                        'label: "Tiempo de Búsqueda en la Agrupación (milisegundos)",' +
+                        'data: [' + (result_mongo.stats.busqueda_factura) + ',' + (result_cassandra.stats.busqueda_factura) + '],' +
+                        'backgroundColor: ["rgba(255, 99, 132, 0.2)", "rgba(54, 162, 235, 0.2)"],' +
+                        'borderColor: ["rgb(255, 99, 132)","rgb(54, 162, 235)"],' +
+                        'borderWidth: 1' +
+                        '}]' +
+                        '};' +
+
+                        'const config_busqueda_fact = {' +
+                        'type: "bar",' +
+                        'data: data_busqueda_fact' +
+                        '};' +
+                        'var chart = new Chart(ctx_busqueda_fact, config_busqueda_fact);</script>';
+                }
 
 
             res.status(200).render('gr', {
@@ -392,8 +522,10 @@ var controller = {
                 serie_factura: result_mongo.data.serie_factura,
                 num_factura: result_mongo.data.num_factura,
                 importe_factura: result_mongo.data.importe_factura + " €",
-                fecha_exp: moment(result_mongo.data.fecha_exp).format("YYYY/MM/DD"),
-                script: script
+                fecha_exp: moment(result_mongo.data.fecha_exp, "DD-MM-YYYY").format("YYYY/MM/DD"),
+                script: script,
+                script_decom: script_decom,
+                script_busqueda_fact: script_busqueda_fact
             });
         }
 
@@ -445,9 +577,19 @@ var controller = {
                 //json.FacturaComprimida = compress_gzip.toString("base64");
                 json.FacturaComprimida = compress_gzip;
                 json.Status = 0;
-                await insert_mongo(json);
+                let result = await insert_mongo(json).catch((err) => {
+                    res.status(200).send(
+                        {   
+                            title: 'Inserción de Facturas',
+                            page: 'insertFacturas',
+                            files: "Error al enviar los archivos",
+                            tbai_id: -1
+                            //file: compressed
+                        }
+                    );
+                });
                 var insercion_mongo_fin = performance.now();
-
+                
                 //Insercion en Cassandra
                 var insercion_cassandra_start = performance.now();
                 const insertQuery = "insert into facturas (nif, fecha, tbai_id, importe, num_factura, serie, xml) values (?, ?, ?, ?, ?, ?, ?)";
@@ -464,19 +606,12 @@ var controller = {
                 var insercion_cassandra_fin = performance.now();
 
                 res.status(200).send({
-                    tbai_id: json._id
+                    tbai_id: json._id,
+                    title: 'Inserción de Facturas',
+                    page: 'insertFacturas'
                 });
 
 
-            } else if (fileExt == "zip") {//Descomprimo las facturas y las agrupo
-                res.status(200).send(
-                    {
-                        title: 'Inserción de Facturas',
-                        page: 'insertFacturas',
-                        tbai_id: "TBAI-SADSADSA"
-                        //file: compressed
-                    }
-                );
             } else {//Error el formato no es correcto
 
             }
@@ -515,15 +650,62 @@ async function findByIdCassandra(tbai_id, client) {
             tbai_id
         ];
 
-        console.log("dfsadasd");
         var busqueda_bd_start = performance.now();
         client.execute(query_indiv, params_indiv, { prepare: true }).then((resul) => {
             if (resul.rowLength < 1) {
+                const query_gr = "select fecha_fin, tbai_id_list, agrupacion from facturas_agrupadas where nif=? and fecha_inicio <= ?";
+                const params_gr = [
+                    tbai_id.split("-")[1],
+                    moment(tbai_id.split("-")[2], "DDMMYY").format("YYYY-MM-DD")
+                ];
+                client.execute(query_gr, params_gr, {prepare: true}).then((res) => {
+                    var agrupacion = "";
+                    var tbai_list;
+                    for(var i = 0; i < res.rowLength; i++){
+                        if(moment(res.rows[i].fecha_fin, "YYYY-MM-DD").toDate() >= moment(tbai_id.split("-")[2], "DDMMYY").toDate()){
+                            agrupacion = res.rows[i].agrupacion;
+                            tbai_list = res.rows[i].tbai_id_list;
+                            break;
+                        }
+                    }
+                    var busqueda_bd_fin = performance.now();
+                    var descompresion_start = performance.now();
+                    unCompressData(agrupacion).then((resul) => {
+                        var descompresion_fin = performance.now();
+                        var busqueda_factura_start = performance.now();
 
+                        var pos = Array.from(tbai_list).indexOf(tbai_id);
+                        var facturas_array = resul.split(/(?=\<\?xml version="1\.0" encoding="utf-8"\?\>)/);
+                        let data = facturas_array[pos];
+
+                        var busqueda_factura_fin = performance.now();
+
+                        resolve({
+                            code: 200,
+                            agrupada: true,
+                            data: {
+                                tbai_id: tbai_id,
+                                nif_emisor: DATA.getNif(data),
+                                serie_factura: DATA.getSerieFactura(data),
+                                num_factura: DATA.getNumFactura(data),
+                                importe_factura: DATA.getImporteTotalFactura(data),
+                                fecha_exp: DATA.getFechaExp(data)
+                            },
+                            stats: {
+                                busqueda_datos: busqueda_bd_fin - busqueda_bd_start,
+                                descompresion: descompresion_fin - descompresion_start,
+                                busqueda_factura: busqueda_factura_fin - busqueda_factura_start
+                            }
+                        });
+                    });
+                    
+
+                });
             } else {
                 var busqueda_bd_fin = performance.now();
 
                 resolve({
+                    agrupada:false,
                     data: {
                         tbai_id: tbai_id,
                         nif_emisor: resul.rows[0].nif,
@@ -582,18 +764,29 @@ async function findByTBAI(tbai_id) {
                     for (var i = 0; i < docs.length; i++) {
                         if (docs[i].idents.includes(tbai_id)) {
                             var pos = Array.from(docs[i].idents).indexOf(tbai_id);
+                            var agrupacion = docs[i].agrupacion;
                             var descompresion_start = performance.now();
 
-                            unCompressData(docs[i].agrupacion).then((resul) => {
+                            unCompressData(agrupacion).then((resul) => {
                                 var descompresion_fin = performance.now();
 
                                 var busqueda_factura_start = performance.now();
                                 var facturas_array = resul.split(/(?=\<\?xml version="1\.0" encoding="utf-8"\?\>)/);
                                 let data = facturas_array[pos];
                                 var busqueda_factura_fin = performance.now();
+
+
                                 resolve({
                                     code: 200,
-                                    data: data,
+                                    agrupada: true,
+                                    data: {
+                                        tbai_id: tbai_id,
+                                        nif_emisor: DATA.getNif(data),
+                                        serie_factura: DATA.getSerieFactura(data),
+                                        num_factura: DATA.getNumFactura(data),
+                                        importe_factura: DATA.getImporteTotalFactura(data),
+                                        fecha_exp: DATA.getFechaExp(data)
+                                    },
                                     stats: {
                                         busqueda_datos: busqueda_datos_fin - busqueda_datos_start,
                                         descompresion: descompresion_fin - descompresion_start,
@@ -608,6 +801,7 @@ async function findByTBAI(tbai_id) {
             } else {
                 resolve({
                     code: 200,
+                    agrupada: false,
                     data: {
                         tbai_id: tbai_id,
                         nif_emisor: factura.NIF,
