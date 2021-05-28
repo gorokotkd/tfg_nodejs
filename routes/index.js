@@ -23,6 +23,9 @@ router.get('/insertmanyagrupadas', projectController.insertMany);
 router.get('/getfactura', projectController.getFactura);
 router.get('/gr', projectController.gr);
 
+/**Estadisticas por sectores */
+router.get('/statistics', projectController.statistics);
+router.get('/showstatistics', projectController.showStatistics);
 
 
 

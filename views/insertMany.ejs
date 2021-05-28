@@ -158,8 +158,9 @@
                                 var context = canvas.getContext('2d');
                                 context.clearRect(0, 0, canvas.width, canvas.height);
 
-                                QRCode.toCanvas(canvas, 'localhost:3000/gr?id=' + res.tbai_id, function (err) {
-                                    //QRCode.toCanvas(canvas, '158.227.112.237:3000/gr?id='+result.tbai_id, function(err){
+                                var url = `localhost:3000/gr?id=${encodeURIComponent(res.tbai_id)}`;
+                                //var url = `158.227.112.237:3000/gr?id=${encodeURIComponent(res.tbai_id)}`;
+                                QRCode.toCanvas(canvas, url, function (err) {
                                     if (err) {
                                         console.log(err);
                                     }

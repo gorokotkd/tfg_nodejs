@@ -1,25 +1,40 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <%- include('head') %>
-  </head>
-  <body>
 
-    <%- include('menus') %>
+<head>
+  <%- include('head') %>
+</head>
+
+<body>
+
+  <%- include('menus') %>
 
     <main class="container">
 
       <div class="starter-template text-center py-5 px-3">
-        <h1><%= title %></h1>
+        <h1>
+          <%= title %>
+        </h1>
 
-        <form method="post" enctype="multipart/form-data" id="form" >
+        <form method="post" enctype="multipart/form-data" id="form">
           <label for="file">Selecciona el fichero a insertar</label>
           <input type="file" id="file-submit" class="form-control" name="file" id="file" accept=".xml,.zip" required>
           <div class="row"><br></div>
           <button class="btn btn-primary" id="submit" type="button" onclick=enviarForm()>Enviar!</button>
+          <br><br>
+          <div class="alert alert-danger" role="alert" id="error-duplicada" style="display: none;">
+            Error! La factura que tratas de introducir ya se ha insertado previamente.
+          </div>
+          <div class="alert alert-danger" role="alert" id="error-desconocido" style="display: none;">
+            Error! Ha ocurrido un error al insertar la facctura.
+          </div>
+          <div class="alert alert-danger" role="alert" id="error-archivo" style="display: none;">
+            Error! Ha ocurrido un error al subir el archivo.
+          </div>
         </form>
         <br><br>
-        <img src="loading.gif" id="loading_gif" style="display: none; margin-left: auto; margin-right: auto;" width="5%" height="5%" />
+        <img src="loading.gif" id="loading_gif" style="display: none; margin-left: auto; margin-right: auto;" width="5%"
+          height="5%" />
         <br>
         <canvas id="qrcode" width="400" height="400"></canvas>
         <br>
@@ -30,8 +45,11 @@
 
 
       <script>
-        function enviarForm(){
+        function enviarForm() {
           $('#loading_gif').show();
+          $('#error-duplicada').hide();
+          $('#error-desconocido').hide();
+          $('#error-archivo').hide();
           var form = $('#form')[0];
           var data = new FormData(form);
           $.ajax({
@@ -42,31 +60,47 @@
             processData: false,
             contentType: false,
             cache: false,
-            success: function(result){
-              if(result.tbai_id == -1){//Error
+            success: function (res) {
+              console.log(res);
+              $('#loading_gif').hide();
+              if (res.tbai_id == -1) {//Error desconocido
+                $('#error-duplicada').hide();
+                $('#error-archivo').hide();
+                $('#error-desconocido').show();
 
-              }else{
+              } else if (res.tbai_id == 11000) {//Error factura duplicada
+                $('#error-duplicada').show();
+                $('#error-desconocido').hide();
+
+                $('#error-archivo').hide();
+              }else if (res.tbai_id == -2){
+                $('#error-archivo').show();
+                $('#error-duplicada').hide();
+                
+                $('#error-desconocido').hide();
+              } else {
                 var canvas = document.getElementById('qrcode');
-              QRCode.toCanvas(canvas, 'localhost:3000/gr?id='+result.tbai_id, function(err){
-              //QRCode.toCanvas(canvas, '158.227.112.237:3000/gr?id='+result.tbai_id, function(err){
-                if(err){
-                  console.log(err);
-                }
-                $('#loading_gif').hide();
-                $('#qrcode_label').text(result.tbai_id);
-                $('#qrcode_label').show();
-              });
+                var url = `localhost:3000/gr?id=${encodeURIComponent(res.tbai_id)}`;
+                //var url = `158.227.112.237:3000/gr?id=${encodeURIComponent(res.tbai_id)}`;
+                QRCode.toCanvas(canvas, url, function (err) {
+                  if (err) {
+                    console.log(err);
+                  }
 
-              createCharts(result.stats);
+                  $('#qrcode_label').text(res.tbai_id);
+                  $('#qrcode_label').show();
+                });
+
+                //createCharts(res.stats);
               }
-             
+
 
             }
 
           });
         }
 
-        function createCharts(stats){
+        function createCharts(stats) {
           var ctx = document.getElementById('get_factura_chart');
           const labels = ['MongoDB', 'Cassandra'];
           const data = {
@@ -75,7 +109,7 @@
               label: "Tiempo de Obtención de Datos de BD",
               data: [stats.mongo.busqueda_datos, stats.cassandra.busqueda_datos],
               backgroundColor: ["rgba(255, 99, 132, 0.2)", "rgba(54, 162, 235, 0.2)"],
-              borderColor: ["rgb(255, 99, 132)","rgb(54, 162, 235)"],
+              borderColor: ["rgb(255, 99, 132)", "rgb(54, 162, 235)"],
               borderWidth: 1
             }]
           };
@@ -83,8 +117,8 @@
           const config = {
             type: "bar",
             data: data,
-            options : {
-              scales : {
+            options: {
+              scales: {
                 y: {
                   beginAtZero: true
                 }
@@ -97,6 +131,7 @@
         }
       </script>
     </main>
-    
-  </body>
+
+</body>
+
 </html>

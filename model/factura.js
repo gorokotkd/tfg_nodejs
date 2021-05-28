@@ -8,39 +8,27 @@ var FacturaSchema = Schema({
         type: Schema.Types.String,
         required: true
     },
-    NIF : {
+    nif : {
         type: Schema.Types.String,
         required : true
     },
-    FechaExpedicionFactura : {
+    fecha : {
         type: Schema.Types.Date,
         required : true
     },
-    HoraExpedicionFactura : {
-        type: Schema.Types.Date,
-        required : true
-    },
-    ImporteTotalFactura : {
+    cantidad : {
         type : Schema.Types.Number,
         required: true
     },
-    SerieFactura : {
+    serie : {
         type: Schema.Types.String,
         required : true
     },
-    NumFactura : {
+    num_factura : {
         type: Schema.Types.String,
         required : true
     },
-    Descripcion :{
-        type: Schema.Types.String,
-        required : true
-    },
-    FacturaComprimida : {
-        required : true,
-        type : Schema.Types.String
-    },
-    Status: {
+    xml : {
         required : true,
         type : Schema.Types.String
     }

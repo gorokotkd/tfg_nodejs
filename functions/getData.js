@@ -31,7 +31,7 @@ function getSerieFactura(xml) {
 
 function getImporteTotalFactura(xml) {
     var doc = new dom().parseFromString(xml);
-    return xpath.select("//Factura/DatosFactura/ImporteTotalFactura/text()", doc).toString();
+    return Number(xpath.select("//Factura/DatosFactura/ImporteTotalFactura/text()", doc).toString());
 }
 
 function getNumFactura(xml) {

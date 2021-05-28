@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <%- include('head') %>
+  </head>
+  <body>
+
+    <%- include('menus') %>
+
+    <main class="container">
+
+      <div class="starter-template text-center py-5 px-3">
+        <h1><%= title %></h1>
+        <form>
+            <div class="row">
+                <div class="col">
+                    <label for="sector-list">Selección de Sector</label>
+                    <select id="sector" class="form-select">
+                        <option selected value="-1">Selecciona un sector</option>
+                        <option value="hosteleria">Hosteleria</option>
+                        <option value="maquinaria">Maquinaria</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="nif-empresa">NIF de la Empresa</label>
+                    <input id="nif-empresa" type="text" placeholder="11111111A" class="form-control" style="text-align: center;"/>
+                </div>
+            </div>
+            <br><br>
+            <button type="button" class="btn btn-primary" style="margin-right: auto; margin-left: auto;" onclick=calcStatistics()>Calcular Estadisticas!</button>
+        </form>
+      </div>
+
+      <script>
+          function calcStatistics() {
+                let sector = $('#sector').val();
+                let nif = $('#nif-empresa').val();    
+                if(sector != -1){
+
+                    $.ajax({
+                        type: "get",
+                        url: "/showstatistics?sector="+sector+"&nif="+nif,
+                        cache: false,
+                        success: function(res){
+
+                        }
+                    });
+                }else{
+                    //Error "Selecciona un sector válido"
+                }
+            }
+      </script>
+
+      <div>
+    </div>
+    </main>
+    
+  </body>
+</html>

@@ -15,6 +15,7 @@ const qrcode = require('qrcode');
 var Factura = require('../model/factura');
 var AgrupacionFactura = require('../model/facturaAgrupada');
 var DATA = require('../functions/getData');
+const { db } = require('../model/factura');
 
 const mongoUrl = "mongodb://localhost:27017";
 const dbName = 'ticketbai';
@@ -31,12 +32,20 @@ function compress_lzma_file(file) {
     });
 }
 
+function decompress_lzma_file(file) {
+    return new Promise((resolve) => {
+        lzma.decompress(file, function (result) {
+            resolve(result);
+        });
+    });
+}
+
 function insert_mongo(data) {
     return new Promise((resolve, reject) => {
         const fact = new Factura();
         fact.collection.insertOne(data, { ordered: false }, (err, docs) => {
             if (err) { reject(err) }
-            else { resolve("Insertados " + docs.length + " datos"); }
+            else { resolve(); }
         });
     });
 }
@@ -79,7 +88,7 @@ var controller = {
             'insert',
             {
                 title: 'Inserción de Facturas',
-                page: 'insert'
+                page: 'insercion'
             }
         );
     },
@@ -88,6 +97,30 @@ var controller = {
             title: 'Inserción múltiple de facturas',
             page: 'insertMany'
         });
+    },
+    statistics: function(req, res){
+        res.status(200).render('showStatistics',{
+            title: 'Estadísticas por Sector',
+            page: 'estadisticas'
+        });
+    },
+    showStatistics: function(req, res){
+        let sector = req.query.sector;
+        let nif = req.query.nif;
+
+        switch (sector) {
+            case "hosteleria":
+                
+                //res.status(200).send(estadisticasHosteleria(nif));
+                res.status(200).send(pruebasEstadisticasHosteleria(nif));
+                break;
+            case "maquinaria":
+                res.status(200).send(estadisticasMaquinaria(nif));
+                break;
+            default:
+                res.status(400).send("Incorrent Query");
+                break;
+        }
     },
     insertMany: async function (req, res) {
 
@@ -213,6 +246,11 @@ var controller = {
         var lzma_time_list = [];
         var lzss_time_list = [];
 
+        var gzip_decompress_time_list = [];
+        var brotli_decompress_time_list = [];
+        var lzma_decompress_time_list = [];
+        var lzss_decompress_time_list = [];
+
         var gzip_ratio_list = [];
         var brotli_ratio_list = [];
         var lzma_ratio_list = [];
@@ -228,21 +266,33 @@ var controller = {
             var gzip_compresion_start = performance.now();
             let compress_gzip = await zlib.gzipSync(factura, { level: 1 });
             var gzip_compresion_fin = performance.now();
+            var gzip_decompresion_start = performance.now();
+            let decompress_gzip = await zlib.gunzipSync(compress_gzip);
+            var gzip_decompresion_fin = performance.now();
 
             //BROTLI
             var brotli_compresion_start = performance.now();
             let compress_broli = await zlib.brotliCompressSync(factura);
             var brotli_compresion_fin = performance.now();
+            var brotli_decompresion_start = performance.now();
+            let decompress_broli = await zlib.brotliDecompressSync(compress_broli);
+            var brotli_decompresion_fin = performance.now();
 
             //LZMA
             var lzma_compresion_start = performance.now();
             let compress_lzma = await compress_lzma_file(factura);
             var lzma_compresion_fin = performance.now();
+            var lzma_decompresion_start = performance.now();
+            let decompress_lzma = await decompress_lzma_file(compress_lzma);
+            var lzma_decompresion_fin = performance.now();
 
             //LZSS
             var lzss_compresion_start = performance.now();
             var compress_lzss = await lzss.compress(factura);
             var lzss_compresion_fin = performance.now();
+            var lzss_decompresion_start = performance.now();
+            var decompress_lzss = await lzss.decompress(compress_lzss);
+            var lzss_decompresion_fin = performance.now();
 
 
             gzip_time_list.push(gzip_compresion_fin - gzip_compresion_start);
@@ -250,20 +300,18 @@ var controller = {
             lzma_time_list.push(lzma_compresion_fin - lzma_compresion_start);
             lzss_time_list.push(lzss_compresion_fin - lzss_compresion_start);
 
+            gzip_decompress_time_list.push(gzip_decompresion_fin - gzip_decompresion_start);
+            brotli_decompress_time_list.push(brotli_decompresion_fin - brotli_decompresion_start);
+            lzma_decompress_time_list.push(lzma_decompresion_fin - lzma_decompresion_start);
+            lzss_decompress_time_list.push(lzss_decompresion_fin - lzss_decompresion_start);
+
             gzip_ratio_list.push(1 - (compress_gzip.byteLength / bytes_start));
             brotli_ratio_list.push(1 - (compress_broli.byteLength / bytes_start));
             lzma_ratio_list.push(1 - (Buffer.byteLength(compress_lzma) / bytes_start));
             lzss_ratio_list.push(1 - (Buffer.byteLength(compress_lzss) / bytes_start));
 
-            // mongo_insert_list.push(insercion_mongo_fin-insercion_mongo_start);
-            // cassandra_insert_list.push(insercion_cassandra_fin-insercion_cassandra_start);
-
             labels.push(i);
-
-            //fs.writeFileSync('./files/tbai_saved_idents.txt', json._id+"\n", {flag:'a'});
-            //   idents_list.push(json._id);
-            //idents_list.push(DATA.getIdentTBAI(factura));
-        }
+        }//End For
 
 
 
@@ -303,7 +351,40 @@ var controller = {
             '};' +
             'var chart = new Chart(ctx, config_time);</script>';
 
+            let script_decom = ' <script> ' +
+            'var ctx_decom = document.getElementById("decompress_time_chart");' +
+            'const decom_labels_time = ["' + labels.join('\","') + '"];' +
+            'const decom_data_time = {' +
+            'labels: decom_labels_time,' +
+            'datasets : [{' +
+            'label: "GZip",' +
+            'data: [' + gzip_decompress_time_list.toString() + '],' +
+            'fill:false,' +
+            'borderColor: "rgb(75, 192, 192)",' +
+            'tension: 0.1},' +
+            '{label: "Brotli",' +
+            'data: [' + brotli_decompress_time_list.toString() + '],' +
+            'fill:false,' +
+            'borderColor: "rgb(255, 0, 0)",' +
+            'tension: 0.1},' +
+            '{label: "LZMA",' +
+            'data: [' + lzma_decompress_time_list.toString() + '],' +
+            'fill:false,' +
+            'borderColor: "rgb(0, 255, 0)",' +
+            'tension: 0.1},' +
+            '{label: "LZSS",' +
+            'data: [' + lzss_decompress_time_list.toString() + '],' +
+            'fill:false,' +
+            'borderColor: "rgb(255, 255, 0)",' +
+            'tension: 0.1}' +
+            ']' +
+            '};' +
 
+            'const decom_config_time = {' +
+            'type: "line",' +
+            'data: decom_data_time' +
+            '};' +
+            'var decom_chart = new Chart(ctx_decom, decom_config_time);</script>';
 
         let script_ratio = ' <script> ' +
             'var ctx = document.getElementById("compress_ratio_chart");' +
@@ -341,59 +422,12 @@ var controller = {
             'var chart = new Chart(ctx, config_ratio);</script>';
 
 
-        /*       let script_insert = ' <script> '+
-               'var ctx = document.getElementById("insert_chart");'+
-               'const labels_insert = ["'+labels.join('\","')+'"];'+
-               'const data_insert = {'+
-                 'labels: labels_insert,'+
-                 'datasets : [{'+
-                   'label: "Mongo",'+
-                   'data: ['+ mongo_insert_list.toString()+'],'+
-                   'fill:false,'+
-                   'borderColor: "rgb(75, 192, 192)",'+
-                   'tension: 0.1},'+
-                   '{label: "Cassandra",'+
-                   'data: ['+ cassandra_insert_list.toString()+'],'+
-                   'fill:false,'+
-                   'borderColor: "rgb(255, 0, 0)",'+
-                   'tension: 0.1}'+
-                 ']'+
-               '};'+
-         
-               'const config_insert = {'+
-                 'type: "line",'+
-                 'data: data_insert'+
-               '};'+
-               'var chart = new Chart(ctx, config_insert);</script>';
-   */
-        /*         const query = {
-                     _id: {
-                         $in: idents_list
-                     }
-                 };
-                 Factura.deleteMany(query, function(err, result){
-                     if(!err){
-                         console.log("Datos eliminados correctamente");
-                     }
-                 });
-     
-                 const delete_query = "delete from facturas where nif in ? and fecha in ? and tbai_id in ?";
-                 var nif_list = idents_list.map(n => n.split("-")[1]);
-                 var fecha_list = idents_list.map(n => moment(n.split("-")[2], "DDMMYY").format("YYYY-MM-DD"));
-                 var delete_params = [
-                     nif_list,
-                     fecha_list,
-                     idents_list,
-                 ];
-                 client.execute(delete_query, delete_params, {prepare: true}).then(() => console.log("Datos de cassandra eliminados"));
-     */
-
         res.status(200).render('tctest', {
             title: 'Inserción de Facturas',
             page: 'tctest',
             script_time: script_time,
-            script_ratio: script_ratio//,
-            // script_insert: script_insert
+            script_ratio: script_ratio,
+            script_decom: script_decom
         });
 
     },
@@ -536,8 +570,6 @@ var controller = {
         //Tengo que comprimir el fichero con las distintas tecnicas de compresión,
         //descomprimirlo y devolver un json con los resultados.
 
-        var fileName = 'Archivo no subido...';
-
         if (req.files) {
             var filePath = req.files.file.path;
             var fileExt = filePath.split('\\')[1].split(".")[1];
@@ -560,7 +592,7 @@ var controller = {
                     .catch(function (err) {
                         console.error('There was an error when connecting', err);
                         return client.shutdown().then(() => { throw err; });
-                    });
+                });
                 var factura = fs.readFileSync(filePath).toString();
                 //INSERCION en MONGODB
                 var compress_gzip = await compressData(factura);
@@ -577,17 +609,27 @@ var controller = {
                 //json.FacturaComprimida = compress_gzip.toString("base64");
                 json.FacturaComprimida = compress_gzip;
                 json.Status = 0;
-                let result = await insert_mongo(json).catch((err) => {
-                    res.status(200).send(
+                let resul = await insert_mongo(json).catch((err) => {
+                    return err.code;
+                }).then((err) => {
+                    console.log(err);
+                    if(err){
+                        return err;
+                    }
+                    return "OK";
+                });
+
+                if(resul != "OK") {//Ha ocurrido algun tipo de error
+                    fs.unlinkSync(filePath);
+                    return res.status(200).send(
                         {   
                             title: 'Inserción de Facturas',
                             page: 'insertFacturas',
-                            files: "Error al enviar los archivos",
-                            tbai_id: -1
+                            tbai_id: resul
                             //file: compressed
                         }
                     );
-                });
+                }
                 var insercion_mongo_fin = performance.now();
                 
                 //Insercion en Cassandra
@@ -604,7 +646,7 @@ var controller = {
                 ];
                 await client.execute(insertQuery, params, { prepare: true });
                 var insercion_cassandra_fin = performance.now();
-
+                fs.unlinkSync(filePath);
                 res.status(200).send({
                     tbai_id: json._id,
                     title: 'Inserción de Facturas',
@@ -613,26 +655,53 @@ var controller = {
 
 
             } else {//Error el formato no es correcto
-
+                res.status(200).send({
+                    tbai_id: -2,
+                    title: 'Inserción de Facturas',
+                    page: 'insertFacturas'
+                });
             }
 
-            /* res.status(200).render(
-                 'result',
-                 {
-                     title: 'Inserción de Facturas',
-                     page: 'insertFacturas'
-                 }
-             );*/
-        } else {
+        } else {//error al enviar los archivos
             res.status(200).send(
                 {
                     title: 'Inserción de Facturas',
                     page: 'insertFacturas',
-                    files: "Error al enviar los archivos"
-                    //file: compressed
+                    tbai_id: -3
                 }
             );
         }
+    }, insertFacturasEstadisticas: async function(req, res){
+
+        const MAX_NIF = 3000;
+        const DIRECTORY_PATH = "C:\\Users\\877205\\Desktop\\FacturasInsert\\insertData\\";
+
+        const index = fs.readFileSync(DIRECTORY_PATH+"index.txt").toString().split("\n");
+        for(var i = 0; i < index.length; i++){
+            //let nif = companies_nif_list[i][0];
+            let file = index[i].split("/")[5];
+            console.log(file);
+            let facturas = JSON.parse(fs.readFileSync(DIRECTORY_PATH+file).toString());
+            var array = [];
+            for(var j = 0; j < facturas.length; j++){
+                let factura_j = facturas[j];
+                let data = {};
+                data._id = factura_j.id_tbai;
+                data.nif = factura_j.nif;
+                data.fecha = factura_j.fecha;
+                data.cantidad = factura_j.cantidad;
+                data.serie = factura_j.serie;
+                data.status = factura_j.status;
+                data.xml = factura_j.xml;
+                array.push(data);
+            }
+
+            await insert(array);
+
+        }
+
+        res.status(200).send("OK");
+
     }
 
 };
@@ -840,6 +909,83 @@ async function findByTBAI(tbai_id) {
             }
         });
     });
+
+}
+
+async function executeQuery(query) {
+    return new Promise((resolve) => {
+        Factura.find(query, (err, result) => {
+            if (!err) resolve(result);
+        });
+    });
+}
+
+async function pruebasEstadisticasHosteleria(nif){
+    await mongoose.connect(mongoUrl + "/" + dbName).then(() => { console.log("Conexión a MongoDB realizada correctamente") });
+    //nif = "00676565C";
+
+    fs.writeFileSync("./files/estadisticas_hosteleria.csv", "NIF;ObtenerDatos;DescomprimirDatos;BusquedaRAW;BusquedaBD;Descomprimir;Sumar\n",{flag: "w"} );
+
+
+    /**QUERY_TODAS_LAS_FACTURAS */
+    var obtener_facturas_start = performance.now();
+    let query_1_result = await executeQuery({nif:nif});
+    var obtener_facturas_fin = performance.now();
+
+    var descompresion_start = performance.now();
+    for(var i = 0; i < query_1_result.length; i++){
+        let factura_descomp = await unCompressData(query_1_result[i].xml).then((res) => {console.log("Descompresion realizada")}).catch((err) => console.log("Error al descomprimir --> "+i));
+    }
+    var descompresion_fin = performance.now();
+
+
+    console.log("Tiempo en Recuperar de BD --> "+(obtener_facturas_fin-obtener_facturas_start));
+    console.log("Tiempo en descomprimir todo --> "+(descompresion_fin-descompresion_start));
+
+    /** QUERY SUMA TOTAL FACTURAS CON FILTRO EN RAW */
+
+    var busqueda_facturas_filtro_start = performance.now();
+    await Factura.aggregate( [
+        { 
+            "$match" : { 
+                "nif" : nif, 
+                "cantidad" : { 
+                    "$gte" : 10
+                }
+            }
+        }, 
+        { 
+            "$group" : { 
+                "_id" : { 
+
+                }, 
+                "SUM(cantidad)" : { 
+                    "$sum" : "$cantidad"
+                }
+            }
+        }
+    ]).exec();
+
+    var busqueda_facturas_filtro_fin = performance.now();
+
+    var obtener_facturas_2_start = performance.now();
+    let query_2_result = await executeQuery({nif:nif});
+    var obtener_facturas_2_fin = performance.now();
+
+    var array_facturas_descomp = [];
+    var descomprimir_2_start = performance.now();
+    for(var i = 0; i < query_2_result.length; i++){
+        let factura_descomp = await unCompressData(query_2_result[i].xml);
+        array_facturas_descomp.push(factura_descomp);
+    }
+    var descomprimir_2_fin = performance.now();
+
+    var sumar_start = performance.now();
+    array_facturas_descomp.map(f => DATA.getImporteTotalFactura(f)).filter(i => i >= 10).reduce((a,b) => a + b, 0);
+    var sumar_fin = performance.now();
+
+    fs.writeFileSync("./files/estadisticas_hosteleria.csv", nif+";"+(obtener_facturas_fin-obtener_facturas_start)+";"+(descompresion_fin-descompresion_start)+";"+(busqueda_facturas_filtro_fin-busqueda_facturas_filtro_start)+";"+(obtener_facturas_2_fin-obtener_facturas_2_start)+";"+(descomprimir_2_fin-descomprimir_2_start)+";"+(sumar_fin-sumar_start)+"\n",{flag: "a"} );
+    console.log("OK");
 
 }
 

@@ -34,6 +34,11 @@
           <% } else { %>
             <li class="nav-item"><a class="nav-link" href="/getfactura">Búsqueda de Facturas</a></li>
           <% } %>
+          <% if(page == "estadisticas"){ %>
+            <li class="nav-item"><a class="nav-link active" href="#">Estadísticas de Sector</a></li>
+          <% } else { %>
+            <li class="nav-item"><a class="nav-link" href="/statistics">Estadísticas de Sector</a></li>
+          <% } %>
         </ul>
       </div>
     </div>
