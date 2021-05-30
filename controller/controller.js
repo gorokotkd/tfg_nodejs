@@ -5,7 +5,7 @@
 const { performance } = require('perf_hooks');
 const fs = require('fs');
 const zlib = require('zlib');
-const lzma = require('lzma-native');
+//const lzma = require('lzma-native');
 const lzss = require('lzbase62');
 const mongoose = require('mongoose');
 const moment = require('moment');
@@ -16,6 +16,7 @@ var Factura = require('../model/factura');
 var AgrupacionFactura = require('../model/facturaAgrupada');
 var DATA = require('../functions/getData');
 const { db } = require('../model/factura');
+const createFacturas = require('../functions/createData');
 
 const mongoUrl = "mongodb://localhost:27017";
 const dbName = 'ticketbai';
@@ -43,7 +44,7 @@ function decompress_lzma_file(file) {
 function insert_mongo(data) {
     return new Promise((resolve, reject) => {
         const fact = new Factura();
-        fact.collection.insertOne(data, { ordered: false }, (err, docs) => {
+        fact.collection.insertMany(data, { ordered: false }, (err, docs) => {
             if (err) { reject(err) }
             else { resolve(); }
         });
@@ -82,6 +83,10 @@ function unCompressData(data) {
 var controller = {
     index: function (req, res) {
         return res.status(200).render('index', { title: 'Express', page: 'index' });
+    },
+    createData: async function(req, res){
+        //createFacturas.createData;
+        res.send("OK");
     },
     insertFactura: function (req, res) {
         return res.status(200).render(
@@ -280,10 +285,10 @@ var controller = {
 
             //LZMA
             var lzma_compresion_start = performance.now();
-            let compress_lzma = await compress_lzma_file(factura);
+            //let compress_lzma = await compress_lzma_file(factura);
             var lzma_compresion_fin = performance.now();
             var lzma_decompresion_start = performance.now();
-            let decompress_lzma = await decompress_lzma_file(compress_lzma);
+            //let decompress_lzma = await decompress_lzma_file(compress_lzma);
             var lzma_decompresion_fin = performance.now();
 
             //LZSS
@@ -307,7 +312,7 @@ var controller = {
 
             gzip_ratio_list.push(1 - (compress_gzip.byteLength / bytes_start));
             brotli_ratio_list.push(1 - (compress_broli.byteLength / bytes_start));
-            lzma_ratio_list.push(1 - (Buffer.byteLength(compress_lzma) / bytes_start));
+            //lzma_ratio_list.push(1 - (Buffer.byteLength(compress_lzma) / bytes_start));
             lzss_ratio_list.push(1 - (Buffer.byteLength(compress_lzss) / bytes_start));
 
             labels.push(i);
@@ -673,16 +678,22 @@ var controller = {
         }
     }, insertFacturasEstadisticas: async function(req, res){
 
-        const MAX_NIF = 3000;
-        const DIRECTORY_PATH = "C:\\Users\\877205\\Desktop\\FacturasInsert\\insertData\\";
-
+        const DIRECTORY_PATH = "/Users/gorkaalvarez/Desktop/Uni/tbaiData/";
+        await mongoose.connect(mongoUrl + "/" + dbName).then(() => { console.log("Conexión a MongoDB realizada correctamente") });
         const index = fs.readFileSync(DIRECTORY_PATH+"index.txt").toString().split("\n");
         for(var i = 0; i < index.length; i++){
             //let nif = companies_nif_list[i][0];
-            let file = index[i].split("/")[5];
-            console.log(file);
-            let facturas = JSON.parse(fs.readFileSync(DIRECTORY_PATH+file).toString());
-            var array = [];
+            //let file = index[i].split("/")[5];
+            let file = index[i];
+            //console.log(DIRECTORY_PATH+file);
+            try{
+                let facturas = JSON.parse(fs.readFileSync(DIRECTORY_PATH+file).toString());
+                await insert_mongo(facturas).then(() => {console.log("Guardada --> "+file)}).catch(() => {console.log("Error al guardar --> "+file)});
+            }catch(err){
+                console.log("Error al leer la factura --> "+file);
+            }
+            
+            /*var array = [];
             for(var j = 0; j < facturas.length; j++){
                 let factura_j = facturas[j];
                 let data = {};
@@ -694,9 +705,8 @@ var controller = {
                 data.status = factura_j.status;
                 data.xml = factura_j.xml;
                 array.push(data);
-            }
+            }*/
 
-            await insert(array);
 
         }
 
@@ -924,7 +934,7 @@ async function pruebasEstadisticasHosteleria(nif){
     await mongoose.connect(mongoUrl + "/" + dbName).then(() => { console.log("Conexión a MongoDB realizada correctamente") });
     //nif = "00676565C";
 
-    fs.writeFileSync("./files/estadisticas_hosteleria.csv", "NIF;ObtenerDatos;DescomprimirDatos;BusquedaRAW;BusquedaBD;Descomprimir;Sumar\n",{flag: "w"} );
+    //fs.writeFileSync("./files/estadisticas_hosteleria.csv", "NIF;ObtenerDatos;DescomprimirDatos;BusquedaRAW;BusquedaBD;Descomprimir;Sumar\n",{flag: "w"} );
 
 
     /**QUERY_TODAS_LAS_FACTURAS */
@@ -934,8 +944,12 @@ async function pruebasEstadisticasHosteleria(nif){
 
     var descompresion_start = performance.now();
     for(var i = 0; i < query_1_result.length; i++){
-        let factura_descomp = await unCompressData(query_1_result[i].xml).then((res) => {console.log("Descompresion realizada")}).catch((err) => console.log("Error al descomprimir --> "+i));
+        let factura_descomp = await unCompressData(query_1_result[i].xml).then((res) => {/*console.log("Descompresion realizada")*/}).catch((err) => {throw err});
+        //fs.writeFileSync('./files/gzip.txt', Buffer.from(query_1_result[i].xml, "base64").toString("hex"));
+        //let factura_descomp = zlib.gunzipSync(Buffer.from(query_1_result[i].xml, "base64"));
+
     }
+
     var descompresion_fin = performance.now();
 
 
@@ -975,7 +989,7 @@ async function pruebasEstadisticasHosteleria(nif){
     var array_facturas_descomp = [];
     var descomprimir_2_start = performance.now();
     for(var i = 0; i < query_2_result.length; i++){
-        let factura_descomp = await unCompressData(query_2_result[i].xml);
+        let factura_descomp = await unCompressData(query_2_result[i].xml).catch((err) => {console.log("Error al descomprimir en query_2")});
         array_facturas_descomp.push(factura_descomp);
     }
     var descomprimir_2_fin = performance.now();

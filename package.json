@@ -25,8 +25,12 @@
     "mongoose": "^5.12.10",
     "morgan": "~1.9.1",
     "node-gzip": "^1.1.2",
+    "pako": "^2.0.3",
     "qrcode": "^1.4.4",
     "sleep": "^6.3.0",
+    "stream-buffers": "^3.0.2",
+    "xml-crypto": "^2.1.2",
+    "xml-js": "^1.6.11",
     "xmldom": "^0.6.0",
     "xpath": "0.0.32"
   },
