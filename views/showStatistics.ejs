@@ -29,6 +29,11 @@
             <br><br>
             <button type="button" class="btn btn-primary" style="margin-right: auto; margin-left: auto;" onclick=calcStatistics()>Calcular Estadisticas!</button>
         </form>
+        <br>
+        <div id="charts">
+          <h3>Ventas Diarias</h3>
+          <canvas id="ventas-diarias"></canvas>
+        </div>
       </div>
 
       <script>
@@ -42,6 +47,31 @@
                         url: "/showstatistics?sector="+sector+"&nif="+nif,
                         cache: false,
                         success: function(res){
+                          var dia_data = {
+                            labels: res.dia_labels,
+                            datasets: [{
+                              label: "Ventas del Sector",
+                              data: res.dia_sector,
+                              fill: false,
+                              borderColor: 'rgb(75, 192, 192)',
+                              tension: 0.1
+                            },
+                            {
+                              label: "Ventas de la empresa",
+                              data: res.dia_nif,
+                              fill: false,
+                              borderColor: "rgb(255, 99, 132)",
+                              tension: 0.1
+                            }]
+                          };
+
+                          var dia_config = {
+                            type: "line",
+                            data: dia_data
+                          }
+
+                          var dia_ctx = document.getElementById('ventas-diarias');
+                          var dia_chart = new Chart(dia_ctx, dia_config);
 
                         }
                     });

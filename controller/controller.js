@@ -932,7 +932,7 @@ async function findByTBAI(tbai_id) {
 
 }
 
-async function executeQuery(query) {
+function executeQuery(query) {
     return new Promise((resolve) => {
         Factura.find(query, (err, result) => {
             if (!err) resolve(result);
@@ -943,18 +943,16 @@ async function executeQuery(query) {
 async function estadisticasHosteleria(nif){
     await mongoose.connect(mongoUrl + "/" + dbName).then(() => { console.log("Conexión a MongoDB realizada correctamente") });
 
-    var nif_list = companies_nif_list.map(c => c[0]);
+    var nif_list = companies_nif_list.map(c => c[0]).slice(0,763);
+    //console.log(nif_list.toString());
     let dia_time_start = performance.now();
     let query_dia_result = await Factura.find({
-        "nif" : {
-            "$in" : nif_list
+        nif : {
+            $in : nif_list
         },
-        "fecha" : "2021-03-19"
-    },
-    {
-        "xml" : 1,
-        "_id":0
-    }).exec();
+        fecha : "2021-03-19"
+    }, "nif fecha cantidad").exec();
+    
     console.log(performance.now() - dia_time_start);
     let semana_time_start = performance.now();
     let query_semana_result = await Factura.find({
@@ -972,6 +970,7 @@ async function estadisticasHosteleria(nif){
         "xml" : 1,
         "_id":0
     }).exec();
+
     console.log(performance.now() - semana_time_start);
     let mes_time_start = performance.now();
     let query_mes_result = await Factura.find({
@@ -1014,7 +1013,40 @@ async function estadisticasHosteleria(nif){
     var mes_labels = [];
     var trimestre_labels = [];
 
+    var dia_nif = [];
+    var dia_sector = [];
+
+    //query_dia_result.sort((a,b) => moment(a.fecha).format("HH:mm:ss") > moment(b.fecha).format("HH:mm:ss") ? 1 : -1);
     
+    /*for(var i = 0; i < query_dia_result.length; i++){
+        dia_labels.push(moment(query_dia_result[i].fecha).format("HH:mm:ss"));
+        if(query_dia_result[i].nif == nif){
+            dia_nif.push(query_dia_result[i].cantidad);
+        }
+
+
+    }*/
+    console.log(query_dia_result);
+    for(var t = moment("00:00:00", "HH:mm:ss"); t < moment("00:00:00", "HH:mm:ss"); t = t.add(1, "hours")){
+        let global_array = query_dia_result.filter(f => moment(f.fecha )<= t && moment(f.fecha )> t.add(1, "hours"));
+        let global_average = global_array.reduce((a,b) => a.catidad + b.cantidad, 0) / global_array.length;
+
+        let nif_array = query_dia_result.filter(f => f.nif == nif).filter(f => f.fecha <= t && f.fecha > t.add(1, "hours"));
+        let nif_average = nif_array.reduce((a,b) => a.catidad + b.cantidad, 0) / global_array.length;
+
+        dia_nif.push(nif_average);
+        dia_sector.push(global_average);
+        dia_labels.push(t.format("HH:mm:ss"));
+    }
+    console.log(dia_sector);
+
+    return {
+        dia_nif: dia_nif,
+        dia_sector: dia_sector,
+        dia_labels: dia_labels
+    }
+
+
 
 }
 
