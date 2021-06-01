@@ -5,18 +5,20 @@
 const { performance } = require('perf_hooks');
 const fs = require('fs');
 const zlib = require('zlib');
-//const lzma = require('lzma-native');
+const lzma = require('lzma-native');
 const lzss = require('lzbase62');
 const mongoose = require('mongoose');
 const moment = require('moment');
 const cassandra = require('cassandra-driver');
 const qrcode = require('qrcode');
+const parser = require('xml-js');
 
 var Factura = require('../model/factura');
 var AgrupacionFactura = require('../model/facturaAgrupada');
 var DATA = require('../functions/getData');
 const { db } = require('../model/factura');
 const createFacturas = require('../functions/createData');
+const { companies_nif_list } = require('../functions/companies_nif');
 
 const mongoUrl = "mongodb://localhost:27017";
 const dbName = 'ticketbai';
@@ -24,6 +26,12 @@ const dbName = 'ticketbai';
 const FACTURAS_AGRUPADAS_PATH = "../facturas/";
 const MB = 1000000;
 
+const GZIP_PARAMS = {
+    level : 1,
+    flush: zlib.constants.BROTLI_OPERATION_PROCESS,
+    finishFlush : zlib.constants.BROTLI_OPERATION_FINISH,
+    chunkSize:16*1024
+};
 
 function compress_lzma_file(file) {
     return new Promise((resolve) => {
@@ -63,7 +71,7 @@ function insert_agrupadas_mongo(data) {
 
 function compressData(data) {
     return new Promise((resolve) => {
-        zlib.gzip(data, { level: 1 }, (err, result) => {
+        zlib.gzip(data, GZIP_PARAMS, (err, result) => {
             if (!err) resolve(result.toString('base64'),
             );
         });
@@ -72,7 +80,7 @@ function compressData(data) {
 
 function unCompressData(data) {
     return new Promise((resolve, reject) => {
-        zlib.gunzip(Buffer.from(data, "base64"), (err, result) => {
+        zlib.gunzip(Buffer.from(data, "base64"), GZIP_PARAMS, (err, result) => {
             if (!err) resolve(result.toString());
             reject(err);
         });
@@ -116,8 +124,8 @@ var controller = {
         switch (sector) {
             case "hosteleria":
                 
-                //res.status(200).send(estadisticasHosteleria(nif));
-                res.status(200).send(pruebasEstadisticasHosteleria(nif));
+                res.status(200).send(estadisticasHosteleria(nif));
+                //res.status(200).send(pruebasEstadisticasHosteleria(nif));
                 break;
             case "maquinaria":
                 res.status(200).send(estadisticasMaquinaria(nif));
@@ -285,10 +293,10 @@ var controller = {
 
             //LZMA
             var lzma_compresion_start = performance.now();
-            //let compress_lzma = await compress_lzma_file(factura);
+            let compress_lzma = await compress_lzma_file(factura);
             var lzma_compresion_fin = performance.now();
             var lzma_decompresion_start = performance.now();
-            //let decompress_lzma = await decompress_lzma_file(compress_lzma);
+            let decompress_lzma = await decompress_lzma_file(compress_lzma);
             var lzma_decompresion_fin = performance.now();
 
             //LZSS
@@ -312,7 +320,7 @@ var controller = {
 
             gzip_ratio_list.push(1 - (compress_gzip.byteLength / bytes_start));
             brotli_ratio_list.push(1 - (compress_broli.byteLength / bytes_start));
-            //lzma_ratio_list.push(1 - (Buffer.byteLength(compress_lzma) / bytes_start));
+            lzma_ratio_list.push(1 - (Buffer.byteLength(compress_lzma) / bytes_start));
             lzss_ratio_list.push(1 - (Buffer.byteLength(compress_lzss) / bytes_start));
 
             labels.push(i);
@@ -678,22 +686,23 @@ var controller = {
         }
     }, insertFacturasEstadisticas: async function(req, res){
 
-        const DIRECTORY_PATH = "/Users/gorkaalvarez/Desktop/Uni/tbaiData/";
+        //const DIRECTORY_PATH = "/Users/gorkaalvarez/Desktop/Uni/tbaiData/";
+        const DIRECTORY_PATH = "C:\\Users\\877205\\Desktop\\FacturasInsert\\insertData\\";
         await mongoose.connect(mongoUrl + "/" + dbName).then(() => { console.log("Conexión a MongoDB realizada correctamente") });
         const index = fs.readFileSync(DIRECTORY_PATH+"index.txt").toString().split("\n");
         for(var i = 0; i < index.length; i++){
             //let nif = companies_nif_list[i][0];
-            //let file = index[i].split("/")[5];
-            let file = index[i];
+            let file = index[i].split("/")[5];
+            //let file = index[i];
             //console.log(DIRECTORY_PATH+file);
             try{
-                let facturas = JSON.parse(fs.readFileSync(DIRECTORY_PATH+file).toString());
-                await insert_mongo(facturas).then(() => {console.log("Guardada --> "+file)}).catch(() => {console.log("Error al guardar --> "+file)});
+                var facturas = JSON.parse(fs.readFileSync(DIRECTORY_PATH+file).toString());
+                //await insert_mongo(facturas).then(() => {console.log("Guardada --> "+file)}).catch(() => {console.log("Error al guardar --> "+file)});
             }catch(err){
                 console.log("Error al leer la factura --> "+file);
             }
             
-            /*var array = [];
+            var array = [];
             for(var j = 0; j < facturas.length; j++){
                 let factura_j = facturas[j];
                 let data = {};
@@ -705,7 +714,8 @@ var controller = {
                 data.status = factura_j.status;
                 data.xml = factura_j.xml;
                 array.push(data);
-            }*/
+            }
+            await insert_mongo(array).then(() => {console.log("Guardada --> "+file)}).catch(() => {console.log("Error al guardar --> "+file)});
 
 
         }
@@ -930,6 +940,84 @@ async function executeQuery(query) {
     });
 }
 
+async function estadisticasHosteleria(nif){
+    await mongoose.connect(mongoUrl + "/" + dbName).then(() => { console.log("Conexión a MongoDB realizada correctamente") });
+
+    var nif_list = companies_nif_list.map(c => c[0]);
+    let dia_time_start = performance.now();
+    let query_dia_result = await Factura.find({
+        "nif" : {
+            "$in" : nif_list
+        },
+        "fecha" : "2021-03-19"
+    },
+    {
+        "xml" : 1,
+        "_id":0
+    }).exec();
+    console.log(performance.now() - dia_time_start);
+    let semana_time_start = performance.now();
+    let query_semana_result = await Factura.find({
+        "nif" : {
+            "$in" : nif_list
+        },
+        "fecha" : {
+            "$lte": "2021-03-15"
+        },
+        "fecha":{
+            "$gte": "2021-03-21"
+        }
+    },
+    {
+        "xml" : 1,
+        "_id":0
+    }).exec();
+    console.log(performance.now() - semana_time_start);
+    let mes_time_start = performance.now();
+    let query_mes_result = await Factura.find({
+        "nif" : {
+            "$in" : nif_list
+        },
+        "fecha" : {
+            "$lte": "2021-03-01"
+        },
+        "fecha":{
+            "$gte":"2021-03-28"
+        }
+    },
+    {
+        "xml" : 1,
+        "_id":0
+    }).exec();
+    console.log(performance.now() - mes_time_start);
+    let trimestre_time_start = performance.now();
+    let query_trimestre_result = await Factura.find({
+        "nif" : {
+            "$in" : nif_list
+        },
+        "fecha" : {
+            "$lte": "2021-01-04"
+        },
+        "fecha":{
+            "$gte":"2021-03-28"
+        }
+    },
+    {
+        "xml" : 1,
+        "_id":0
+    }).exec();
+    console.log(performance.now() - trimestre_time_start);
+
+
+    var dia_labels = [];
+    var semana_labels = [];
+    var mes_labels = [];
+    var trimestre_labels = [];
+
+    
+
+}
+
 async function pruebasEstadisticasHosteleria(nif){
     await mongoose.connect(mongoUrl + "/" + dbName).then(() => { console.log("Conexión a MongoDB realizada correctamente") });
     //nif = "00676565C";
@@ -947,7 +1035,6 @@ async function pruebasEstadisticasHosteleria(nif){
         let factura_descomp = await unCompressData(query_1_result[i].xml).then((res) => {/*console.log("Descompresion realizada")*/}).catch((err) => {throw err});
         //fs.writeFileSync('./files/gzip.txt', Buffer.from(query_1_result[i].xml, "base64").toString("hex"));
         //let factura_descomp = zlib.gunzipSync(Buffer.from(query_1_result[i].xml, "base64"));
-
     }
 
     var descompresion_fin = performance.now();
@@ -990,14 +1077,16 @@ async function pruebasEstadisticasHosteleria(nif){
     var descomprimir_2_start = performance.now();
     for(var i = 0; i < query_2_result.length; i++){
         let factura_descomp = await unCompressData(query_2_result[i].xml).catch((err) => {console.log("Error al descomprimir en query_2")});
+        //let json = parser.xml2json(factura_descomp, {compact: true, ignoreAttributes: true, ignoreDeclaration: true, spaces: '\t'});
         array_facturas_descomp.push(factura_descomp);
     }
     var descomprimir_2_fin = performance.now();
 
+    //console.log(array_facturas_descomp[0]);
     var sumar_start = performance.now();
-    array_facturas_descomp.map(f => DATA.getImporteTotalFactura(f)).filter(i => i >= 10).reduce((a,b) => a + b, 0);
+    let suma = array_facturas_descomp.map(f => DATA.getImporteTotalFactura(f)).filter(i => i <= 10).reduce((a,b) => a + b, 0);
     var sumar_fin = performance.now();
-
+    console.log(suma);
     fs.writeFileSync("./files/estadisticas_hosteleria.csv", nif+";"+(obtener_facturas_fin-obtener_facturas_start)+";"+(descompresion_fin-descompresion_start)+";"+(busqueda_facturas_filtro_fin-busqueda_facturas_filtro_start)+";"+(obtener_facturas_2_fin-obtener_facturas_2_start)+";"+(descomprimir_2_fin-descomprimir_2_start)+";"+(sumar_fin-sumar_start)+"\n",{flag: "a"} );
     console.log("OK");
 
