@@ -30,7 +30,7 @@
             <button type="button" class="btn btn-primary" style="margin-right: auto; margin-left: auto;" onclick=calcStatistics()>Calcular Estadisticas!</button>
         </form>
         <br>
-        <div id="charts">
+        <div id="charts" style="display: none;">
           <h3>Ventas Diarias</h3>
           <canvas id="ventas-diarias"></canvas>
         </div>
@@ -47,6 +47,9 @@
                         url: "/showstatistics?sector="+sector+"&nif="+nif,
                         cache: false,
                         success: function(res){
+                          if(Chart.getChart('ventas-diarias')!=null){
+                            Chart.getChart('ventas-diarias').destroy();
+                        }
                           var dia_data = {
                             labels: res.dia_labels,
                             datasets: [{
@@ -72,6 +75,7 @@
 
                           var dia_ctx = document.getElementById('ventas-diarias');
                           var dia_chart = new Chart(dia_ctx, dia_config);
+                          $('#charts').show();
 
                         }
                     });
