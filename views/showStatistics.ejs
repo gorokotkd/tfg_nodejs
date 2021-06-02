@@ -30,14 +30,23 @@
             <button type="button" class="btn btn-primary" style="margin-right: auto; margin-left: auto;" onclick=calcStatistics()>Calcular Estadisticas!</button>
         </form>
         <br>
+        <img src="loading.gif" id="loading_gif" style="display: none; margin-left: auto; margin-right: auto;" width="5%"
+          height="5%" />
+        <br>
         <div id="charts" style="display: none;">
           <h3>Ventas Diarias</h3>
           <canvas id="ventas-diarias"></canvas>
+          <h3>Ventas Semanales</h3>
+          <canvas id="ventas-semanales"></canvas>
+          <h3>Ventas Mensuales</h3>
+          <canvas id="ventas-mensuales"></canvas>
         </div>
       </div>
 
       <script>
           function calcStatistics() {
+                $('#charts').hide();
+                $('#loading_gif').show();
                 let sector = $('#sector').val();
                 let nif = $('#nif-empresa').val();    
                 if(sector != -1){
@@ -46,10 +55,17 @@
                         type: "get",
                         url: "/showstatistics?sector="+sector+"&nif="+nif,
                         cache: false,
+                        async: false,
                         success: function(res){
                           if(Chart.getChart('ventas-diarias')!=null){
                             Chart.getChart('ventas-diarias').destroy();
-                        }
+                          }
+                          if(Chart.getChart('ventas-semanales')!=null){
+                            Chart.getChart('ventas-semanales').destroy();
+                          }
+                          if(Chart.getChart('ventas-mensuales')!=null){
+                            Chart.getChart('ventas-mensuales').destroy();
+                          }
                           var dia_data = {
                             labels: res.dia_labels,
                             datasets: [{
@@ -75,6 +91,60 @@
 
                           var dia_ctx = document.getElementById('ventas-diarias');
                           var dia_chart = new Chart(dia_ctx, dia_config);
+
+                          var semana_data = {
+                            labels: res.semana_labels,
+                            datasets: [{
+                              label: "Ventas del Sector",
+                              data: res.semana_sector,
+                              fill: false,
+                              borderColor: 'rgb(75, 192, 192)',
+                              tension: 0.1
+                            },
+                            {
+                              label: "Ventas de la empresa",
+                              data: res.semana_nif,
+                              fill: false,
+                              borderColor: "rgb(255, 99, 132)",
+                              tension: 0.1
+                            }]
+                          };
+
+                          var semana_config = {
+                            type: "line",
+                            data: semana_data
+                          }
+
+                          var semana_ctx = document.getElementById('ventas-semanales');
+                          var semana_chart = new Chart(semana_ctx, semana_config);
+
+                          var mes_data = {
+                            labels: res.mes_labels,
+                            datasets: [{
+                              label: "Ventas del Sector",
+                              data: res.mes_sector,
+                              fill: false,
+                              borderColor: 'rgb(75, 192, 192)',
+                              tension: 0.1
+                            },
+                            {
+                              label: "Ventas de la empresa",
+                              data: res.mes_nif,
+                              fill: false,
+                              borderColor: "rgb(255, 99, 132)",
+                              tension: 0.1
+                            }]
+                          };
+
+                          var mes_config = {
+                            type: "line",
+                            data: mes_data
+                          }
+
+                          var mes_ctx = document.getElementById('ventas-mensuales');
+                          var mes_chart = new Chart(mes_ctx, mes_config);
+
+                          $('#loading_gif').hide();
                           $('#charts').show();
 
                         }
@@ -88,6 +158,6 @@
       <div>
     </div>
     </main>
-    
+    <%- include('footer') %>
   </body>
 </html>

@@ -1,5 +1,7 @@
 #!/usr/bin/env node
-
+const mongoose = require('mongoose');
+const mongoUrl = "mongodb://localhost:27017";
+const dbName = 'ticketbai';
 /**
  * Module dependencies.
  */
@@ -20,6 +22,8 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+
+//mongoose.connect(mongoUrl + "/" + dbName).then(() => { console.log("Conexión a MongoDB realizada correctamente") });
 
 /**
  * Listen on provided port, on all network interfaces.
