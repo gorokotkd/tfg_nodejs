@@ -23,7 +23,7 @@ app.set('port', port);
 
 var server = http.createServer(app);
 
-//mongoose.connect(mongoUrl + "/" + dbName).then(() => { console.log("Conexión a MongoDB realizada correctamente") });
+mongoose.connect(mongoUrl + "/" + dbName).then(() => { console.log("Conexión a MongoDB realizada correctamente") });
 
 /**
  * Listen on provided port, on all network interfaces.

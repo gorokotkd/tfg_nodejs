@@ -29,6 +29,7 @@ router.get('/showstatistics', projectController.showStatistics);
 
 router.get("/insertfacturasestadisticas", projectController.insertFacturasEstadisticas);
 router.get("/createdata", projectController.createData);
+router.get("/agruparmes", projectController.agruparMes);
 
 
 
