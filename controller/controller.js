@@ -5,25 +5,21 @@
 const { performance } = require('perf_hooks');
 const fs = require('fs');
 const zlib = require('zlib');
-//const lzma = require('lzma-native');
+const lzma = require('lzma-native');
 const lzss = require('lzbase62');
-//const mongoose = require('mongoose');
+
 const moment = require('moment');
 const cassandra = require('cassandra-driver');
-const qrcode = require('qrcode');
-const parser = require('xml-js');
+
 
 var Factura = require('../model/factura');
 var AgrupacionFactura = require('../model/facturaAgrupada');
 var DATA = require('../functions/getData');
-const { db } = require('../model/factura');
 const createFacturas = require('../functions/createData');
 const { companies_nif_list } = require('../functions/companies_nif');
-const { rejects } = require('assert');
-const facturaAgrupada = require('../model/facturaAgrupada');
+const FacturaAgrupada = require('../model/facturaAgrupada');
+const { db } = require('../model/factura');
 
-//const mongoUrl = "mongodb://localhost:27017";
-//const dbName = 'ticketbai';
 
 const FACTURAS_AGRUPADAS_PATH = "../facturas/";
 const MB = 1000000;
@@ -140,23 +136,12 @@ var controller = {
     insertMany: async function (req, res) {
 
         var num_agrupadas = req.query.num;
-        await mongoose.connect(mongoUrl + "/" + dbName).then(() => { console.log("Conexión a MongoDB realizada correctamente") });
+
         const client = new cassandra.Client({
             contactPoints: ['127.0.0.1'],
             keyspace: 'ticketbai',
             localDataCenter: 'datacenter1'
         });
-
-        client.connect()
-            .then(function () {
-                console.log('Connected to cluster with %d host(s): %j', client.hosts.length, client.hosts.keys());
-                //console.log('Keyspaces: %j', Object.keys(client.metadata.keyspaces));
-            })
-            .catch(function (err) {
-                console.error('There was an error when connecting', err);
-                return client.shutdown().then(() => { throw err; });
-            });
-
         var tbai_list = [];
         var agrupacion = fs.readFileSync(FACTURAS_AGRUPADAS_PATH + "grupo_" + num_agrupadas + "_1.xml").toString();
         tbai_list.push(DATA.getIdentTBAI(agrupacion));
@@ -467,23 +452,11 @@ var controller = {
             });
         } else {
 
-            await mongoose.connect(mongoUrl + "/" + dbName).then(() => { console.log("Conexión a MongoDB realizada correctamente") });
             const client = new cassandra.Client({
                 contactPoints: ['127.0.0.1'],
                 keyspace: 'ticketbai',
                 localDataCenter: 'datacenter1'
             });
-
-            client.connect()
-                .then(function () {
-                    console.log('Connected to cluster with %d host(s): %j', client.hosts.length, client.hosts.keys());
-                    //console.log('Keyspaces: %j', Object.keys(client.metadata.keyspaces));
-                })
-                .catch(function (err) {
-                    console.error('There was an error when connecting', err);
-                    return client.shutdown().then(() => { throw err; });
-                });
-
 
             var result_mongo = await findByTBAI(tbai_id);
 
@@ -592,22 +565,13 @@ var controller = {
 
 
             if (fileExt == "xml") {//Simplemente lo subo
-                await mongoose.connect(mongoUrl + "/" + dbName).then(() => { console.log("Conexión a MongoDB realizada correctamente") });
+
                 const client = new cassandra.Client({
                     contactPoints: ['127.0.0.1'],
                     keyspace: 'ticketbai',
                     localDataCenter: 'datacenter1'
                 });
 
-                client.connect()
-                    .then(function () {
-                        console.log('Connected to cluster with %d host(s): %j', client.hosts.length, client.hosts.keys());
-                        //console.log('Keyspaces: %j', Object.keys(client.metadata.keyspaces));
-                    })
-                    .catch(function (err) {
-                        console.error('There was an error when connecting', err);
-                        return client.shutdown().then(() => { throw err; });
-                    });
                 var factura = fs.readFileSync(filePath).toString();
                 //INSERCION en MONGODB
                 var compress_gzip = await compressData(factura);
@@ -736,24 +700,28 @@ var controller = {
                     nif: nif_array[i],
                     fecha:{
                         $gte : t,
-                        $lt: t_aux.add(1,"months").toDate()
+                        $lte: t_aux.add(1,"months").toDate()
                     }
                 }, "xml").exec();
-                var agrupacion = "";
-                var tbai_array = [];
-                for(var j = 0; j < facturas.length; j++){
-                    let factura = zlib.gunzipSync(Buffer.from(facturas[j].xml, "base64"), GZIP_PARAMS).toString();
-                    agrupacion += factura;
-                    tbai_array.push(DATA.getIdentTBAI(factura));
-                }
+                if(facturas != null){
+                    var agrupacion = "";
+                    var tbai_array = [];
+                    for(var j = 0; j < facturas.length; j++){
+                        let factura = zlib.gunzipSync(Buffer.from(facturas[j].xml, "base64"), GZIP_PARAMS).toString();
+                        agrupacion += factura;
+                        tbai_array.push(DATA.getIdentTBAI(factura));
+                    }
 
-                var data_to_insert = {};
-                data_to_insert.nif = nif_array[i];
-                data_to_insert.fechaInicio = t;
-                data_to_insert.fechaFin = t_aux.subtract(1, "days").toDate();
-                data_to_insert.idents = tbai_array;
-                data_to_insert.agrupacion = zlib.gzipSync(agrupacion, GZIP_PARAMS).toString("base64");
-                await insert_agrupadas_mongo([data_to_insert]);
+                    var data_to_insert = {};
+                    data_to_insert.nif = nif_array[i];
+                    data_to_insert.fechaInicio = t;
+                    data_to_insert.fechaFin = t_aux.subtract(1, "days").toDate();
+                    data_to_insert.idents = tbai_array;
+                    data_to_insert.agrupacion = zlib.gzipSync(agrupacion, GZIP_PARAMS).toString("base64");
+                    await insert_agrupadas_mongo([data_to_insert]);
+                }else{
+                    console.log("Error al transformar las facturas del nif --> "+nif_array[i]);
+                }
             }
             console.log("Insertado NIF --> " + nif_array[i]);
         }
@@ -1207,80 +1175,131 @@ function createEstadisticaMensual(nif) {
    });
 }
 
-//Hay que cambiar.
+
+
 function createEstadisticaTrimestre(nif) {
-    //await mongoose.connect(mongoUrl + "/" + dbName).then(() => { console.log("Conexión a MongoDB realizada correctamente") });
-   return new Promise((resolve, reject) => {
-    console.log("Estadistica Mensual");
+
+   return new Promise(async (resolve, reject) => {
+    console.log("Estadistica Trimestral");
     try {
-        //console.log("Dentro del try");
-        if (fs.existsSync("./estadisticas/2021-01-04_2021-03-28_global.txt")) {//Si existe la de un nif entonces existe la global
+        if (fs.existsSync("./estadisticas/2021-01-01_2021-03-28_global.txt")) {//Si existe la de un nif entonces existe la global
             //console.log("Existe fichero?");
-            var global_mes_estadistica = fs.readFileSync("./estadisticas/2021-01-04_2021-03-28_global.txt").toString().split("\n");
-            if (global_mes_estadistica.map(l => l.split(" // ")[0]).filter(n => n == `mes_${nif}`).length == 0) {//No existe la estadistica sobre ese nif
+            var global_mes_estadistica = fs.readFileSync("./estadisticas/2021-01-01_2021-03-28_global.txt").toString().split("\n");
+            if (global_mes_estadistica.map(l => l.split(" // ")[0]).filter(n => n == `triMes_${nif}`).length == 0) {//No existe la estadistica sobre ese nif
                 //console.log("No existe estadistica sobre el nif");
-                Factura.find({
-                    nif: nif,
-                    fecha: {
-                        $gte: new Date("2021-01-04T00:00:00"),
-                        $lte: new Date("2021-03-28T23:59:59")
+                var nif_sum = [];
+                for(var t = moment("2021-01-01").toDate(); t < moment("2021-04-01").toDate(); t = moment(t).add(1, "months").toDate()){
+                    let t_plus_month = moment(t).add(1, "months").subtract(1, "days").toDate();
+                    //let t_plus_month = moment(t).add(1, "months").toDate();
+                
+
+                    let resul = await FacturaAgrupada.findOne({
+                        nif: nif,
+                        fechaInicio: {$eq: t},
+                        fechaFin: {$eq: t_plus_month}
+                    }, "agrupacion").exec();
+                    try{
+                        let facturas_array = zlib.gunzipSync(Buffer.from(resul.agrupacion, "base64"), GZIP_PARAMS).toString().split(/(?=\<\?xml version="1\.0" encoding="utf-8"\?\>)/);
+
+                        facturas_array.forEach((factura, index) => {
+                            let fecha = moment(DATA.getFechaExp(factura), "DD-MM-YYYY").format("YYYY-MM-DD");
+                            let importe = DATA.getImporteTotalFactura(factura);
+                            nif_sum.push([fecha, importe]);
+
+                        });
+                    }catch(err){
+                        console.log("Error en nif --> " + nif);
                     }
-                }, "nif fecha cantidad", (err, query_mes_result) => {
-                    var mes_nif = [];
-                    //var query_dia_descomp = query_dia_result.map(f => zlib.gunzipSync(Buffer.from(f.xml, "base64"), GZIP_PARAMS).toString());
-                    for (var t = moment("2021-01-04").toDate(); t <= moment("2021-03-28").toDate(); t = moment(t).add(1, "days").toDate()) {
-                        let t_aux = t;
-                        let nif_array = query_mes_result.filter(f => moment(f.fecha).toDate() >= t && moment(f.fecha).toDate() < moment(t_aux).add(1, "days").toDate());
-                        var nif_average = 0;
+                    
+
+
+
+                }//end for
+    
+    
+
+                var mes_nif = [];
+
+                //Recorro todos los dias.
+                for (var t = moment("2021-01-01").toDate(); t <= moment("2021-03-28").toDate(); t = moment(t).add(1, "days").toDate()) {
+                    let nif_array = nif_sum.filter(e => e[0] == moment(t).format("YYYY-MM-DD")).map(e => e[1]);
                     if(nif_array.length > 0){
-                        nif_average = nif_array.map(f => f.cantidad).reduce((a, b) => a + b, 0) / nif_array.length;
-                    }
-                    mes_nif.push(nif_average);
-                    }
-                    fs.appendFileSync('./estadisticas/2021-01-04_2021-03-28_global.txt', `triMes_${nif} // [${mes_nif.toString()}]\n`);
-                    resolve("OK");
-                });
+                        mes_nif.push(nif_array.reduce((a,b) => a + b ,0) / nif_array.length);
+                    }else{
+                        mes_nif.push(0);
+                    }             
+                    //mes_nif.push(nif_sum.filter(e => e[0] == moment(t).format("YYYY-MM-DD")).map(e => e[1]).reduce((a,b) => a + b ,0));
+                }
+    
+                fs.appendFileSync('./estadisticas/2021-01-01_2021-03-28_global.txt', `triMes_${nif} // [${mes_nif.toString()}]\n`);
+                resolve("OK");
             }else{
                 resolve("OK");
             }//end if
         } else {//No existe la estadistica global ni la del nif, asi que tengo que crearlas
             //console.log("No existe fichero");
-            var nif_list = companies_nif_list.map(c => c[0]).slice(0, 763);
-            Factura.find({
-                nif: {
-                    $in: nif_list
-                },
-                fecha: {
-                    $gte: new Date("2021-01-04T00:00:00"),
-                    $lte: new Date("2021-03-28T23:59:59")
-                }
-            }, "nif fecha cantidad", (err, query_mes_result) => {
-                var mes_labels = [];
-                var mes_nif = [];
-                var mes_sector = [];
+            var nif_list = companies_nif_list.slice(0, 763).map(c => c[0]);
+            //var nif_list = companies_nif_list.slice(0, 2).map(c => c[0]);
+            var global_sum = [];
+            var nif_sum = [];
+            for(var t = moment("2021-01-01").toDate(); t < moment("2021-04-01").toDate(); t = moment(t).add(1, "months").toDate()){
+                //nif_list.forEach((nif_l, index) => {
+                for(var j = 0; j < nif_list.length; j++){
+                    let nif_l = nif_list[j];
+                    let t_plus_month = moment(t).add(1, "months").subtract(1, "days").toDate();
 
-                for (var t = moment("2021-01-04").toDate(); t <= moment("2021-03-28").toDate(); t = moment(t).add(1, "days").toDate()) {
-                    let t_aux = t;
-                    let global_array = query_mes_result.filter(f => (moment(f.fecha).toDate() >= t) && (moment(f.fecha).toDate() < moment(t_aux).add(1, "days").toDate()));
-                    var global_average = 0;
-                    if(global_array.length > 0){
-                        global_average = global_array.map(f => f.cantidad).reduce((a, b) => a + b, 0) / global_array.length;
-                    }
-                    //console.log(global_array);
+                    let resul = await FacturaAgrupada.findOne({
+                        nif: nif_l,
+                        fechaInicio: {$lte: t},
+                        fechaFin: {$gte: t_plus_month}
+                    }, "agrupacion").exec();
 
-                    let nif_array = query_mes_result.filter(f => f.nif == nif).filter(f => moment(f.fecha).toDate() >= t && moment(f.fecha).toDate() < moment(t_aux).add(1, "days").toDate());
-                    var nif_average = 0;
-                    if(nif_array.length > 0){
-                        nif_average = nif_array.map(f => f.cantidad).reduce((a, b) => a + b, 0) / nif_array.length;
+                    try {
+                        let facturas_array = zlib.gunzipSync(Buffer.from(resul.agrupacion, "base64"), GZIP_PARAMS).toString().split(/(?=\<\?xml version="1\.0" encoding="utf-8"\?\>)/);
+                        facturas_array.forEach((factura, index) => {
+                            //console.log(factura);
+                            let fecha = moment(DATA.getFechaExp(factura), "DD-MM-YYYY").format("YYYY-MM-DD");
+                            let importe = DATA.getImporteTotalFactura(factura);
+
+                            global_sum.push([fecha, importe]);
+                            if(nif_l == nif){
+                                nif_sum.push([fecha, importe]);
+                            }
+                        });
+                    }catch (err){
+                        console.log("Error al descomprimir el grupo --> "+nif_l);
                     }
-                    mes_nif.push(nif_average);
-                    mes_sector.push(global_average);
-                    mes_labels.push(moment(t).format("YYYY-MM-DD"));
-                    console.log(mes_labels);//["' + labels.join('\","') + '"]
+                       
                 }
-                fs.writeFileSync('./estadisticas/2021-01-04_2021-03-28_global.txt', `triMes_labels // ["${mes_labels.join('","')}"]\ntriMes_sector // [${mes_sector.toString()}]\ntriMes_${nif} // [${mes_nif.toString()}]\n`);
-                resolve("OK");
-            });
+                console.log(moment(t).format("YYYY-MM-DD"));
+            }//end for
+
+
+            var mes_labels = [];
+            var mes_nif = [];
+            var mes_sector = [];
+            //Recorro todos los dias.
+            for (var t = moment("2021-01-01").toDate(); t <= moment("2021-03-28").toDate(); t = moment(t).add(1, "days").toDate()) {
+                
+                let mes_array = global_sum.filter(e => e[0] == moment(t).format("YYYY-MM-DD")).map(e => e[1]);
+                if(mes_array.length > 0){
+                    mes_sector.push(mes_array.reduce((a,b) => a + b ,0) / mes_array.length);
+                }else{
+                    mes_sector.push(0);
+                }
+                
+                let nif_array = nif_sum.filter(e => e[0] == moment(t).format("YYYY-MM-DD")).map(e => e[1]);
+                if(nif_array.length > 0){
+                    mes_nif.push(nif_array.reduce((a,b) => a + b ,0) / nif_array.length);
+                }else{
+                    mes_nif.push(0);
+                }
+                
+                mes_labels.push(moment(t).format("YYYY-MM-DD"));
+            }
+
+            fs.appendFileSync('./estadisticas/2021-01-01_2021-03-28_global.txt', `triMes_labels // ["${mes_labels.join('","')}"]\ntriMes_sector // [${mes_sector.toString()}]\ntriMes_${nif} // [${mes_nif.toString()}]\n`);
+            resolve("OK");
 
         }//end if
     } catch (err) {
@@ -1303,6 +1322,7 @@ async function estadisticasHosteleria(nif) {
                 const res_2 = await createEstadisticaMensual(nif);
                 console.log("Mes --> " + res_2);
                 try {
+                    const res_3 = await createEstadisticaTrimestre(nif);
                     var file = fs.readFileSync('./estadisticas/2021-03-19_2021-03-19_global.txt').toString().split('\n');
                     var dia_labels = JSON.parse(file[0].split(" // ")[1]);
                     var dia_sector = JSON.parse(file[1].split(" // ")[1]);
@@ -1317,6 +1337,13 @@ async function estadisticasHosteleria(nif) {
                     var mes_labels = JSON.parse(mes_file[0].split(" // ")[1]);
                     var mes_sector = JSON.parse(mes_file[1].split(" // ")[1]);
                     var mes_nif = JSON.parse(mes_file.filter(l_1 => l_1.split(" // ")[0] == `mes_${nif}`)[0].split(" // ")[1]);
+
+                    var triMes_file = fs.readFileSync('./estadisticas/2021-01-01_2021-03-28_global.txt').toString().split('\n');
+                    var triMes_labels = JSON.parse(triMes_file[0].split(" // ")[1]);
+                    var triMes_sector = JSON.parse(triMes_file[1].split(" // ")[1]);
+                    var triMes_nif = JSON.parse(triMes_file.filter(l_1 => l_1.split(" // ")[0] == `triMes_${nif}`)[0].split(" // ")[1]);
+
+
                     
                     return {
                         dia_nif: dia_nif,
@@ -1327,7 +1354,10 @@ async function estadisticasHosteleria(nif) {
                         semana_labels: semana_labels,
                         mes_nif: mes_nif,
                         mes_sector: mes_sector,
-                        mes_labels: mes_labels
+                        mes_labels: mes_labels,
+                        triMes_labels: triMes_labels,
+                        triMes_nif: triMes_nif,
+                        triMes_sector: triMes_sector
                     };
                 }catch (err_3){
                     throw err_3;
@@ -1341,78 +1371,6 @@ async function estadisticasHosteleria(nif) {
     } catch (err_1) {
         throw err_1;
     }
-    
-
-    
-
-
-
-    //var nif_list = companies_nif_list.map(c => c[0]).slice(0,763);
-    //console.log(nif_list.toString());
-    //let dia_time_start = performance.now();
-
-
-    //query_dia_result.map(f => console.log(f.fecha));
-    //console.log(performance.now() - dia_time_start);
-    /*let semana_time_start = performance.now();
-    let query_semana_result = await Factura.find({
-        "nif" : {
-            "$in" : nif_list
-        },
-        "fecha" : {
-            "$lte": "2021-03-15"
-        },
-        "fecha":{
-            "$gte": "2021-03-21"
-        }
-    },
-    {
-        "xml" : 1,
-        "_id":0
-    }).exec();
-
-    console.log(performance.now() - semana_time_start);
-    let mes_time_start = performance.now();
-    let query_mes_result = await Factura.find({
-        "nif" : {
-            "$in" : nif_list
-        },
-        "fecha" : {
-            "$lte": "2021-03-01"
-        },
-        "fecha":{
-            "$gte":"2021-03-28"
-        }
-    },
-    {
-        "xml" : 1,
-        "_id":0
-    }).exec();
-    console.log(performance.now() - mes_time_start);
-    let trimestre_time_start = performance.now();
-    let query_trimestre_result = await Factura.find({
-        "nif" : {
-            "$in" : nif_list
-        },
-        "fecha" : {
-            "$lte": "2021-01-04"
-        },
-        "fecha":{
-            "$gte":"2021-03-28"
-        }
-    },
-    {
-        "xml" : 1,
-        "_id":0
-    }).exec();
-    console.log(performance.now() - trimestre_time_start);
-
-*/
-
-    
-    var mes_labels = [];
-    var trimestre_labels = [];
-
 }
 
 async function pruebasEstadisticasHosteleria(nif) {

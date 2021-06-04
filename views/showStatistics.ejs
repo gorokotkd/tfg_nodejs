@@ -40,6 +40,8 @@
           <canvas id="ventas-semanales"></canvas>
           <h3>Ventas Mensuales</h3>
           <canvas id="ventas-mensuales"></canvas>
+          <h3>Ventas Trimestrales</h3>
+          <canvas id="ventas-triMes"></canvas>
         </div>
       </div>
 
@@ -65,6 +67,9 @@
                           }
                           if(Chart.getChart('ventas-mensuales')!=null){
                             Chart.getChart('ventas-mensuales').destroy();
+                          }
+                          if(Chart.getChart('ventas-triMes')!=null){
+                            Chart.getChart('ventas-triMes').destroy();
                           }
                           var dia_data = {
                             labels: res.dia_labels,
@@ -143,6 +148,32 @@
 
                           var mes_ctx = document.getElementById('ventas-mensuales');
                           var mes_chart = new Chart(mes_ctx, mes_config);
+
+                          var triMes_data = {
+                            labels: res.triMes_labels,
+                            datasets: [{
+                              label: "Ventas del Sector",
+                              data: res.triMes_sector,
+                              fill: false,
+                              borderColor: 'rgb(75, 192, 192)',
+                              tension: 0.1
+                            },
+                            {
+                              label: "Ventas de la empresa",
+                              data: res.triMes_nif,
+                              fill: false,
+                              borderColor: "rgb(255, 99, 132)",
+                              tension: 0.1
+                            }]
+                          };
+
+                          var triMes_config = {
+                            type: "line",
+                            data: triMes_data
+                          }
+
+                          var triMes_ctx = document.getElementById('ventas-triMes');
+                          var triMes_chart = new Chart(triMes_ctx, triMes_config);
 
                           $('#loading_gif').hide();
                           $('#charts').show();

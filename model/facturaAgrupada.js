@@ -9,11 +9,11 @@ var FacturaSchema = Schema({
         required: true
     },
     fechaInicio: {
-        type: Schema.Types.Date,
+        type: Date,
         required: true
     },
     fechaFin: {
-        type: Schema.Types.Date,
+        type: Date,
         required: true
     },
     idents : {
