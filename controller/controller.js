@@ -5,7 +5,7 @@
 const { performance } = require('perf_hooks');
 const fs = require('fs');
 const zlib = require('zlib');
-const lzma = require('lzma-native');
+//const lzma = require('lzma-native');
 const lzss = require('lzbase62');
 
 const moment = require('moment');
@@ -108,9 +108,14 @@ var controller = {
             title: 'Inserción múltiple de facturas',
             page: 'insertMany'
         });
-    },
-    statistics: function (req, res) {
+    },statistics: function (req, res) {
         res.status(200).render('showStatistics', {
+            title: 'Estadísticas por Sector',
+            page: 'estadisticas'
+        });
+    },
+    showStatisticsMenor: function(req, res){
+        res.status(200).render('estadisticasPorMenor', {
             title: 'Estadísticas por Sector',
             page: 'estadisticas'
         });
@@ -933,7 +938,7 @@ function createEstadisticaDiaria(nif) {
             //console.log("Existe fichero?");
             var global_dia_estadistica = fs.readFileSync("./estadisticas/2021-03-19_2021-03-19_global.txt").toString().split("\n");
             if (global_dia_estadistica.map(l => l.split(" // ")[0]).filter(n => n == `dia_${nif}`).length == 0) {//No existe la estadistica sobre ese nif
-                console.log("No existe estadistica sobre el nif");
+                //console.log("No existe estadistica sobre el nif");
                 Factura.find({
                     nif: nif,
                     fecha: {
@@ -960,7 +965,9 @@ function createEstadisticaDiaria(nif) {
             }//end if
         } else {//No existe la estadistica global ni la del nif, asi que tengo que crearlas
             //console.log("No existe fichero");
+            
             var nif_list = companies_nif_list.map(c => c[0]).slice(0, 763);
+            var buscar_datos_start = performance.now();
             Factura.find({
                 nif: {
                     $in: nif_list
@@ -970,13 +977,16 @@ function createEstadisticaDiaria(nif) {
                     $lte: new Date("2021-03-19T23:59:59")
                 }
             }, "nif fecha cantidad xml", (err, query_dia_result) => {
+                var buscar_datos_fin = performance.now() - buscar_datos_start;
                 var dia_labels = [];
                 var dia_nif = [];
                 var dia_sector = [];
+                var descomprimir_start = performance.now();
                 var query_dia_descomp = query_dia_result.map(f => zlib.gunzipSync(Buffer.from(f.xml, "base64"), GZIP_PARAMS).toString());
-                console.log("descomprimido");
-                for (var t = moment("00:00:00", "HH:mm:ss").toDate(); t <= moment("23:00:00", "HH:mm:ss").toDate(); t = moment(t).add(1, "hours").toDate()) {
-                           
+                var descomprimir_fin = performance.now() - descomprimir_start;
+                //console.log("descomprimido");
+                var calcular_estadistica_start = performance.now();
+                for (var t = moment("00:00:00", "HH:mm:ss").toDate(); t <= moment("23:00:00", "HH:mm:ss").toDate(); t = moment(t).add(1, "hours").toDate()) {                 
                     let t_aux = t;
                     let global_array = query_dia_descomp.filter(f => (moment(DATA.getHoraExpedionFactura(f), "HH:mm:ss").toDate() >= t) && (moment(DATA.getHoraExpedionFactura(f), "HH:mm:ss").toDate() < moment(t_aux).add(1, "hours").toDate()));
                     var global_average = 0;
@@ -992,10 +1002,12 @@ function createEstadisticaDiaria(nif) {
                     dia_nif.push(nif_average);
                     dia_sector.push(global_average);
                     dia_labels.push(moment(t).format("HH:mm:ss"));
-                    console.log(dia_labels);
+                    //console.log(dia_labels);
 
                     //query_dia_descomp = query_dia_descomp.filter(f => !((moment(DATA.getHoraExpedionFactura(f), "HH:mm:ss").toDate() >= t) && (moment(DATA.getHoraExpedionFactura(f), "HH:mm:ss").toDate() < moment(t_aux).toDate())));
                 }
+                var calcular_estadistica_fin = performance.now() - calcular_estadistica_start;
+                fs.appendFileSync('./files/estadisticas_diarias_stats', `BuscarDatosGlobal;Descomprimir;CalcularEstadisticaGlobal;BuscarDatosNIF;DescomprimirNIF;CalcularEstadisticasNIF\n${buscar_datos_fin};${descomprimir_fin};${calcular_estadistica_fin};`);
                 fs.writeFileSync('./estadisticas/2021-03-19_2021-03-19_global.txt', `dia_labels // ["${dia_labels.join('","')}"]\ndia_sector // [${dia_sector.toString()}]\ndia_${nif} // [${dia_nif.toString()}]\n`);
                 resolve("OK");
             });
