@@ -22,7 +22,7 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
-/*
+
 mongoose.connect(mongoUrl + "/" + dbName).then(() => { console.log("Conexión a MongoDB realizada correctamente") });
 const client = new cassandra.Client({
   contactPoints: ['127.0.0.1'],
@@ -39,7 +39,7 @@ client.connect()
       console.error('There was an error when connecting', err);
       return client.shutdown().then(() => { throw err; });
 });
-*/
+
 /**
  * Listen on provided port, on all network interfaces.
  */

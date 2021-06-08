@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <%- include('head') %>
+</head>
+
+<body>
+
+  <%- include('menus') %>
+
+    <main class="container">
+
+      <div class="starter-template text-center py-5 px-3">
+        <h1>
+          <%= title %>
+        </h1>
+
+        <form method="post" enctype="multipart/form-data" id="form">
+          <label for="file">Selecciona el fichero a insertar</label>
+          <input type="file" id="file-submit" class="form-control" name="file" id="file" accept=".xml" required>
+          <div class="row"><br></div>
+          <button class="btn btn-primary" id="submit" type="button" onclick=enviarForm()>Enviar!</button>
+          <br><br>
+          <div class="alert alert-danger" role="alert" id="error-duplicada" style="display: none;">
+            Error! La factura que tratas de introducir ya se ha insertado previamente.
+          </div>
+          <div class="alert alert-danger" role="alert" id="error-desconocido" style="display: none;">
+            Error! Ha ocurrido un error al insertar la facctura.
+          </div>
+          <div class="alert alert-danger" role="alert" id="error-archivo" style="display: none;">
+            Error! Ha ocurrido un error al subir el archivo.
+          </div>
+        </form>
+        <br><br>
+        <img src="loading.gif" id="loading_gif" style="display: none; margin-left: auto; margin-right: auto;" width="5%"
+          height="5%" />
+        <br>
+        <canvas id="qrcode" width="400" height="400"></canvas>
+        <br>
+        <label id="qrcode_label" for="qrcode" style="display: none;"></label>
+        <br>
+      </div>
+
+
+
+      <script>
+        function enviarForm() {
+          $('#loading_gif').show();
+          $('#error-duplicada').hide();
+          $('#error-desconocido').hide();
+          $('#error-archivo').hide();
+          var form = $('#form')[0];
+          var data = new FormData(form);
+          $.ajax({
+            type: 'post',
+            enctype: 'multipart/form-data',
+            url: '/insercion',
+            data: data,
+            processData: false,
+            contentType: false,
+            cache: false,
+            success: function (res) {
+              console.log(res);
+              $('#loading_gif').hide();
+              if (res.tbai_id == -1) {//Error desconocido
+                $('#error-duplicada').hide();
+                $('#error-archivo').hide();
+                $('#error-desconocido').show();
+
+              } else if (res.tbai_id == 11000) {//Error factura duplicada
+                $('#error-duplicada').show();
+                $('#error-desconocido').hide();
+
+                $('#error-archivo').hide();
+              }else if (res.tbai_id == -2){
+                $('#error-archivo').show();
+                $('#error-duplicada').hide();
+                
+                $('#error-desconocido').hide();
+              } else {
+                var canvas = document.getElementById('qrcode');
+                var url = `localhost:3000/gr?id=${encodeURIComponent(res.tbai_id)}`;
+                //var url = `158.227.112.237:3000/gr?id=${encodeURIComponent(res.tbai_id)}`;
+                QRCode.toCanvas(canvas, url, function (err) {
+                  if (err) {
+                    console.log(err);
+                  }
+
+                  $('#qrcode_label').text(res.tbai_id);
+                  $('#qrcode_label').show();
+                });
+
+                //createCharts(res.stats);
+              }
+
+
+            }
+
+          });
+        }
+      </script>
+    </main>
+
+</body>
+<%- include('footer') %>
+</html>

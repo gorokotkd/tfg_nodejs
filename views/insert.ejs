@@ -1,137 +1,116 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-  <%- include('head') %>
+
+    <%- include('head') %>
+
 </head>
 
-<body>
+<body id="page-top">
 
-  <%- include('menus') %>
+    <!-- Page Wrapper -->
+    <div id="wrapper">
 
-    <main class="container">
+        <!-- Sidebar -->
+        <%- include('sidebar') %>
+            <!-- End of Sidebar -->
 
-      <div class="starter-template text-center py-5 px-3">
-        <h1>
-          <%= title %>
-        </h1>
+            <!-- Content Wrapper -->
+            <div id="content-wrapper" class="d-flex flex-column">
 
-        <form method="post" enctype="multipart/form-data" id="form">
-          <label for="file">Selecciona el fichero a insertar</label>
-          <input type="file" id="file-submit" class="form-control" name="file" id="file" accept=".xml,.zip" required>
-          <div class="row"><br></div>
-          <button class="btn btn-primary" id="submit" type="button" onclick=enviarForm()>Enviar!</button>
-          <br><br>
-          <div class="alert alert-danger" role="alert" id="error-duplicada" style="display: none;">
-            Error! La factura que tratas de introducir ya se ha insertado previamente.
-          </div>
-          <div class="alert alert-danger" role="alert" id="error-desconocido" style="display: none;">
-            Error! Ha ocurrido un error al insertar la facctura.
-          </div>
-          <div class="alert alert-danger" role="alert" id="error-archivo" style="display: none;">
-            Error! Ha ocurrido un error al subir el archivo.
-          </div>
-        </form>
-        <br><br>
-        <img src="loading.gif" id="loading_gif" style="display: none; margin-left: auto; margin-right: auto;" width="5%"
-          height="5%" />
-        <br>
-        <canvas id="qrcode" width="400" height="400"></canvas>
-        <br>
-        <label id="qrcode_label" for="qrcode" style="display: none;"></label>
-        <br>
-      </div>
+                <!-- Main Content -->
+                <div id="content">
 
+                    <!-- Topbar -->
+                    <%- include('topbar') %>
+                        <!-- End of Topbar -->
 
+                        <!-- Begin Page Content -->
+                        <div class="container-fluid">
 
-      <script>
-        function enviarForm() {
-          $('#loading_gif').show();
-          $('#error-duplicada').hide();
-          $('#error-desconocido').hide();
-          $('#error-archivo').hide();
-          var form = $('#form')[0];
-          var data = new FormData(form);
-          $.ajax({
-            type: 'post',
-            enctype: 'multipart/form-data',
-            url: '/insercion',
-            data: data,
-            processData: false,
-            contentType: false,
-            cache: false,
-            success: function (res) {
-              console.log(res);
-              $('#loading_gif').hide();
-              if (res.tbai_id == -1) {//Error desconocido
-                $('#error-duplicada').hide();
-                $('#error-archivo').hide();
-                $('#error-desconocido').show();
+                            <!-- Page Heading -->
+                            <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                                <h1 class="h3 mb-0 text-gray-800">Inserción de Facturas</h1>
+                            </div>
 
-              } else if (res.tbai_id == 11000) {//Error factura duplicada
-                $('#error-duplicada').show();
-                $('#error-desconocido').hide();
+                            <!-- Content Row -->
+                            <div class="row justify-content-center">
+                                <form class="user" method="post" enctype="multipart/form-data" id="form">
+                                    <div class="form-group row">
+                                        <div class="custom-control custom-file">
+                                            <input type="file" class="custom-control-file" id="file-submit" name="file" id="file" accept=".xml">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <a class="btn btn-primary btn-user btn-block" onclick=enviarForm()>Enviar archivo</a>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="row">
+                                <div class="alert alert-danger" role="alert" id="error-duplicada" style="display: none;">
+                                    Error! La factura que tratas de introducir ya se ha insertado previamente.
+                                  </div>
+                                  <div class="alert alert-danger" role="alert" id="error-desconocido" style="display: none;">
+                                    Error! Ha ocurrido un error al insertar la facctura.
+                                  </div>
+                                  <div class="alert alert-danger" role="alert" id="error-archivo" style="display: none;">
+                                    Error! Ha ocurrido un error al subir el archivo.
+                                  </div>
+                            </div>
+                            <div class="row">
+                                <img src="loading.gif" id="loading_gif" style="display: none; margin-left: auto; margin-right: auto;" width="5%" height="5%" />
+                            </div>
+                            <!-- Content Row -->
+                            <div class="row justify-content-center">
+                                <canvas id="qrcode"></canvas>
+                            </div>
+                            <div class="row justify-content-center">
+                                <label id="qrcode_label" for="qrcode" style="display: none;"></label>
+                            </div>
 
-                $('#error-archivo').hide();
-              }else if (res.tbai_id == -2){
-                $('#error-archivo').show();
-                $('#error-duplicada').hide();
-                
-                $('#error-desconocido').hide();
-              } else {
-                var canvas = document.getElementById('qrcode');
-                var url = `localhost:3000/gr?id=${encodeURIComponent(res.tbai_id)}`;
-                //var url = `158.227.112.237:3000/gr?id=${encodeURIComponent(res.tbai_id)}`;
-                QRCode.toCanvas(canvas, url, function (err) {
-                  if (err) {
-                    console.log(err);
-                  }
+                        </div>
+                        <!-- /.container-fluid -->
 
-                  $('#qrcode_label').text(res.tbai_id);
-                  $('#qrcode_label').show();
-                });
+                </div>
+                <!-- End of Main Content -->
 
-                //createCharts(res.stats);
-              }
+                <!-- Footer -->
+                <%- include('footer') %>
+                    <!-- End of Footer -->
 
+            </div>
+            <!-- End of Content Wrapper -->
 
-            }
+    </div>
+    <!-- End of Page Wrapper -->
 
-          });
-        }
+    <script src="js/insert.js"></script>
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
 
-        function createCharts(stats) {
-          var ctx = document.getElementById('get_factura_chart');
-          const labels = ['MongoDB', 'Cassandra'];
-          const data = {
-            labels: labels,
-            datasets: [{
-              label: "Tiempo de Obtención de Datos de BD",
-              data: [stats.mongo.busqueda_datos, stats.cassandra.busqueda_datos],
-              backgroundColor: ["rgba(255, 99, 132, 0.2)", "rgba(54, 162, 235, 0.2)"],
-              borderColor: ["rgb(255, 99, 132)", "rgb(54, 162, 235)"],
-              borderWidth: 1
-            }]
-          };
-
-          const config = {
-            type: "bar",
-            data: data,
-            options: {
-              scales: {
-                y: {
-                  beginAtZero: true
-                }
-              }
-            }
-          };
-
-
-          let chart = new Chart(ctx, config);
-        }
-      </script>
-    </main>
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-primary" href="login.html">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </body>
-<%- include('footer') %>
+
 </html>

@@ -31,6 +31,10 @@ var FacturaSchema = Schema({
     xml : {
         required : true,
         type : Schema.Types.String
+    },
+    status : {
+        required : true,
+        type: Schema.Types.Number
     }
 });
 

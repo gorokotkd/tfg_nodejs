@@ -1,24 +1,43 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <%- include('head') %>
+
+   <%- include('head') %>
+
 </head>
 
-<body>
-    <%- include('menus') %>
-        <main class="container">
+<body id="page-top">
 
-            <div class="starter-template text-center py-5 px-3">
-                <h1>
-                    <%= title %>
-                </h1>
+    <!-- Page Wrapper -->
+    <div id="wrapper">
 
-                <div class="alert alert-danger" role="alert" style="display: none;" id="tbai_error">
-                    El Identificador introducido no tiene el formato correcto "TBAI-12345678A-210121-abcdefghijklm-123"
-                </div>
-                <div id="data" style="display: block;">
-                    
+        <!-- Sidebar -->
+        <%- include('sidebar') %>
+        <!-- End of Sidebar -->
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <%- include('topbar') %>
+                <!-- End of Topbar -->
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Inicio</h1>
+                    </div>
+
+                    <!-- Content Row -->
+                    <div class="row">
+
+                    </div>
                     <table class="table">
                         <tbody>
                             <tr>
@@ -48,27 +67,68 @@
                         </tbody>
                     </table>
 
-                    <div id="charts">
-                        <h3>Tiempo de recuperación de BD</h3>
-                        <canvas id="get_factura_chart"></canvas>
-                        <div id="agrupadas-chart" style="display: none;">
-                            <h3>Tiempo de Descompresión</h3>
-                            <canvas id="descompresion-chart"></canvas>
-                            <h3>Tiempo de recuperación en la Agrupación</h3>
-                            <canvas id="recuperacion-agrupacion-chart"></canvas>
-                        </div>
-                    </div>                   
-                </div>
-                <%- script %>
-                <%- script_decom %>
-                <%- script_busqueda_fact %>
-                <%- error %>
-            </div>
+                    <!-- Content Row -->
 
-            <div>
+                    <div class="row">
+
+                        <!-- Area Chart -->
+                        <div class="col-xl-12 col-lg-7">
+                            <div class="card shadow mb-4">
+                                <!-- Card Header - Dropdown -->
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">Ganancia media del Día</h6>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <div class="chart-area">
+                                        <canvas id="dia-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.container-fluid -->
+
             </div>
-        </main>
-        <%- include('footer') %>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <%- include('footer') %>
+            <!-- End of Footer -->
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-primary" href="login.html">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>
