@@ -54,7 +54,7 @@ var myBarChart = new Chart(ctx, {
     scales: {
       xAxes: [{
         time: {
-          unit: 'month'
+          unit: 'text'
         },
         gridLines: {
           display: false,
@@ -68,7 +68,7 @@ var myBarChart = new Chart(ctx, {
       yAxes: [{
         ticks: {
           min: 0,
-          max: 15000,
+          max: 2000,
           maxTicksLimit: 5,
           padding: 10,
           // Include a dollar sign in the ticks
@@ -106,6 +106,6 @@ var myBarChart = new Chart(ctx, {
           return datasetLabel + ': $' + number_format(tooltipItem.yLabel);
         }
       }
-    },
+    }
   }
 });

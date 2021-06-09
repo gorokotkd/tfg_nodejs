@@ -31,7 +31,7 @@ const GZIP_PARAMS = {
     chunkSize: 16 * 1024
 };
 
-function compress_lzma_file(file) {
+function compress_lzma2_file(file) {
     return new Promise((resolve) => {
         lzma.compress(file, function (result) {
             resolve(result);
@@ -39,9 +39,29 @@ function compress_lzma_file(file) {
     });
 }
 
-function decompress_lzma_file(file) {
+function decompress_lzma2_file(file) {
     return new Promise((resolve) => {
         lzma.decompress(file, function (result) {
+            resolve(result);
+        });
+    });
+}
+
+function compress_lzma_file(file) {
+    return new Promise((resolve, reject) => {
+        lzma.LZMA().compress(file, 1, (result, error) => {
+            if(error){
+                reject(error);
+            }else{
+                resolve(result);
+            }
+        });
+    });
+}
+
+function decompress_lzma_file(file) {
+    return new Promise((resolve) => {
+        lzma.LZMA().decompress(file, function (result) {
             resolve(result);
         });
     });
@@ -252,7 +272,7 @@ var controller = {
                 comprimir_mongo.push(compress_mongo_fin - compress_mongo_start);
             }
         }
-
+        console.log("FIN");
         var insert_mongo_start = performance.now();
         await insert_agrupadas_mongo(insert_array);
         var insert_mongo_fin = performance.now();
@@ -271,23 +291,27 @@ var controller = {
     },
     tctest: async function (req, res) {
         var num = req.query.num;
+        //console.log(num);
         if (num == null || num == 0 || num > 5000) {
-            num = 100;
+            num = 50;
         }
 
         var gzip_time_list = [];
         var brotli_time_list = [];
         var lzma_time_list = [];
+        var lzma2_time_list = []
         var lzss_time_list = [];
 
         var gzip_decompress_time_list = [];
         var brotli_decompress_time_list = [];
         var lzma_decompress_time_list = [];
+        var lzma2_decompress_time_list = [];
         var lzss_decompress_time_list = [];
 
         var gzip_ratio_list = [];
         var brotli_ratio_list = [];
         var lzma_ratio_list = [];
+        var lzma2_ratio_list = [];
         var lzss_ratio_list = [];
 
 
@@ -296,6 +320,7 @@ var controller = {
             let factura = fs.readFileSync('./facturas/factura_' + i + '.xml').toString();
             let bytes_start = new TextEncoder().encode(factura).byteLength;
 
+            //console.log("Inicio GZIP");
             //GZIP
             var gzip_compresion_start = performance.now();
             let compress_gzip = await zlib.gzipSync(factura, { level: 1 });
@@ -303,7 +328,7 @@ var controller = {
             var gzip_decompresion_start = performance.now();
             let decompress_gzip = await zlib.gunzipSync(compress_gzip);
             var gzip_decompresion_fin = performance.now();
-
+            //console.log("Inicio Brotli");
             //BROTLI
             var brotli_compresion_start = performance.now();
             let compress_broli = await zlib.brotliCompressSync(factura);
@@ -312,6 +337,8 @@ var controller = {
             let decompress_broli = await zlib.brotliDecompressSync(compress_broli);
             var brotli_decompresion_fin = performance.now();
 
+            
+            //console.log("Inicio LZMA");
             //LZMA
             var lzma_compresion_start = performance.now();
             let compress_lzma = await compress_lzma_file(factura);
@@ -320,6 +347,16 @@ var controller = {
             let decompress_lzma = await decompress_lzma_file(compress_lzma);
             var lzma_decompresion_fin = performance.now();
 
+            //console.log("Inicio LZMA2");
+            //LZMA2
+            var lzma2_compresion_start = performance.now();
+            let compress_lzma2 = await compress_lzma2_file(factura);
+            var lzma2_compresion_fin = performance.now();
+            var lzma2_decompresion_start = performance.now();
+            let decompress_lzma2 = await decompress_lzma2_file(compress_lzma2);
+            var lzma2_decompresion_fin = performance.now();
+
+            //console.log("Inicio LZSS");
             //LZSS
             var lzss_compresion_start = performance.now();
             var compress_lzss = await lzss.compress(factura);
@@ -332,133 +369,510 @@ var controller = {
             gzip_time_list.push(gzip_compresion_fin - gzip_compresion_start);
             brotli_time_list.push(brotli_compresion_fin - brotli_compresion_start);
             lzma_time_list.push(lzma_compresion_fin - lzma_compresion_start);
+            lzma2_time_list.push(lzma2_compresion_fin - lzma2_compresion_start);
             lzss_time_list.push(lzss_compresion_fin - lzss_compresion_start);
 
             gzip_decompress_time_list.push(gzip_decompresion_fin - gzip_decompresion_start);
             brotli_decompress_time_list.push(brotli_decompresion_fin - brotli_decompresion_start);
             lzma_decompress_time_list.push(lzma_decompresion_fin - lzma_decompresion_start);
+            lzma2_decompress_time_list.push(lzma2_decompresion_fin - lzma2_decompresion_start);
             lzss_decompress_time_list.push(lzss_decompresion_fin - lzss_decompresion_start);
 
             gzip_ratio_list.push(1 - (compress_gzip.byteLength / bytes_start));
             brotli_ratio_list.push(1 - (compress_broli.byteLength / bytes_start));
             lzma_ratio_list.push(1 - (Buffer.byteLength(compress_lzma) / bytes_start));
+            lzma2_ratio_list.push(1 - (Buffer.byteLength(compress_lzma2) / bytes_start));
             lzss_ratio_list.push(1 - (Buffer.byteLength(compress_lzss) / bytes_start));
 
             labels.push(i);
         }//End For
 
 
+        let script_time = `<script>
+        var ctx = document.getElementById("compress_time_chart");
+        const labels_time = ["${labels.join('\","')}"];
+            const data_time = {
+            labels: labels_time,
+            datasets : [{
+                label: "GZip",
+                data: [ ${gzip_time_list.toString()}],
+                fill:false,
+                lineTension:0.3,
+                backgroundColor: "rgb(75, 192, 192, 0.05)",
+                pointRadius: 3,
+                pointBackgroundColor: "rgb(75, 192, 192, 1)",
+                pointBorderColor : "rgb(75, 192, 192, 1)",
+                pointHoverRadius: 3,
+                pointHoverBackgroundColor : "rgb(75, 192, 192, 1)",
+                pointHoverBorderColor: "rgb(75, 192, 192, 1)",
+                pointHitRadius: 10,
+                pointBorderWidth: 2,
+                borderColor: "rgb(75, 192, 192)"
+            },
+            {
+                label: "Brotli",
+                data: [${brotli_time_list.toString()}],
+                fill:false,
+                lineTension:0.3,
+                backgroundColor: "rgb(255, 0, 0, 0.05)",
+                pointRadius: 3,
+                pointBackgroundColor: "rgb(255, 0, 0, 1)",
+                pointBorderColor : "rgb(255, 0, 0, 1)",
+                pointHoverRadius: 3,
+                pointHoverBackgroundColor : "rgb(255, 0, 0, 1)",
+                pointHoverBorderColor: "rgb(255, 0, 0, 1)",
+                pointHitRadius: 10,
+                pointBorderWidth: 2,
+                borderColor: "rgb(255, 0, 0)"
+            },
+            {
+                label: "LZMA",
+                data: [${lzma_time_list.toString()}],
+                fill:false,
+                lineTension:0.3,
+                backgroundColor: "rgb(0, 255, 0, 0.05)",
+                pointRadius: 3,
+                pointBackgroundColor: "rgb(0, 255, 0, 1)",
+                pointBorderColor : "rgb(0, 255, 0, 1)",
+                pointHoverRadius: 3,
+                pointHoverBackgroundColor : "rgb(0, 255, 0, 1)",
+                pointHoverBorderColor: "rgb(0, 255, 0, 1)",
+                pointHitRadius: 10,
+                pointBorderWidth: 2,
+                borderColor: "rgb(0, 255, 0)"
+            },
+            {
+                label: "LZMA2",
+                data: [${lzma2_time_list.toString()}],
+                fill:false,
+                lineTension:0.3,
+                backgroundColor: "rgb(0, 64, 162, 0.05)",
+                pointRadius: 3,
+                pointBackgroundColor: "rgb(0, 64, 162, 1)",
+                pointBorderColor : "rgb(0, 64, 162, 1)",
+                pointHoverRadius: 3,
+                pointHoverBackgroundColor : "rgb(0, 64, 162, 1)",
+                pointHoverBorderColor: "rgb(0, 64, 162, 1)",
+                pointHitRadius: 10,
+                pointBorderWidth: 2,
+                borderColor: "rgb(0, 64, 162)"
+            },
+            {
+                label: "LZSS",
+                data: [${lzss_time_list.toString()}],
+                fill:false,
+                lineTension:0.3,
+                backgroundColor: "rgb(255, 255, 0, 0.05)",
+                pointRadius: 3,
+                pointBackgroundColor: "rgb(255, 255, 0, 1)",
+                pointBorderColor : "rgb(255, 255, 0, 1)",
+                pointHoverRadius: 3,
+                pointHoverBackgroundColor : "rgb(255, 255, 0, 1)",
+                pointHoverBorderColor: "rgb(255, 255, 0, 1)",
+                pointHitRadius: 10,
+                pointBorderWidth: 2,
+                borderColor: "rgb(255, 255, 0)"
+            }
+        ]};
 
+            const config_time = {
+            type: "line",
+            data: data_time,
+            options: {
+                responsive:true,
+                maintainAspectRatio: false,
+                layout: {
+                  padding: {
+                    left: 10,
+                    right: 25,
+                    top: 25,
+                    bottom: 0
+                  }
+                },
+                scales: {
+                  xAxes: [{
+                    time: {
+                      unit: 'number'
+                    },
+                    gridLines: {
+                      display: false,
+                      drawBorder: false
+                    },
+                    ticks: {
+                      maxTicksLimit: 6
+                    }
+                  }],
+                  yAxes: [{
+                    ticks: {
+                        min:0,
+                        max: 100,
+                        stepSize: 20,
+                        callback: function(value, index, values) {
+                            return number_format(value) + 'ms';
+                      }
+                    },
+                    gridLines: {
+                      color: "rgb(234, 236, 244)",
+                      zeroLineColor: "rgb(234, 236, 244)",
+                      drawBorder: false,
+                      borderDash: [2],
+                      zeroLineBorderDash: [2]
+                    }
+                  }],
+                },
+                legend: {
+                  display: false
+                },
+                tooltips: {
+                  backgroundColor: "rgb(255,255,255)",
+                  bodyFontColor: "#858796",
+                  titleMarginBottom: 10,
+                  titleFontColor: '#6e707e',
+                  titleFontSize: 14,
+                  borderColor: '#dddfeb',
+                  borderWidth: 1,
+                  xPadding: 15,
+                  yPadding: 5,
+                  displayColors: false,
+                  intersect: false,
+                  mode: 'index',
+                  caretPadding: 5,
+                  callbacks: {
+                    label: function(tooltipItem, chart) {
+                      var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+                      return datasetLabel + ': ' + number_format(tooltipItem.yLabel) + 'ms';
+                    }
+                  }
+                }
+              }
+            };
+            var chart = new Chart(ctx, config_time);</script>`;
 
-        let script_time = ' <script> ' +
-            'var ctx = document.getElementById("compress_time_chart");' +
-            'const labels_time = ["' + labels.join('\","') + '"];' +
-            'const data_time = {' +
-            'labels: labels_time,' +
-            'datasets : [{' +
-            'label: "GZip",' +
-            'data: [' + gzip_time_list.toString() + '],' +
-            'fill:false,' +
-            'borderColor: "rgb(75, 192, 192)",' +
-            'tension: 0.1},' +
-            '{label: "Brotli",' +
-            'data: [' + brotli_time_list.toString() + '],' +
-            'fill:false,' +
-            'borderColor: "rgb(255, 0, 0)",' +
-            'tension: 0.1},' +
-            '{label: "LZMA",' +
-            'data: [' + lzma_time_list.toString() + '],' +
-            'fill:false,' +
-            'borderColor: "rgb(0, 255, 0)",' +
-            'tension: 0.1},' +
-            '{label: "LZSS",' +
-            'data: [' + lzss_time_list.toString() + '],' +
-            'fill:false,' +
-            'borderColor: "rgb(255, 255, 0)",' +
-            'tension: 0.1}' +
-            ']' +
-            '};' +
+        let script_decom = `<script>
+        var ctx_decom = document.getElementById("decompress_time_chart");
+        const decom_labels_time = ["${labels.join('\","')}"];
+        const decom_data_time = {
+        labels: decom_labels_time,
+        datasets : [{
+            label: "GZip",
+            data: [${gzip_decompress_time_list.toString()}],
+            fill:false,
+            lineTension:0.3,
+            backgroundColor: "rgb(75, 192, 192, 0.05)",
+            pointRadius: 3,
+            pointBackgroundColor: "rgb(75, 192, 192, 1)",
+            pointBorderColor : "rgb(75, 192, 192, 1)",
+            pointHoverRadius: 3,
+            pointHoverBackgroundColor : "rgb(75, 192, 192, 1)",
+            pointHoverBorderColor: "rgb(75, 192, 192, 1)",
+            pointHitRadius: 10,
+            pointBorderWidth: 2,
+            borderColor: "rgb(75, 192, 192)"
+        },
+        {
+            label: "Brotli",
+            data: [${brotli_decompress_time_list.toString()}],
+            fill:false,
+            lineTension:0.3,
+            backgroundColor: "rgb(255, 0, 0, 0.05)",
+            pointRadius: 3,
+            pointBackgroundColor: "rgb(255, 0, 0, 1)",
+            pointBorderColor : "rgb(255, 0, 0, 1)",
+            pointHoverRadius: 3,
+            pointHoverBackgroundColor : "rgb(255, 2505, 0, 1)",
+            pointHoverBorderColor: "rgb(255, 0, 0, 1)",
+            pointHitRadius: 10,
+            pointBorderWidth: 2,
+            borderColor: "rgb(255, 0, 0)"
+        },
+        {
+            label: "LZMA",
+            data: [${lzma_decompress_time_list.toString()}],
+            fill:false,
+            lineTension:0.3,
+            backgroundColor: "rgb(0, 255, 0, 0.05)",
+            pointRadius: 3,
+            pointBackgroundColor: "rgb(0, 255, 0, 1)",
+            pointBorderColor : "rgb(0, 255, 0, 1)",
+            pointHoverRadius: 3,
+            pointHoverBackgroundColor : "rgb(0, 255, 0, 1)",
+            pointHoverBorderColor: "rgb(0, 255, 0, 1)",
+            pointHitRadius: 10,
+            pointBorderWidth: 2,
+            borderColor: "rgb(0, 255, 0)"
+        },
+        {
+            label: "LZMA2",
+            data: [${lzma2_decompress_time_list.toString()}],
+            fill:false,
+            lineTension:0.3,
+            backgroundColor: "rgb(0, 64, 162, 0.05)",
+            pointRadius: 3,
+            pointBackgroundColor: "rgb(0, 64, 162, 1)",
+            pointBorderColor : "rgb(0, 64, 162, 1)",
+            pointHoverRadius: 3,
+            pointHoverBackgroundColor : "rgb(0, 64, 162, 1)",
+            pointHoverBorderColor: "rgb(0, 64, 162, 1)",
+            pointHitRadius: 10,
+            pointBorderWidth: 2,
+            borderColor: "rgb(0, 64, 162)"
+        },
+        {
+            label: "LZSS",
+            data: [${lzss_decompress_time_list.toString()}],
+           fill:false,
+            lineTension:0.3,
+            backgroundColor: "rgb(255, 255, 0, 0.05)",
+            pointRadius: 3,
+            pointBackgroundColor: "rgb(255, 255, 0, 1)",
+            pointBorderColor : "rgb(255, 255, 0, 1)",
+            pointHoverRadius: 3,
+            pointHoverBackgroundColor : "rgb(255, 255, 0, 1)",
+            pointHoverBorderColor: "rgb(255, 255, 0, 1)",
+            pointHitRadius: 10,
+            pointBorderWidth: 2,
+            borderColor: "rgb(255, 255, 0)"
+        }
+        ]};
 
-            'const config_time = {' +
-            'type: "line",' +
-            'data: data_time' +
-            '};' +
-            'var chart = new Chart(ctx, config_time);</script>';
+        const decom_config_time = {
+        type: "line",
+        data: decom_data_time,
+        options: {
+            maintainAspectRatio: false,
+            layout: {
+              padding: {
+                left: 10,
+                right: 25,
+                top: 25,
+                bottom: 0
+              }
+            },
+            scales: {
+              xAxes: [{
+                time: {
+                  unit: 'number'
+                },
+                gridLines: {
+                  display: false,
+                  drawBorder: false
+                },
+                ticks: {
+                  maxTicksLimit: 7
+                }
+              }],
+              yAxes: [{
+                ticks: {
+                  maxTicksLimit: 5,
+                  padding: 10,
+                  // Include a dollar sign in the ticks
+                  callback: function(value, index, values) {
+                    return number_format(value) + 'ms';
+                  }
+                },
+                gridLines: {
+                  color: "rgb(234, 236, 244)",
+                  zeroLineColor: "rgb(234, 236, 244)",
+                  drawBorder: false,
+                  borderDash: [2],
+                  zeroLineBorderDash: [2]
+                }
+              }],
+            },
+            legend: {
+              display: false
+            },
+            tooltips: {
+              backgroundColor: "rgb(255,255,255)",
+              bodyFontColor: "#858796",
+              titleMarginBottom: 10,
+              titleFontColor: '#6e707e',
+              titleFontSize: 14,
+              borderColor: '#dddfeb',
+              borderWidth: 1,
+              xPadding: 15,
+              yPadding: 15,
+              displayColors: false,
+              intersect: false,
+              mode: 'index',
+              caretPadding: 10,
+              callbacks: {
+                label: function(tooltipItem, chart) {
+                  var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+                  return datasetLabel + ': ' + number_format(tooltipItem.yLabel) + 'ms';
+                }
+              }
+            }
+          }
+        };
+        var decom_chart = new Chart(ctx_decom, decom_config_time);</script>`;
 
-        let script_decom = ' <script> ' +
-            'var ctx_decom = document.getElementById("decompress_time_chart");' +
-            'const decom_labels_time = ["' + labels.join('\","') + '"];' +
-            'const decom_data_time = {' +
-            'labels: decom_labels_time,' +
-            'datasets : [{' +
-            'label: "GZip",' +
-            'data: [' + gzip_decompress_time_list.toString() + '],' +
-            'fill:false,' +
-            'borderColor: "rgb(75, 192, 192)",' +
-            'tension: 0.1},' +
-            '{label: "Brotli",' +
-            'data: [' + brotli_decompress_time_list.toString() + '],' +
-            'fill:false,' +
-            'borderColor: "rgb(255, 0, 0)",' +
-            'tension: 0.1},' +
-            '{label: "LZMA",' +
-            'data: [' + lzma_decompress_time_list.toString() + '],' +
-            'fill:false,' +
-            'borderColor: "rgb(0, 255, 0)",' +
-            'tension: 0.1},' +
-            '{label: "LZSS",' +
-            'data: [' + lzss_decompress_time_list.toString() + '],' +
-            'fill:false,' +
-            'borderColor: "rgb(255, 255, 0)",' +
-            'tension: 0.1}' +
-            ']' +
-            '};' +
+        let script_ratio = `
+        <script>
+            var ctx = document.getElementById("compress_ratio_chart");
+            const labels_ratio = ["${labels.join('\","')}"];
+            const data_ratio = {
+                labels: labels_ratio,
+                datasets : [
+                    {
+                        label: "GZip",
+                        data: [${gzip_ratio_list.toString()}],
+                       fill:false,
+                        lineTension:0.3,
+                        backgroundColor: "rgb(75, 192, 192, 0.05)",
+                        pointRadius: 3,
+                        pointBackgroundColor: "rgb(75, 192, 192, 1)",
+                        pointBorderColor : "rgb(75, 192, 192, 1)",
+                        pointHoverRadius: 3,
+                        pointHoverBackgroundColor : "rgb(75, 192, 192, 1)",
+                        pointHoverBorderColor: "rgb(75, 192, 192, 1)",
+                        pointHitRadius: 10,
+                        pointBorderWidth: 2,
+                        borderColor: "rgb(75, 192, 192)"
+                    },
+                    {
+                        label: "Brotli",
+                        data: [${brotli_ratio_list.toString()}],
+                       fill:false,
+                lineTension:0.3,
+                backgroundColor: "rgb(255, 0, 0, 0.05)",
+                pointRadius: 3,
+                pointBackgroundColor: "rgb(255, 0, 0, 1)",
+                pointBorderColor : "rgb(255, 0, 0, 1)",
+                pointHoverRadius: 3,
+                pointHoverBackgroundColor : "rgb(255, 0, 0, 1)",
+                pointHoverBorderColor: "rgb(255, 0, 0, 1)",
+                pointHitRadius: 10,
+                pointBorderWidth: 2,
+                        borderColor: "rgb(255, 0, 0)"
+                    },
+                    {
+                        label: "LZMA",
+                        data: [${lzma_ratio_list.toString()}],
+                       fill:false,
+                lineTension:0.3,
+                backgroundColor: "rgb(0, 255, 0, 0.05)",
+                pointRadius: 3,
+                pointBackgroundColor: "rgb(0, 255, 0, 1)",
+                pointBorderColor : "rgb(0, 255, 0, 1)",
+                pointHoverRadius: 3,
+                pointHoverBackgroundColor : "rgb(0, 255, 0, 1)",
+                pointHoverBorderColor: "rgb(0, 255, 0, 1)",
+                pointHitRadius: 10,
+                pointBorderWidth: 2,
+                        borderColor: "rgb(0, 255, 0)"
+                    },
+                    {
+                        label: "LZMA2",
+                        data: [${lzma2_ratio_list.toString()}],
+                       fill:false,
+                lineTension:0.3,
+                backgroundColor: "rgb(0, 64, 162, 0.05)",
+                pointRadius: 3,
+                pointBackgroundColor: "rgb(0, 64, 162, 1)",
+                pointBorderColor : "rgb(0, 64, 162, 1)",
+                pointHoverRadius: 3,
+                pointHoverBackgroundColor : "rgb(0, 64, 162, 1)",
+                pointHoverBorderColor: "rgb(0, 64, 162, 1)",
+                pointHitRadius: 10,
+                pointBorderWidth: 2,
+                        borderColor: "rgb(0, 64, 162)"
+                    },
+                    {
+                        label: "LZSS",
+                        data: [${lzss_ratio_list.toString()}],
+                       fill:false,
+                        lineTension:0.3,
+                        backgroundColor: "rgb(255, 255, 0, 0.05)",
+                        pointRadius: 3,
+                        pointBackgroundColor: "rgb(255, 255, 0, 1)",
+                        pointBorderColor : "rgb(255, 255, 0, 1)",
+                        pointHoverRadius: 3,
+                        pointHoverBackgroundColor : "rgb(255, 255, 0, 1)",
+                        pointHoverBorderColor: "rgb(255, 255, 0, 1)",
+                        pointHitRadius: 10,
+                        pointBorderWidth: 2,
+                        borderColor: "rgb(255, 255, 0)"
+                    }
+                ]
+            };
 
-            'const decom_config_time = {' +
-            'type: "line",' +
-            'data: decom_data_time' +
-            '};' +
-            'var decom_chart = new Chart(ctx_decom, decom_config_time);</script>';
-
-        let script_ratio = ' <script> ' +
-            'var ctx = document.getElementById("compress_ratio_chart");' +
-            'const labels_ratio = ["' + labels.join('\","') + '"];' +
-            'const data_ratio = {' +
-            'labels: labels_ratio,' +
-            'datasets : [{' +
-            'label: "GZip",' +
-            'data: [' + gzip_ratio_list.toString() + '],' +
-            'fill:false,' +
-            'borderColor: "rgb(75, 192, 192)",' +
-            'tension: 0.1},' +
-            '{label: "Brotli",' +
-            'data: [' + brotli_ratio_list.toString() + '],' +
-            'fill:false,' +
-            'borderColor: "rgb(255, 0, 0)",' +
-            'tension: 0.1},' +
-            '{label: "LZMA",' +
-            'data: [' + lzma_ratio_list.toString() + '],' +
-            'fill:false,' +
-            'borderColor: "rgb(0, 255, 0)",' +
-            'tension: 0.1},' +
-            '{label: "LZSS",' +
-            'data: [' + lzss_ratio_list.toString() + '],' +
-            'fill:false,' +
-            'borderColor: "rgb(255, 255, 0)",' +
-            'tension: 0.1},' +
-            ']' +
-            '};' +
-
-            'const config_ratio = {' +
-            'type: "line",' +
-            'data: data_ratio' +
-            '};' +
-            'var chart = new Chart(ctx, config_ratio);</script>';
+            const config_ratio = {
+            type: "line",
+            data: data_ratio,
+            options: {
+                maintainAspectRatio: false,
+                layout: {
+                  padding: {
+                    left: 10,
+                    right: 25,
+                    top: 25,
+                    bottom: 0
+                  }
+                },
+                scales: {
+                  xAxes: [{
+                    time: {
+                      unit: 'number'
+                    },
+                    gridLines: {
+                      display: false,
+                      drawBorder: false
+                    },
+                    ticks: {
+                      maxTicksLimit: 7
+                    }
+                  }],
+                  yAxes: [{
+                    ticks: {
+                      maxTicksLimit: 5,
+                      padding: 10,
+                      // Include a dollar sign in the ticks
+                      callback: function(value, index, values) {
+                        return number_format(value) + '%';
+                      }
+                    },
+                    gridLines: {
+                      color: "rgb(234, 236, 244)",
+                      zeroLineColor: "rgb(234, 236, 244)",
+                      drawBorder: false,
+                      borderDash: [2],
+                      zeroLineBorderDash: [2]
+                    }
+                  }],
+                },
+                legend: {
+                  display: false
+                },
+                tooltips: {
+                  backgroundColor: "rgb(255,255,255)",
+                  bodyFontColor: "#858796",
+                  titleMarginBottom: 10,
+                  titleFontColor: '#6e707e',
+                  titleFontSize: 14,
+                  borderColor: '#dddfeb',
+                  borderWidth: 1,
+                  xPadding: 15,
+                  yPadding: 15,
+                  displayColors: false,
+                  intersect: false,
+                  mode: 'index',
+                  caretPadding: 10,
+                  callbacks: {
+                    label: function(tooltipItem, chart) {
+                      var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+                      return datasetLabel + ': ' + number_format(tooltipItem.yLabel) + '%';
+                    }
+                  }
+                }
+              }
+            };
+            var chart = new Chart(ctx, config_ratio);</script>`;
 
 
         res.status(200).render('tctest', {
             title: 'Inserción de Facturas',
-            page: 'tctest',
+            page: 'Pruebas Técnicas de Compresión',
             script_time: script_time,
             script_ratio: script_ratio,
             script_decom: script_decom
@@ -493,7 +907,6 @@ var controller = {
             });
 
             var result_mongo = await findByTBAI(tbai_id);
-            console.log(result_mongo);
             var result_cassandra = await findByIdCassandra(tbai_id, client);
             //let result_cassandra = {
             //    stats: {}
@@ -501,74 +914,277 @@ var controller = {
 
 
 
-            let script = ' <script> ' +
-                '$("#agrupadas-chart").hide();' +
-                'if(Chart.getChart("get_factura_chart") != null){' +
-                'Chart.getChart("get_factura_chart").destroy();}' +
-                'if(Chart.getChart("descompresion-chart") != null){' +
-                'Chart.getChart("descompresion-chart").destroy();}' +
-                'if(Chart.getChart("recuperacion-agrupacion-chart") != null){' +
-                'Chart.getChart("recuperacion-agrupacion-chart").destroy();}' +
-                'var ctx = document.getElementById("get_factura_chart");' +
-                'const labels = ["MongoDB", "Cassandra"];' +
-                'const data = {' +
-                'labels: labels,' +
-                'datasets:[{' +
-                'label: "Tiempo de Obtención de Datos (milisegundos)",' +
-                'data: [' + (result_mongo.stats.busqueda_datos) + ',' + (result_cassandra.stats.busqueda_datos) + '],' +
-                'backgroundColor: ["rgba(255, 99, 132, 0.2)", "rgba(54, 162, 235, 0.2)"],' +
-                'borderColor: ["rgb(255, 99, 132)","rgb(54, 162, 235)"],' +
-                'borderWidth: 1' +
-                '}]' +
-                '};' +
+            let script = `
+            <script>
+                $("#agrupadas-chart").hide();
+                if(Chart.getChart("get_factura_chart") != null){
+                    Chart.getChart("get_factura_chart").destroy();
+                }
+                if(Chart.getChart("descompresion-chart") != null){
+                    Chart.getChart("descompresion-chart").destroy();
+                }
+                if(Chart.getChart("recuperacion-agrupacion-chart") != null){
+                    Chart.getChart("recuperacion-agrupacion-chart").destroy();
+                }
+                    var ctx = document.getElementById("get_factura_chart");
+                    const labels = ["MongoDB", "Cassandra"];
+                    const data = {
+                    labels: labels,
+                    datasets:[{
+                        label: "Tiempo de Obtención de Datos",                      
+                        backgroundColor: ["rgba(255, 99, 132, 1)", "rgba(54, 162, 235, 1)"],
+                        borderColor: ["rgb(255, 99, 132)","rgb(54, 162, 235)"],
+                        borderWidth: 1,
+                        data: [${(result_mongo.stats.busqueda_datos)}, ${(result_cassandra.stats.busqueda_datos)}],
+                    }]
+                };
 
-                'const config = {' +
-                'type: "bar",' +
-                'data: data' +
-                '};' +
-                'var chart = new Chart(ctx, config);</script>';
+                const config = {
+                    type: "bar",
+                    data: data,
+                    options : {
+                        maintainAspectRatio: false,
+                        layout: {
+                        padding: {
+                            left: 10,
+                            right: 25,
+                            top: 25,
+                            bottom: 0
+                        }
+                        },
+                        scales: {
+                        xAxes: [{
+                            time: {
+                            unit: 'month'
+                            },
+                            gridLines: {
+                            display: false,
+                            drawBorder: false
+                            },
+                            ticks: {
+                            maxTicksLimit: 2
+                            },
+                            maxBarThickness: 10,
+                        }],
+                        yAxes: [{
+                            ticks: {
+                            min: 0,
+                            max: 2000,
+                            maxTicksLimit: 5,
+                            padding: 10,
+                            // Include a dollar sign in the ticks
+                            callback: function(value, index, values) {
+                                return '$' + number_format(value);
+                            }
+                            },
+                            gridLines: {
+                            color: "rgb(234, 236, 244)",
+                            zeroLineColor: "rgb(234, 236, 244)",
+                            drawBorder: false,
+                            borderDash: [2],
+                            zeroLineBorderDash: [2]
+                            }
+                        }],
+                        },
+                        legend: {
+                        display: false
+                        },
+                        tooltips: {
+                        titleMarginBottom: 10,
+                        titleFontColor: '#6e707e',
+                        titleFontSize: 14,
+                        backgroundColor: "rgb(255,255,255)",
+                        bodyFontColor: "#858796",
+                        borderColor: '#dddfeb',
+                        borderWidth: 1,
+                        xPadding: 15,
+                        yPadding: 15,
+                        displayColors: false,
+                        caretPadding: 10,
+                        callbacks: {
+                            label: function(tooltipItem, chart) {
+                            var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+                            return datasetLabel + ': $' + number_format(tooltipItem.yLabel);
+                            }
+                        }
+                        }
+                    }
+                };
+                var chart = new Chart(ctx, config);</script>
+            `;
             var script_decom = "";
             var script_busqueda_fact = "";
             if (result_mongo.agrupada) {
-                script_decom = ' <script> ' +
-                    '$("#agrupadas-chart").show();' +
-                    'var ctx_decom = document.getElementById("descompresion-chart");' +
-                    'const labels_decom = ["MongoDB", "Cassandra"];' +
-                    'const data_decom = {' +
-                    'labels: labels_decom,' +
-                    'datasets:[{' +
-                    'label: "Tiempo de descompresión (milisegundos)",' +
-                    'data: [' + (result_mongo.stats.descompresion) + ',' + (result_cassandra.stats.descompresion) + '],' +
-                    'backgroundColor: ["rgba(255, 99, 132, 0.2)", "rgba(54, 162, 235, 0.2)"],' +
-                    'borderColor: ["rgb(255, 99, 132)","rgb(54, 162, 235)"],' +
-                    'borderWidth: 1' +
-                    '}]' +
-                    '};' +
+                script_decom = `<script>
+                $("#agrupadas-chart").show();
+                var ctx_decom = document.getElementById("descompresion-chart");
+                const labels_decom = ["MongoDB", "Cassandra"];
+                const data_decom = {
+                labels: labels_decom,
+                datasets:[{
+                label: "Tiempo de descompresión (milisegundos)",
+                data: [ ${(result_mongo.stats.descompresion)}, ${(result_cassandra.stats.descompresion)}],
+                backgroundColor: ["rgba(255, 99, 132, 0.2)", "rgba(54, 162, 235, 0.2)"],
+                borderColor: ["rgb(255, 99, 132)","rgb(54, 162, 235)"],
+                borderWidth: 1
+                }]
+                };
 
-                    'const config_decom = {' +
-                    'type: "bar",' +
-                    'data: data_decom' +
-                    '};' +
-                    'var chart = new Chart(ctx_decom, config_decom);</script>';
-                script_busqueda_fact = ' <script> ' +
-                    'var ctx_busqueda_fact = document.getElementById("recuperacion-agrupacion-chart");' +
-                    'const labels_busqueda_fact = ["MongoDB", "Cassandra"];' +
-                    'const data_busqueda_fact = {' +
-                    'labels: labels_busqueda_fact,' +
-                    'datasets:[{' +
-                    'label: "Tiempo de Búsqueda en la Agrupación (milisegundos)",' +
-                    'data: [' + (result_mongo.stats.busqueda_factura) + ',' + (result_cassandra.stats.busqueda_factura) + '],' +
-                    'backgroundColor: ["rgba(255, 99, 132, 0.2)", "rgba(54, 162, 235, 0.2)"],' +
-                    'borderColor: ["rgb(255, 99, 132)","rgb(54, 162, 235)"],' +
-                    'borderWidth: 1' +
-                    '}]' +
-                    '};' +
+                const config_decom = {
+                type: "bar",
+                data: data_decom,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 25,
+                        top: 25,
+                        bottom: 0
+                    }
+                    },
+                    scales: {
+                    xAxes: [{
+                        time: {
+                        unit: 'month'
+                        },
+                        gridLines: {
+                        display: false,
+                        drawBorder: false
+                        },
+                        ticks: {
+                        maxTicksLimit: 2
+                        },
+                        maxBarThickness: 10,
+                    }],
+                    yAxes: [{
+                        ticks: {
+                        min: 0,
+                        max: 2000,
+                        maxTicksLimit: 5,
+                        padding: 10,
+                        // Include a dollar sign in the ticks
+                        callback: function(value, index, values) {
+                            return '$' + number_format(value);
+                        }
+                        },
+                        gridLines: {
+                        color: "rgb(234, 236, 244)",
+                        zeroLineColor: "rgb(234, 236, 244)",
+                        drawBorder: false,
+                        borderDash: [2],
+                        zeroLineBorderDash: [2]
+                        }
+                    }],
+                    },
+                    legend: {
+                    display: false
+                    },
+                    tooltips: {
+                    titleMarginBottom: 10,
+                    titleFontColor: '#6e707e',
+                    titleFontSize: 14,
+                    backgroundColor: "rgb(255,255,255)",
+                    bodyFontColor: "#858796",
+                    borderColor: '#dddfeb',
+                    borderWidth: 1,
+                    xPadding: 15,
+                    yPadding: 15,
+                    displayColors: false,
+                    caretPadding: 10,
+                    callbacks: {
+                        label: function(tooltipItem, chart) {
+                        var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+                        return datasetLabel + ': $' + number_format(tooltipItem.yLabel);
+                        }
+                    }
+                    }
+                };
+                var chart = new Chart(ctx_decom, config_decom);</script>`;
 
-                    'const config_busqueda_fact = {' +
-                    'type: "bar",' +
-                    'data: data_busqueda_fact' +
-                    '};' +
-                    'var chart = new Chart(ctx_busqueda_fact, config_busqueda_fact);</script>';
+            script_busqueda_fact = `<script>
+                var ctx_busqueda_fact = document.getElementById("recuperacion-agrupacion-chart");
+                const labels_busqueda_fact = ["MongoDB", "Cassandra"];
+                const data_busqueda_fact = {
+                labels: labels_busqueda_fact,
+                datasets:[{
+                label: "Tiempo de Búsqueda en la Agrupación (milisegundos)",
+                data: [ ${(result_mongo.stats.busqueda_factura)}, ${(result_cassandra.stats.busqueda_factura)}],
+                backgroundColor: ["rgba(255, 99, 132, 0.2)", "rgba(54, 162, 235, 0.2)"],
+                borderColor: ["rgb(255, 99, 132)","rgb(54, 162, 235)"],
+                borderWidth: 1
+                }]
+                };
+
+                const config_busqueda_fact = {
+                type: "bar",
+                data: data_busqueda_fact,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 25,
+                        top: 25,
+                        bottom: 0
+                    }
+                    },
+                    scales: {
+                    xAxes: [{
+                        time: {
+                        unit: 'month'
+                        },
+                        gridLines: {
+                        display: false,
+                        drawBorder: false
+                        },
+                        ticks: {
+                        maxTicksLimit: 2
+                        },
+                        maxBarThickness: 10,
+                    }],
+                    yAxes: [{
+                        ticks: {
+                        min: 0,
+                        max: 2000,
+                        maxTicksLimit: 5,
+                        padding: 10,
+                        // Include a dollar sign in the ticks
+                        callback: function(value, index, values) {
+                            return '$' + number_format(value);
+                        }
+                        },
+                        gridLines: {
+                        color: "rgb(234, 236, 244)",
+                        zeroLineColor: "rgb(234, 236, 244)",
+                        drawBorder: false,
+                        borderDash: [2],
+                        zeroLineBorderDash: [2]
+                        }
+                    }],
+                    },
+                    legend: {
+                    display: false
+                    },
+                    tooltips: {
+                    titleMarginBottom: 10,
+                    titleFontColor: '#6e707e',
+                    titleFontSize: 14,
+                    backgroundColor: "rgb(255,255,255)",
+                    bodyFontColor: "#858796",
+                    borderColor: '#dddfeb',
+                    borderWidth: 1,
+                    xPadding: 15,
+                    yPadding: 15,
+                    displayColors: false,
+                    caretPadding: 10,
+                    callbacks: {
+                        label: function(tooltipItem, chart) {
+                        var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+                        return datasetLabel + ': $' + number_format(tooltipItem.yLabel);
+                        }
+                    }
+                    }
+                };
+                var chart = new Chart(ctx_busqueda_fact, config_busqueda_fact);</script>`;
             }
 
 

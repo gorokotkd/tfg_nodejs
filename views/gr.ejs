@@ -33,11 +33,13 @@
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h1 class="h3 mb-0 text-gray-800">Inicio</h1>
                     </div>
-
-                    <!-- Content Row -->
-                    <div class="row">
-
+                    <div class="alert alert-danger" role="alert" style="display: none;" id="tbai_error">
+                        El Identificador introducido no tiene el formato correcto "TBAI-12345678A-210121-abcdefghijklm-123"
                     </div>
+                    <!-- Content Row -->
+                    <div class="row" id="data" style="display: block;">
+
+                    
                     <table class="table">
                         <tbody>
                             <tr>
@@ -66,11 +68,10 @@
                             </tr>
                         </tbody>
                     </table>
-
+                </div>
                     <!-- Content Row -->
 
                     <div class="row">
-
                         <!-- Area Chart -->
                         <div class="col-xl-12 col-lg-7">
                             <div class="card shadow mb-4">
@@ -81,13 +82,49 @@
                                 <!-- Card Body -->
                                 <div class="card-body">
                                     <div class="chart-area">
-                                        <canvas id="dia-chart"></canvas>
+                                        <canvas id="get_factura_chart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
+                    <div id="agrupadas-chart" style="display: none;">
+                        <div class="row">
+                            <!-- Area Chart -->
+                            <div class="col-xl-12 col-lg-7">
+                                <div class="card shadow mb-4">
+                                    <!-- Card Header - Dropdown -->
+                                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                        <h6 class="m-0 font-weight-bold text-primary">Ganancia media del Día</h6>
+                                    </div>
+                                    <!-- Card Body -->
+                                    <div class="card-body">
+                                        <div class="chart-area">
+                                            <canvas id="descompresion-chart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <!-- Area Chart -->
+                            <div class="col-xl-12 col-lg-7">
+                                <div class="card shadow mb-4">
+                                    <!-- Card Header - Dropdown -->
+                                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                        <h6 class="m-0 font-weight-bold text-primary">Ganancia media del Día</h6>
+                                    </div>
+                                    <!-- Card Body -->
+                                    <div class="card-body">
+                                        <div class="chart-area">
+                                            <canvas id="recuperacion-agrupacion-chart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <!-- /.container-fluid -->
 
@@ -97,6 +134,10 @@
             <!-- Footer -->
             <%- include('footer') %>
             <!-- End of Footer -->
+            <%- script %>
+            <%- script_decom %>
+            <%- script_busqueda_fact %>
+            <%- error %>
 
         </div>
         <!-- End of Content Wrapper -->
