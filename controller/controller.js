@@ -18,7 +18,10 @@ var DATA = require('../functions/getData');
 const createFacturas = require('../functions/createData');
 const { companies_nif_list } = require('../functions/companies_nif');
 const FacturaAgrupada = require('../model/facturaAgrupada');
-const { db } = require('../model/factura');
+const MesAgrupadas = require('../model/mes_agrupadas');
+const SemanaAgrupadas = require('../model/semana_agrupada');
+const TriMesAgrupadas = require('../model/trimes_agrupada');
+
 
 
 const FACTURAS_AGRUPADAS_PATH = "../facturas/";
@@ -899,19 +902,28 @@ var controller = {
                 data: ""
             });
         } else {
-
+/*
             const client = new cassandra.Client({
                 contactPoints: ['127.0.0.1'],
                 keyspace: 'ticketbai',
-                localDataCenter: 'datacenter1'
+                localDataCenter: 'datacenter1',
+                queryOptions : { consistency: 1},
+                socketOptions: { readTimeout: 0 }
             });
-
+*/
             var result_mongo = await findByTBAI(tbai_id);
-            var result_cassandra = await findByIdCassandra(tbai_id, client);
-            //let result_cassandra = {
-            //    stats: {}
-            //};
 
+            var result_cassandra = {
+                stats: {}
+            };
+            /*try{
+                var result_cassandra = await findByIdCassandra(tbai_id, client);
+            }catch(err){
+                 
+                 var result_cassandra = {
+                    stats: {}
+                };
+            }*/
 
 
             let script = `
@@ -1015,89 +1027,92 @@ var controller = {
             var script_decom = "";
             var script_busqueda_fact = "";
             if (result_mongo.agrupada) {
+
                 script_decom = `<script>
                 $("#agrupadas-chart").show();
                 var ctx_decom = document.getElementById("descompresion-chart");
                 const labels_decom = ["MongoDB", "Cassandra"];
                 const data_decom = {
-                labels: labels_decom,
-                datasets:[{
-                label: "Tiempo de descompresión (milisegundos)",
-                data: [ ${(result_mongo.stats.descompresion)}, ${(result_cassandra.stats.descompresion)}],
-                backgroundColor: ["rgba(255, 99, 132, 0.2)", "rgba(54, 162, 235, 0.2)"],
-                borderColor: ["rgb(255, 99, 132)","rgb(54, 162, 235)"],
-                borderWidth: 1
-                }]
+                    labels: labels_decom,
+                    datasets:[{
+                        label: "Tiempo de descompresión (milisegundos)",
+                        data: [ ${(result_mongo.stats.descompresion)}, ${(result_cassandra.stats.descompresion)}],
+                        backgroundColor: ["rgba(255, 99, 132, 1)", "rgba(54, 162, 235, 1)"],
+                        borderColor: ["rgb(255, 99, 132)","rgb(54, 162, 235)"],
+                        borderWidth: 1
+                    }]
                 };
 
                 const config_decom = {
-                type: "bar",
-                data: data_decom,
-                maintainAspectRatio: false,
-                layout: {
-                    padding: {
-                        left: 10,
-                        right: 25,
-                        top: 25,
-                        bottom: 0
-                    }
-                    },
-                    scales: {
-                    xAxes: [{
-                        time: {
-                        unit: 'month'
-                        },
-                        gridLines: {
-                        display: false,
-                        drawBorder: false
-                        },
-                        ticks: {
-                        maxTicksLimit: 2
-                        },
-                        maxBarThickness: 10,
-                    }],
-                    yAxes: [{
-                        ticks: {
-                        min: 0,
-                        max: 2000,
-                        maxTicksLimit: 5,
-                        padding: 10,
-                        // Include a dollar sign in the ticks
-                        callback: function(value, index, values) {
-                            return '$' + number_format(value);
+                    type: "bar",
+                    data: data_decom,
+                    options : {
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            left: 10,
+                            right: 25,
+                            top: 25,
+                            bottom: 0
                         }
                         },
-                        gridLines: {
-                        color: "rgb(234, 236, 244)",
-                        zeroLineColor: "rgb(234, 236, 244)",
-                        drawBorder: false,
-                        borderDash: [2],
-                        zeroLineBorderDash: [2]
-                        }
-                    }],
-                    },
-                    legend: {
-                    display: false
-                    },
-                    tooltips: {
-                    titleMarginBottom: 10,
-                    titleFontColor: '#6e707e',
-                    titleFontSize: 14,
-                    backgroundColor: "rgb(255,255,255)",
-                    bodyFontColor: "#858796",
-                    borderColor: '#dddfeb',
-                    borderWidth: 1,
-                    xPadding: 15,
-                    yPadding: 15,
-                    displayColors: false,
-                    caretPadding: 10,
-                    callbacks: {
-                        label: function(tooltipItem, chart) {
-                        var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
-                        return datasetLabel + ': $' + number_format(tooltipItem.yLabel);
+                        scales: {
+                        xAxes: [{
+                            time: {
+                            unit: 'month'
+                            },
+                            gridLines: {
+                            display: false,
+                            drawBorder: false
+                            },
+                            ticks: {
+                            maxTicksLimit: 2
+                            },
+                            maxBarThickness: 10,
+                        }],
+                        yAxes: [{
+                            ticks: {
+                            min: 0,
+                            max: 2000,
+                            maxTicksLimit: 5,
+                            padding: 10,
+                            // Include a dollar sign in the ticks
+                            callback: function(value, index, values) {
+                                return '$' + number_format(value);
+                            }
+                            },
+                            gridLines: {
+                            color: "rgb(234, 236, 244)",
+                            zeroLineColor: "rgb(234, 236, 244)",
+                            drawBorder: false,
+                            borderDash: [2],
+                            zeroLineBorderDash: [2]
+                            }
+                        }],
+                        },
+                        legend: {
+                        display: false
+                        },
+                        tooltips: {
+                        titleMarginBottom: 10,
+                        titleFontColor: '#6e707e',
+                        titleFontSize: 14,
+                        backgroundColor: "rgb(255,255,255)",
+                        bodyFontColor: "#858796",
+                        borderColor: '#dddfeb',
+                        borderWidth: 1,
+                        xPadding: 15,
+                        yPadding: 15,
+                        displayColors: false,
+                        caretPadding: 10,
+                        callbacks: {
+                            label: function(tooltipItem, chart) {
+                            var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+                            return datasetLabel + ': $' + number_format(tooltipItem.yLabel);
+                            }
                         }
                     }
-                    }
+                }
                 };
                 var chart = new Chart(ctx_decom, config_decom);</script>`;
 
@@ -1105,19 +1120,20 @@ var controller = {
                 var ctx_busqueda_fact = document.getElementById("recuperacion-agrupacion-chart");
                 const labels_busqueda_fact = ["MongoDB", "Cassandra"];
                 const data_busqueda_fact = {
-                labels: labels_busqueda_fact,
-                datasets:[{
-                label: "Tiempo de Búsqueda en la Agrupación (milisegundos)",
-                data: [ ${(result_mongo.stats.busqueda_factura)}, ${(result_cassandra.stats.busqueda_factura)}],
-                backgroundColor: ["rgba(255, 99, 132, 0.2)", "rgba(54, 162, 235, 0.2)"],
-                borderColor: ["rgb(255, 99, 132)","rgb(54, 162, 235)"],
-                borderWidth: 1
-                }]
+                    labels: labels_busqueda_fact,
+                    datasets:[{
+                        label: "Tiempo de Búsqueda en la Agrupación (milisegundos)",
+                        data: [ ${(result_mongo.stats.busqueda_factura)}, ${(result_cassandra.stats.busqueda_factura)}],
+                        backgroundColor: ["rgba(255, 99, 132, 1)", "rgba(54, 162, 235, 1)"],
+                        borderColor: ["rgb(255, 99, 132)","rgb(54, 162, 235)"],
+                        borderWidth: 1
+                    }]
                 };
 
                 const config_busqueda_fact = {
                 type: "bar",
                 data: data_busqueda_fact,
+                options : {
                 maintainAspectRatio: false,
                 layout: {
                     padding: {
@@ -1183,6 +1199,7 @@ var controller = {
                         }
                     }
                     }
+                }
                 };
                 var chart = new Chart(ctx_busqueda_fact, config_busqueda_fact);</script>`;
             }
@@ -1273,7 +1290,7 @@ var controller = {
                     DATA.getSerieFactura(factura),
                     compress_gzip
                 ];
-                await client.execute(insertQuery, params, { prepare: true });
+                //await client.execute(insertQuery, params, { prepare: true });
                 var insercion_cassandra_fin = performance.now();
                 fs.unlinkSync(filePath);
                 res.status(200).send({
@@ -1365,8 +1382,25 @@ var controller = {
         res.status(200).send("OK");
 
     },
-    agruparMes: async function (req, res) {
-        var nif_array = companies_nif_list.slice(0, 763).map(n => n[0]);
+    agruparFacturas: async function (req, res) {
+        try{
+            //console.log("INICIO AGRUPAR SEMANA");
+            //await agruparSemana();
+            //console.log("INICIO AGRUPAR MES");
+            //await agruparMes();
+            console.log("INICIO AGRUPAR TRIMES");
+            await agruparTrimes();
+            res.status(200).send("OK");
+        }catch(err){
+
+        }
+    }
+
+};
+
+
+async function agruparMes(){
+    var nif_array = companies_nif_list.slice(0, 3000).map(n => n[0]);
         for (var i = 0; i < nif_array.length; i++) {
 
             for (var t = moment("2021-01-01").toDate(); t < moment("2021-04-01").toDate(); t = moment(t).add(1, "months").toDate()) {
@@ -1393,7 +1427,12 @@ var controller = {
                     data_to_insert.fechaFin = t_aux.subtract(1, "days").toDate();
                     data_to_insert.idents = tbai_array;
                     data_to_insert.agrupacion = zlib.gzipSync(agrupacion, GZIP_PARAMS).toString("base64");
-                    await insert_agrupadas_mongo([data_to_insert]);
+                    //await insert_agrupadas_mongo([data_to_insert]);
+
+                    await new MesAgrupadas().collection.insertMany([data_to_insert], { ordered: false }, (err, docs) => {
+                        if (err) { console.log("Error en nif " + nif_array[i] + "ERROR --> "+err); }
+                    });
+
                 } else {
                     console.log("Error al transformar las facturas del nif --> " + nif_array[i]);
                 }
@@ -1402,16 +1441,134 @@ var controller = {
         }
 
         res.status(200).send("OK");
-    }
+}
 
-};
+async function agruparSemana(){
+    var nif_array = companies_nif_list.slice(0, 3000).map(n => n[0]);
+        for (var i = 0; i < nif_array.length; i++) {
 
+            for (var t = moment("2021-01-04").toDate(); t < moment("2021-03-29").toDate(); t = moment(t).add(1, "weeks").toDate()) {
+                let t_aux = moment(t);
+                let facturas = await Factura.find({
+                    nif: nif_array[i],
+                    fecha: {
+                        $gte: t,
+                        $lte: t_aux.add(1, "weeks").toDate()
+                    }
+                }, "xml").exec();
+                if (facturas != null) {
+                    var agrupacion = "";
+                    var tbai_array = [];
+                    for (var j = 0; j < facturas.length; j++) {
+                        let factura = zlib.gunzipSync(Buffer.from(facturas[j].xml, "base64"), GZIP_PARAMS).toString();
+                        agrupacion += factura;
+                        tbai_array.push(DATA.getIdentTBAI(factura));
+                    }
 
+                    var data_to_insert = {};
+                    data_to_insert.nif = nif_array[i];
+                    data_to_insert.fechaInicio = t;
+                    data_to_insert.fechaFin = t_aux.subtract(1, "days").toDate();
+                    data_to_insert.idents = tbai_array;
+                    data_to_insert.agrupacion = zlib.gzipSync(agrupacion, GZIP_PARAMS).toString("base64");
+                    //await insert_agrupadas_mongo([data_to_insert]);
+
+                    await new SemanaAgrupadas().collection.insertMany([data_to_insert], { ordered: false }, (err, docs) => {
+                        if (err) { console.log("Error en nif " + nif_array[i] + "ERROR --> "+err); }
+                    });
+
+                } else {
+                    console.log("Error al transformar las facturas del nif --> " + nif_array[i]);
+                }
+            }
+            console.log("Insertado NIF --> " + nif_array[i]);
+        }
+
+        res.status(200).send("OK");
+}
+
+async function agruparTrimes(){
+    var nif_array = companies_nif_list.slice(0, 3000).map(n => n[0]);
+        for (var i = 0; i < nif_array.length; i++) {
+            let facturas = await Factura.find({
+                nif: nif_array[i]
+            }, "xml").exec();
+
+            if (facturas != null) {
+                var agrupacion = "";
+                var tbai_array = [];
+                for (var j = 0; j < facturas.length; j++) {
+                    let factura = zlib.gunzipSync(Buffer.from(facturas[j].xml, "base64"), GZIP_PARAMS).toString();
+                    agrupacion += factura;
+                    tbai_array.push(DATA.getIdentTBAI(factura));
+                }
+
+                var data_to_insert = {};
+                data_to_insert.nif = nif_array[i];
+                data_to_insert.fechaInicio = new Date("2021-01-04T00:00:00");
+                data_to_insert.fechaFin = new Date("2021-03-28T00:00:00")
+                data_to_insert.idents = tbai_array;
+                data_to_insert.agrupacion = zlib.gzipSync(agrupacion, GZIP_PARAMS).toString("base64");
+        
+                let numParticiones = 0;
+                //BYTES DE TODO EL DOCUMENTO A INSERTAR EN LA BD (NO PUEDE SUPERAR LOS 16MB)
+                let bytes = new TextEncoder().encode(JSON.stringify(data_to_insert)).byteLength;
+                //CALCULO EL NUMERO DE PARTICIONES DEL DOCUMENTO
+                if (bytes % (15 * MB) == 0) {
+                    numParticiones = Math.floor(bytes / (15 * MB));
+                } else {
+                    numParticiones = 1 + Math.floor(bytes / (15 * MB));
+                }
+                var insert_array = [];
+                //var comprimir_mongo = [];
+                if (numParticiones == 1) {
+                    insert_array.push(data_to_insert);
+                    //comprimir_mongo.push(compresion_fin - compresion_start);
+                } else {
+                    //console.log(numParticiones);
+                    for (var j = 0; j < numParticiones; j++) {
+                        var agrupacion_mongo = "";
+                        var tbai_part_list = [];
+                        //console.log( Math.round(((j * facturas.length) / numParticiones)) + 1);
+                        for (var k = Math.round(((j * facturas.length) / numParticiones)); k < Math.round((j + 1) * facturas.length) / numParticiones; k++) {
+                            //let factura = fs.readFileSync(FACTURAS_AGRUPADAS_PATH + "grupo_" + num_agrupadas + "_" + k + ".xml").toString();
+                            //let agrupacion = facturas_array.slice((k * i) / numParticiones, ((k + 1) * i) / numParticiones).join('');
+                            //console.log(k);
+                            let factura = zlib.gunzipSync(Buffer.from(facturas[k].xml, "base64"), GZIP_PARAMS).toString();
+                            agrupacion_mongo += factura;
+                            tbai_part_list.push(DATA.getIdentTBAI(factura));
+                        }
+                        //console.log("Insert --> " + j);
+                        let new_data_to_insert = {};
+                        new_data_to_insert.nif = nif_array[i];
+                        new_data_to_insert.fechaInicio = new Date("2021-01-04T00:00:00");
+                        new_data_to_insert.fechaFin = new Date("2021-03-28T00:00:00")
+                        new_data_to_insert.idents = tbai_part_list;
+                        new_data_to_insert.agrupacion = zlib.gzipSync(agrupacion_mongo, GZIP_PARAMS).toString("base64");
+
+                        insert_array.push(new_data_to_insert);
+                        //console.log("fin");
+                    }
+                }
+
+                await new TriMesAgrupadas().collection.insertMany(insert_array, { ordered: false }, (err, docs) => {
+                    if (err) { console.log("Error en nif " + nif_array[i] + "ERROR --> "+err); }
+                });
+
+            } else {
+                console.log("Error al transformar las facturas del nif --> " + nif_array[i]);
+            }
+            console.log("Insertado NIF --> " + nif_array[i]);
+        }
+
+        //res.status(200).send("OK");
+        console.log("FIN");
+}
 
 
 
 async function findByIdCassandra(tbai_id, client) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         const query_indiv = "select nif, fecha, tbai_id, importe, num_factura, serie from facturas where nif=? and fecha=? and tbai_id = ?";
         const params_indiv = [
             tbai_id.split("-")[1],
@@ -1488,7 +1645,7 @@ async function findByIdCassandra(tbai_id, client) {
                     }
                 });
             }
-        });
+        }).catch(err => {reject(err)});
 
     });
 }
