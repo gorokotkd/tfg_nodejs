@@ -5,7 +5,7 @@
 const { performance } = require('perf_hooks');
 const fs = require('fs');
 const zlib = require('zlib');
-const lzma = require('lzma-native');
+//const lzma = require('lzma-native');
 const lzss = require('lzbase62');
 
 const moment = require('moment');
@@ -139,7 +139,7 @@ var controller = {
         //return res.status(200).render('index', { title: 'Express', page: 'index'});
     },
     createData: async function (req, res) {
-        //createFacturas.createData;
+        await createFacturas.createData();
         res.send("OK");
     },
     insertFactura: function (req, res) {
@@ -195,9 +195,11 @@ var controller = {
             keyspace: 'ticketbai',
             localDataCenter: 'datacenter1'
         });
-        var tbai_list = [];
+        var tbai_list = [];/*
         var agrupacion = fs.readFileSync(FACTURAS_AGRUPADAS_PATH + "grupo_" + num_agrupadas + "_1.xml").toString();
         tbai_list.push(DATA.getIdentTBAI(agrupacion));
+
+
 
         var nif = DATA.getNif(agrupacion);
         var fecha_inicio_agrupacion = DATA.getFechaExp(agrupacion);
@@ -208,6 +210,26 @@ var controller = {
             agrupacion += factura;
             tbai_list.push(DATA.getIdentTBAI(factura));
         }
+
+*/
+        const nif = "15964763A";
+        var facturas_bd = await Factura.find({
+            nif: nif
+        }, "_id xml").limit(Number(num_agrupadas)).exec();
+        var agrupacion = "";
+        var fecha_inicio_agrupacion;
+        var fecha_fin_agrupacion;
+        for(var i = 0; i < facturas_bd.length; i++){
+            let factura = zlib.gunzipSync(Buffer.from(facturas_bd[i].xml, "base64"), GZIP_PARAMS).toString();
+            if(i == 0){
+                fecha_inicio_agrupacion = DATA.getFechaExp(factura);
+            }else if(i == facturas_bd.length - 1){
+                fecha_fin_agrupacion = DATA.getFechaExp(factura);
+            }
+            agrupacion += factura;
+            tbai_list.push(facturas_bd[i]._id);
+        }
+
 
         var compresion_start = performance.now();
         var agrupacion_compress = await compressData(agrupacion);
@@ -224,7 +246,7 @@ var controller = {
         console.log("INSERT");
         var insertar_cassandra_start = performance.now();
         try {
-            await client.execute(insert_query, params, { prepare: true });
+            //await client.execute(insert_query, params, { prepare: true });
         } catch (err) {
             console.log(err);
         }
@@ -258,8 +280,8 @@ var controller = {
             for (var j = 0; j < numParticiones; j++) {
                 var agrupacion_mongo = "";
                 var tbai_part_list = [];
-                for (var k = Math.round(((j * num_agrupadas) / numParticiones)) + 1; k <= Math.round((j + 1) * num_agrupadas) / numParticiones; k++) {
-                    let factura = fs.readFileSync(FACTURAS_AGRUPADAS_PATH + "grupo_" + num_agrupadas + "_" + k + ".xml").toString();
+                for (var k = Math.round(((j * num_agrupadas) / numParticiones)); k < Math.round((j + 1) * num_agrupadas) / numParticiones; k++) {
+                    let factura = zlib.gunzipSync(Buffer.from(facturas_bd[k].xml, "base64"), GZIP_PARAMS).toString();
                     agrupacion_mongo += factura;
                     tbai_part_list.push(DATA.getIdentTBAI(factura));
                 }
@@ -277,7 +299,6 @@ var controller = {
                 comprimir_mongo.push(compress_mongo_fin - compress_mongo_start);
             }
         }
-        console.log("FIN");
         var insert_mongo_start = performance.now();
         await insert_agrupadas_mongo(insert_array);
         var insert_mongo_fin = performance.now();
@@ -1206,6 +1227,10 @@ var controller = {
                 var chart = new Chart(ctx_busqueda_fact, config_busqueda_fact);</script>`;
             }
 
+            let num_factura = "00000120210101";
+            if(result_mongo.data.num_factura != null){
+                num_factura = result_mongo.data.num_factura;
+            }
 
             res.status(200).render('gr', {
                 title: 'Búsqueda de Facturas',
@@ -1214,7 +1239,7 @@ var controller = {
                 tbai_id: result_mongo.data.tbai_id,
                 nif_emisor: result_mongo.data.nif_emisor,
                 serie_factura: result_mongo.data.serie_factura,
-                num_factura: result_mongo.data.num_factura,
+                num_factura: num_factura,
                 importe_factura: result_mongo.data.importe_factura + " €",
                 fecha_exp: moment(result_mongo.data.fecha_exp, "DD-MM-YYYY").format("YYYY/MM/DD"),
                 script: script,
@@ -1321,8 +1346,8 @@ var controller = {
         }
     }, insertFacturasEstadisticas: async function (req, res) {
 
-        //const DIRECTORY_PATH = "/Users/gorkaalvarez/Desktop/Uni/tbaiData/";
-        const DIRECTORY_PATH = "C:\\Users\\877205\\Desktop\\FacturasInsert\\insertData\\";
+        const DIRECTORY_PATH = "/Users/gorkaalvarez/Desktop/tbaiData/";
+        //const DIRECTORY_PATH = "C:\\Users\\877205\\Desktop\\FacturasInsert\\insertData\\";
         //await mongoose.connect(mongoUrl + "/" + dbName).then(() => { console.log("Conexión a MongoDB realizada correctamente") });
         const index = fs.readFileSync(DIRECTORY_PATH + "index.txt").toString().split("\n");
         const client = new cassandra.Client({
@@ -1333,8 +1358,8 @@ var controller = {
 
         for (var i = 0; i < index.length; i++) {
             //let nif = companies_nif_list[i][0];
-            let file = index[i].split("/")[5];
-            //let file = index[i];
+            //let file = index[i].split("/")[5];
+            let file = index[i];
             //console.log(DIRECTORY_PATH+file);
             try {
                 var facturas = JSON.parse(fs.readFileSync(DIRECTORY_PATH + file).toString());
@@ -1344,12 +1369,12 @@ var controller = {
             }
 
             var array = [];
-            console.log(facturas.length);
+            //console.log(facturas.length);
             for (var j = 0; j < facturas.length; j++) {
                 let factura_j = facturas[j];
-                /* let data = {};
-                 data._id = factura_j.id_tbai;
-                 //data._id = factura_j._id;
+                let data = {};
+                 //data._id = factura_j.id_tbai;
+                 data._id = factura_j._id;
                  data.nif = factura_j.nif;
                  data.fecha = moment(factura_j.fecha).toDate();
                  data.cantidad = factura_j.cantidad;
@@ -1357,7 +1382,7 @@ var controller = {
                  data.status = factura_j.status;
                  data.xml = factura_j.xml;
                  array.push(data);
-                 */
+                 /*
                 const insertQuery = "insert into facturas (nif, fecha, tbai_id, importe, num_factura, serie, xml) values (?, ?, ?, ?, ?, ?, ?)";
                 const params = [
                     factura_j.nif,
@@ -1371,10 +1396,10 @@ var controller = {
                 await client.execute(insertQuery, params, { prepare: true }).catch((err) => {
                     throw err;
                 });
-
+                */
             }
-            console.log("Guardada --> " + file);
-            //await insert_mongo(array).then(() => { console.log("Guardada --> " + file) }).catch(() => { console.log("Error al guardar --> " + file) });
+            //console.log("Guardada --> " + file);
+            await insert_mongo(array).then(() => { console.log("Guardada --> " + file) }).catch(() => { console.log("Error al guardar --> " + file) });
 
 
 
@@ -1774,7 +1799,6 @@ function createEstadisticaDiaAgrupadas(nif) {
                 var global_dia_estadistica = fs.readFileSync("./estadisticas/2021-03-19_2021-03-19_global.txt").toString().split("\n");
                 if (global_dia_estadistica.map(l => l.split(" // ")[0]).filter(n => n == `dia_${nif}`).length == 0) {//No existe la estadistica sobre ese nif
                     //console.log("No existe estadistica sobre el nif");
-                    //dia_28693295J // [11.425,23.726000000000006,19.01833333333333,35.50857142857143,28.93166666666666,29.325000000000003,9.775,21.541249999999998,6.546666666666667,12.809999999999999,0,13.29,40.41166666666666,12.516,25.217142857142857,7.4174999999999995,7.968000000000001,53.916666666666664,27.663846153846155,12.25,11.325,16.88,31.11,16.79714285714286]
                     var date = new Date("2021-03-19T00:00:00");
                     var buscar_datos_start = performance.now();
                     TriMesAgrupadas.find({

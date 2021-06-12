@@ -20,6 +20,8 @@ var FileKeyinfo = require('xml-crypto').FileKeyInfo;
 const mongoUrl = "mongodb://localhost:27017";
 const dbName = 'ticketbai';
 
+const paises = ["FR", "US", "GB", "IT", "PT", "DE"];
+
 function compressData(data) {
     return new Promise((resolve) => {
         zlib.gzip(data, { level: 1 }, (err, result) => {
@@ -122,13 +124,16 @@ function generarFactura(nif_name, fecha){
     
     
         data_generator.sujetos_config.nif = nif_name;
+        data_generator.sujetos_config.destinatarios.numeroDestinatarios = 1;
+        data_generator.sujetos_config.destinatarios.value = true;
+        data_generator.sujetos_config.destinatarios.codigoPais = paises[getRandomInt(0, paises.length)];
         data_generator.cabecera_factura_config.serieFactura = nif_name[0]+moment(fecha).format("DDMMYYHHmmss");
         data_generator.cabecera_factura_config.NumFactura = getRandomInt(0,1000001);
         data_generator.cabecera_factura_config.FechaExpedicionFactura = moment(fecha).format("DD-MM-YYYY");
         data_generator.cabecera_factura_config.HoraExpedicionFactura = moment(hour).format("HH:mm:ss");
         data_generator.datos_factura_config.detallesFactura.numDetalles = detalles;
-        data_generator.datos_factura_config.detallesFactura.minImporteUnitario = 0.5;
-        data_generator.datos_factura_config.detallesFactura.maxImporteUnitario = 4;
+        data_generator.datos_factura_config.detallesFactura.minImporteUnitario = 35;
+        data_generator.datos_factura_config.detallesFactura.maxImporteUnitario = 10000;
         data_generator.datos_factura_config.detallesFactura.tipoImpositivo = iva;
     
         let data = data_generator.generate(data_generator.sujetos_config, data_generator.cabecera_factura_config, data_generator.datos_factura_config, data_generator.huellaTBAI_config);
@@ -159,33 +164,26 @@ function generarFactura(nif_name, fecha){
 
 async function createData(){
     //await mongoose.connect(mongoUrl + "/" + dbName).then(() => { console.log("Conexión a MongoDB realizada correctamente") });
-    const SAVE_PATH = "/Users/gorkaalvarez/Desktop/Uni/tbaiData/";
-    const MAX_NIF = 1000;
-    var total_facturas = 1902445;
-    for(var i = 501; i < MAX_NIF; i++){
+    const SAVE_PATH = "/Users/gorkaalvarez/Desktop/tbaiData/";
+    const MAX_NIF = 70;
+    var total_facturas = 0;
+    var companies_nif_list_slice = companies_nif_list.slice(4000, 4080);
+    for(var i = 0; i < MAX_NIF; i++){
         var facturas_array = [];
-        const nif_name = companies_nif_list[i];
+        const nif_name = companies_nif_list_slice[i];
         for(var j = moment("2021-01-01"); j <= moment("2021-03-31"); j = moment(j).add(1, "days")){//Por cada uno de los dias
             //console.log(moment(j).format("YYYY-MM-DD"));
             var prob = getRandomInt(1,101);
             var num_facturas_dia;
-            if(prob <= 70){
-                num_facturas_dia = getRandomInt(80,101)
+            if(prob <= 90){
+                num_facturas_dia = getRandomInt(0,1)
             }else{
-                num_facturas_dia = getRandomInt(1,101);
+                num_facturas_dia = getRandomInt(7,10);
             }
             //const num_facturas_dia = randomInt(1, 101);
             for(var k = 0; k < num_facturas_dia; k++){//Numero de facturas a generar ese dia
-                var weekDay = j.isoWeekday();
-                if(weekDay == 1 || weekDay == 2 || weekDay == 3){
-                    if(getRandomInt(1,101) <= 80){
-                        let factura = await generarFactura(nif_name, j);
-                        facturas_array.push(factura);
-                    }
-                }else{
-                    let factura = await generarFactura(nif_name, j);
-                    facturas_array.push(factura);
-                }
+                let factura = await generarFactura(nif_name, j);
+                facturas_array.push(factura);
             }//end for
         }//end for
         total_facturas += facturas_array.length; 
@@ -198,4 +196,4 @@ async function createData(){
 }//end function
 
 
-//exports.createData = createData;
+exports.createData = createData;

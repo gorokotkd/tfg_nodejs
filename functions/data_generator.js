@@ -5,7 +5,11 @@ const moment = require('moment');
 
 
 var sujetos_config = {
-    destinatarios: 1, //Numero de destinatarios. (-1) si no existen destinatarios
+    destinatarios: {
+        value : true,
+        numeroDestinatarios : 1,
+        codigoPais : "ES"
+    }, //Numero de destinatarios. (-1) si no existen destinatarios
     emitidaPorTercerosODestinatario: true, //Indica si quiero el elemento emitida por terceros,
     nif: ["12345678A", "Empresa"] //par NIF + Nombre Empresa
 };
@@ -39,31 +43,7 @@ var datos_factura_config = {
     retencionSoportada: true,
     baseImponibleACoste: true,
     numClaves: 1 // 1 a 3
-};/*
-var tipo_desglose_config = {
-    //desgloseFactura: false, //TipoDesglose --> DesgloseFactura / Si es true da igual lo que valga desgloseTipoOperacion
-    //desgloseTipoOperacion: { prestacionServicios: false, entrega: false }, // Solo se genera si desgloseFactura
-    //no esta definido o es false y ademas prestacionServicios o entrega  o los dos es true.
-    desglose: {
-        sujeta: {
-            value: true, // Si es true, se genera la factura sujeta, aunque puede que este vacia.
-            exenta: {
-                value: true,// Si es true genero la factura sujeta exenta
-                numDetallesExenta: 7 //Numero de deralles de la factura exenta (1 a 7)
-            },
-            noExenta: {
-                value: true, // Si es true genero la factura NoExenta
-                numDetallesNoExenta: 2, //Numero de detalles (1 a 2)
-                numDetallesIVA: 6 //Numero de detalles de desglose de IVA (1 a 6)
-            }
-        },
-        noSujeta: {
-            value: true, //Si es true genero la factura NoSujeta
-            numDetallesNoSujeta: 1 //Numero de detalles de la factura NoSujeta (1 a 2)
-        }
-    }
 };
-*/
 var huellaTBAI_config = {
     encadenamiento: {
         value: false, //Si es true genero el elemento EncadenamientoFacturaAnterior
@@ -175,49 +155,17 @@ function randomHour(start, end) {
  * @param {JSON} options - Opciones de configuracion del desglose
  * @returns El desglose actualizado
  */
-function desgloseSujetaNoSujeta(desglose, detalles/*, options = {
-    //sujeta: {
-    //    value: false,   //Indica si quiero o no que exista el elemento Sujeta, si es false lo demas no se evalua
-        exenta: {
-            value: false, //Indica si quiero o no que exista el elemento Exenta.
-            numDetallesExenta: -1 //Numero de detalles en Exenta, si el valor no es valido se da uno aleatorio.
-        },
-        noExenta: {
-            value: false, //Indica si quiero o no que exista el elemento NoExenta.
-            numDetallesNoExenta: 1, //Indica el numero de detalles en NoExenta
-            numDetallesIVA: 1 //Indica el numero de detalles en el desglose de IVA
-        }
-    //},
-    //noSujeta: {
-    //    value: false, //Indica si quiero o no que exista el elemento NoSujeta
-    //    numDetallesNoSujeta: -1 //Indica el numero de detalles del elemento NoSujeta
-    //}
-}*/) {
-    //if (options.hasOwnProperty('sujeta')) {//Creo el desglose "Sujeta"
-        //if (options.sujeta.hasOwnProperty('value')) {
-            //if (options.sujeta.value) {
+function desgloseSujetaNoSujeta(desglose, detalles) {
+
                 var array = Array.from(new Set(detalles.filter(d => d.Sujeta)));
                 if(array.length > 0){
                     desglose.Sujeta = {};
 
                     var max_exentas = array.filter(d => d.hasOwnProperty('Exenta')).length;
-                    //if (options.sujeta.hasOwnProperty('exenta')) {
+
                     if(max_exentas > 0){
                         var causas_exencion = Array.from(new Set(array.filter(d => d.hasOwnProperty('Exenta')).map(d => d.CausaExencion)));
 
-                        //if (options.sujeta.exenta.hasOwnProperty('value')) {
-                            //if (options.sujeta.exenta.value) {
-                                //if (options.sujeta.exenta.numDetallesExenta != -1) {
-                                    /*var max = 1;
-                                    if (options.sujeta.exenta.hasOwnProperty('numDetallesExenta')) {
-                                        if (options.sujeta.exenta.numDetallesExenta > 0 && options.sujeta.exenta.numDetallesExenta < 8) {
-                                            max = options.sujeta.exenta.numDetallesExenta;
-                                        } else {
-                                            max = getRandomInt(1, 8);
-                                        }
-                                    } else {
-                                        max = getRandomInt(1, 8);
-                                    }*/
                                     desglose.Sujeta.Exenta = [];
                                     for (var i = 0; i < causas_exencion.length; i++) {
                                         var exenta = {
@@ -226,33 +174,11 @@ function desgloseSujetaNoSujeta(desglose, detalles/*, options = {
                                         };
                                         desglose.Sujeta.Exenta.push(exenta);
                                     }
-                                //}
-                            //}
-                        //}
                     }//Fin Exenta
 
                     var maxDetallesNoExenta = array.filter(d => !d.hasOwnProperty('Exenta')).length;
 
-                    //if (options.sujeta.hasOwnProperty('noExenta')) {
                     if(maxDetallesNoExenta > 0){
-                        //if (options.sujeta.noExenta.hasOwnProperty('value')) {
-                            //if (options.sujeta.noExenta.value) {
-                                //var maxDetallesNoExenta = getRandomInt(1, 3);
-                                //var maxDetallesIVA = getRandomInt(1, 7);
-
-                                /*
-                                if (options.sujeta.noExenta.hasOwnProperty('numDetallesNoExenta')) {
-                                    if (options.sujeta.noExenta.numDetallesNoExenta > 0 && options.sujeta.noExenta.numDetallesNoExenta < 3) {
-                                        maxDetallesNoExenta = options.sujeta.noExenta.numDetallesNoExenta;
-                                    }
-                                }*/
-                                /*
-                                if (options.sujeta.noExenta.hasOwnProperty('numDetallesIVA')) {
-                                    if (options.sujeta.noExenta.numDetallesIVA > 0 && options.sujeta.noExenta.numDetallesIVA < 7) {
-                                        maxDetallesIVA = options.sujeta.noExenta.numDetallesIVA;
-                                    }
-                                }*/
-
                                 //Necesito los detalles, por cada uno de ellos miro su tipoImpositivo, en funcion de eso, 
                                 //creo un nuevo grupo de detalles de IVA o uso uno existente. SI existe voy acumulando el total.
                                 maxDetallesNoExenta = 1;
@@ -272,18 +198,10 @@ function desgloseSujetaNoSujeta(desglose, detalles/*, options = {
                                         //console.log( detalles.filter(d => d.TipoImpositivo===tipoImpositivoList[i]));
                                         //desgloseIva.BaseImponible = desgloseIva.BaseImponible.toFixed(2);
                                         var rand = getRandomInt(0, 2);
-                                        //if (rand == 0) {
-                                            //desgloseIva.TipoImpositivo = getRandomArbitrary(0, 101, 2);
                                             desgloseIva.TipoImpositivo = tipoImpositivoList[j];
-                                        //}
 
                                         rand = getRandomInt(0, 2);
-                                        //if (rand == 0) {
                                             desgloseIva.CuotaImpuesto = (desgloseIva.BaseImponible * ((desgloseIva.TipoImpositivo/100))).toFixed(2);
-                                        //}
-
-                                        
-
                                         rand = getRandomInt(0, 2);
                                         if (rand == 0) {
                                             desgloseIva.TipoRecargoEquivalencia = getRandomArbitrary(0, 101, 2);
@@ -302,30 +220,14 @@ function desgloseSujetaNoSujeta(desglose, detalles/*, options = {
                                     }//End for
                                     desglose.Sujeta.NoExenta.push(noExenta);
                                 }//End for
-                            //}
-                        //}
                     }//Fin NoExenta
                 }
-                
-            //}
-        //}
     //}//Fin Sujeta
 
-
-    //if (options.hasOwnProperty('noSujeta')) {//Creo el desglose "NoSujeta"
-        //if (options.noSujeta.hasOwnProperty('value')) {
-            //if (options.noSujeta.value) {
                 
                 var array = Array.from(new Set(detalles.filter(d => !d.Sujeta)));
 
                 var lista_casusas = Array.from(new Set(array.map(d => d.CausaNoSujeta)));
-
-                /*if (options.noSujeta.hasOwnProperty('numDetallesNoSujeta')) {
-                    if (options.noSujeta.numDetallesNoSujeta > 0 && options.noSujeta.numDetallesNoSujeta < 3) {
-                        maxDetallesNoSujeta = options.noSujeta.numDetallesNoSujeta;
-                    }
-                }*/
-                //console.log(array);
                 if(lista_casusas.length > 0){
                     desglose.NoSujeta = [];
                     for (var i = 0; i < lista_casusas.length; i++) {
@@ -345,8 +247,6 @@ function desgloseSujetaNoSujeta(desglose, detalles/*, options = {
                         desglose.NoSujeta.push(desgloseNoSujeta);
                     }//End for
                 }
-            //}
-        //}
     //}//End NoSujeeta
     return desglose;
 }//End function
@@ -357,7 +257,11 @@ function desgloseSujetaNoSujeta(desglose, detalles/*, options = {
  * @param {JSON} options - Parametros de configuracion de los Sujetos
  */
 function generarSujetos(json, options = {
-    destinatarios: -1, //Numero de destinatarios. (-1) si no existen destinatarios
+    destinatarios: {
+        value : true,
+        numeroDestinatarios : 1,
+        codigoPais : "ES"
+    }, //Numero de destinatarios. (-1) si no existen destinatarios
     emitidaPorTercerosODestinatario: false //Indica si quiero el elemento emitida por terceros
 }) {
     if (options.hasOwnProperty('destinatarios')) {
@@ -378,14 +282,14 @@ function generarSujetos(json, options = {
 /**
  * Crea numDest destinatarios aleatorios para una factura
  * @param {JSON} json - Contenido del elemento "Sujetos" de la factura
- * @param {number} numDest - Numero de destinatarios a crear
+ * @param {JSON} dest - Contiene el numero de destinatarios y el pais destinatario
  * @returns {JSON} - Contenido del elemento "Sujetos" actualizado con el numero de destinatarios correspondientes.
  */
-function generarDestinatarios(json, numDest) {
+function generarDestinatarios(json, dest) {
     json.Destinatarios = [];
 
     var max_dest = getRandomInt(1, 101);
-    if (numDest > 0 && numDest < 101) {
+    if (dest.numeroDestinatarios > 0 && dest.numeroDestinatarios < 101) {
         max_dest = numDest;
     }
     for (var i = 0; i < max_dest; i++) {
@@ -397,10 +301,7 @@ function generarDestinatarios(json, numDest) {
                 "IDType": "0" + getRandomInt(2, 7),
                 "ID": getRandomString(getRandomInt(1, 21))
             };
-
-            if (getRandomInt(0, 2) == 0) {//Tengo Codigo Pais
-                destinatario.IDOtro.CodigoPais = country_list[getRandomInt(0, country_list.length)];
-            }
+            destinatario.IDOtro.CodigoPais = dest.codigoPais;
         }
 
         destinatario.ApellidosNombreRazonSocial = getRandomString(getRandomInt(1, 121));
@@ -497,9 +398,6 @@ function generarCabeceraFactura(json, options = {
 }) {
 
     if (options.hasOwnProperty('serieFactura')) {
-        /*if (options.serieFactura) {
-            json.SerieFactura = getRandomString(getRandomInt(1, 21));
-        }*/
         json.SerieFactura = options.serieFactura;
     }
 
@@ -579,11 +477,6 @@ function detallesDatosFactura(json, options = {
                 detalle.CausaNoSujeta = noSujeta_list[getRandomInt(0, noSujeta_list.length)];
             }
         }
-        
-
-        /*if (getRandomInt(0, 2) == 0) {
-            detalle.Descuento = getRandomArbitrary(0, 101, 2);
-        }*/
 
         if(getRandomInt(0,2) == 0){
             detalle.DescuentoPorcentaje = getRandomArbitrary(0,101,0);
@@ -662,29 +555,7 @@ function datosFactura(json, options = {
  * @param {JSON} json - Elemento TipoDesglose de la factura
  * @param {JSON} options - Parametros de configuracion del desglose
  */
-function tipoDesglose(json, detalles/*, options = {
-    //desgloseFactura: true, //TipoDesglose --> DesgloseFactura / Si es true da igual lo que valga desgloseTipoOperacion
-    //desgloseTipoOperacion: { prestacionServicios: false, entrega: false }, // Solo se genera si desgloseFactura
-    //no esta definido o es false y ademas existe prestacionServicios o entrega y ademas es true alguno de los dos.
-    desglose: {
-        sujeta: {
-            value: false, // Si es true, se genera la factura sujeta, aunque puede que este vacia.
-            exenta: {
-                value: false,// Si es true genero la factura sujeta exenta
-                numDetallesExenta: 0 //Numero de deralles de la factura exenta (1 a 7)
-            },
-            noExenta: {
-                value: false, // Si es true genero la factura NoExenta
-                numDetallesNoExenta: 0, //Numero de detalles (1 a 2)
-                numDetallesIVA: 0 //Numero de detalles de desglose de IVA (1 a 6)
-            }
-        },
-        noSujeta: {
-            value: false, //Si es true genero la factura NoSujeta
-            numDetallesNoSujeta: 0 //Numero de detalles de la factura NoSujeta
-        }
-    }
-}*/) {
+function tipoDesglose(json, detalles) {
 
     var tipo_desglose = detalles.map(d => d.TipoDesglose);
 
@@ -702,40 +573,7 @@ function tipoDesglose(json, detalles/*, options = {
             desgloseSujetaNoSujeta(json.DesgloseTipoOperacion.Entrega = {}, detalles.filter(d => d.TipoDesglose == desgloseTipoOperacion_list[1])/*, options.desglose*/);
         }
     }
-/*
-    if (options.hasOwnProperty('desgloseFactura')) {
-        if (options.desgloseFactura) {
-            json.DesgloseFactura = {};
-            json.DesgloseFactura = desgloseSujetaNoSujeta(json.DesgloseFactura, detalles, options.desglose);
-        } else {
-            json.DesgloseTipoOperacion = {};
-            if (options.hasOwnProperty('desgloseTipoOperacion')) {
-                if (options.desgloseTipoOperacion.hasOwnProperty('prestacionServicios')) {
-                    if (options.desgloseTipoOperacion.prestacionServicios) {
-                        desgloseSujetaNoSujeta(json.DesgloseTipoOperacion.PrestacionServicios = {}, detalles, options.desglose);
-                    }
-                }
 
-                if (options.desgloseTipoOperacion.hasOwnProperty('entrega')) {
-                    if (options.desgloseTipoOperacion.entrega) {
-                        desgloseSujetaNoSujeta(json.DesgloseTipoOperacion.Entrega = {}, detalles, options.desglose);
-                    }
-                }
-            }
-        }
-    } else {
-        json.DesgloseTipoOperacion = {};
-        if (options.hasOwnProperty('desgloseTipoOperacion')) {
-            if (options.desgloseTipoOperacion.hasOwnProperty('prestacionServicios')) {
-                if (options.desgloseTipoOperacion.prestacionServicios) {
-                    desgloseSujetaNoSujeta(json.DesgloseTipoOperacion.PrestacionServicios, detalles, options.desglose);
-                }
-                if (options.desgloseTipoOperacion.entrega) {
-                    desgloseSujetaNoSujeta(json.DesgloseTipoOperacion.Entrega, detalles, options.desglose);
-                }
-            }
-        }
-    }*/
 }
 
 /**

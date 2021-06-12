@@ -56,7 +56,7 @@ function createCharts(stats) {
         datasets: [{
             label: "Tiempo de Inserción de Datos en BD",
             data: [stats.insert_mongo, stats.insert_cassandra],
-            backgroundColor: ["rgba(255, 99, 132, 0.2)", "rgba(54, 162, 235, 0.2)"],
+            backgroundColor: ["rgba(255, 99, 132, 0.9)", "rgba(54, 162, 235, 0.9)"],
             borderColor: ["rgb(255, 99, 132)", "rgb(54, 162, 235)"],
             borderWidth: 1
         }]

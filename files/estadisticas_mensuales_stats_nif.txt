@@ -1,2 +1,4 @@
 NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas
 15964763A;22.80369997024536;0;0.0020999908447265625
+NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas
+15964763A;30.718291997909546;0;0.0010828971862792969
