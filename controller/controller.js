@@ -21,6 +21,8 @@ const FacturaAgrupada = require('../model/facturaAgrupada');
 const MesAgrupadas = require('../model/mes_agrupadas');
 const SemanaAgrupadas = require('../model/semana_agrupada');
 const TriMesAgrupadas = require('../model/trimes_agrupada');
+const { json } = require('express');
+const { resolve } = require('path');
 
 
 
@@ -53,9 +55,9 @@ function decompress_lzma2_file(file) {
 function compress_lzma_file(file) {
     return new Promise((resolve, reject) => {
         lzma.LZMA().compress(file, 1, (result, error) => {
-            if(error){
+            if (error) {
                 reject(error);
-            }else{
+            } else {
                 resolve(result);
             }
         });
@@ -145,14 +147,14 @@ var controller = {
             'insert',
             {
                 title: 'Inserción de Facturas',
-                page: 'insercion'
+                page: 'Inserción de Facturas'
             }
         );
     },
     insertManyView: async function (req, res) {
         res.status(200).render('insertMany', {
             title: 'Inserción múltiple de facturas',
-            page: 'insertMany'
+            page: 'Inserción Múltiple de Facturas'
         });
     }, statistics: function (req, res) {
         res.status(200).render('showStatistics', {
@@ -163,7 +165,7 @@ var controller = {
     showStatisticsMenor: function (req, res) {
         res.status(200).render('estadisticasPorMenor', {
             title: 'Estadísticas por Sector',
-            page: 'estadisticas'
+            page: 'Estadísticas Sector al Por Menor'
         });
     },
     showStatistics: async function (req, res) {
@@ -221,12 +223,12 @@ var controller = {
         ];
         console.log("INSERT");
         var insertar_cassandra_start = performance.now();
-        try{
+        try {
             await client.execute(insert_query, params, { prepare: true });
-        }catch(err){
+        } catch (err) {
             console.log(err);
         }
-        
+
         var insert_cassandra_fin = performance.now();
         console.log("INSERT MONGO");
         /**Comprobación de particiones para insertar en Mongo */
@@ -340,7 +342,7 @@ var controller = {
             let decompress_broli = await zlib.brotliDecompressSync(compress_broli);
             var brotli_decompresion_fin = performance.now();
 
-            
+
             //console.log("Inicio LZMA");
             //LZMA
             var lzma_compresion_start = performance.now();
@@ -887,7 +889,7 @@ var controller = {
         console.log("getFactura");
         res.status(200).render('getfactura', {
             title: 'Búsqueda de Facturas',
-            page: 'getFactura'
+            page: 'Búsqueda de Facturas'
         });
     },
     gr: async function (req, res) {
@@ -897,20 +899,20 @@ var controller = {
         if (!tbai_id.match(regex)) {
             res.status(200).render('gr', {
                 title: 'Búsqueda de Facturas',
-                page: 'getFactura',
+                page: 'Búsqueda de Facturas',
                 error: '<script>document.getElementById("data").style.display = "none";</script><script>document.getElementById("tbai_error").style.display = "block";</script>',
                 data: ""
             });
         } else {
-/*
-            const client = new cassandra.Client({
-                contactPoints: ['127.0.0.1'],
-                keyspace: 'ticketbai',
-                localDataCenter: 'datacenter1',
-                queryOptions : { consistency: 1},
-                socketOptions: { readTimeout: 0 }
-            });
-*/
+            /*
+                        const client = new cassandra.Client({
+                            contactPoints: ['127.0.0.1'],
+                            keyspace: 'ticketbai',
+                            localDataCenter: 'datacenter1',
+                            queryOptions : { consistency: 1},
+                            socketOptions: { readTimeout: 0 }
+                        });
+            */
             var result_mongo = await findByTBAI(tbai_id);
 
             var result_cassandra = {
@@ -1116,7 +1118,7 @@ var controller = {
                 };
                 var chart = new Chart(ctx_decom, config_decom);</script>`;
 
-            script_busqueda_fact = `<script>
+                script_busqueda_fact = `<script>
                 var ctx_busqueda_fact = document.getElementById("recuperacion-agrupacion-chart");
                 const labels_busqueda_fact = ["MongoDB", "Cassandra"];
                 const data_busqueda_fact = {
@@ -1207,7 +1209,7 @@ var controller = {
 
             res.status(200).render('gr', {
                 title: 'Búsqueda de Facturas',
-                page: 'getFactura',
+                page: 'Búsqueda de Facturas',
                 error: '<script>document.getElementById("data").style.display = "block";</script><script>document.getElementById("tbai_error").style.display = "none";</script>',
                 tbai_id: result_mongo.data.tbai_id,
                 nif_emisor: result_mongo.data.nif_emisor,
@@ -1270,7 +1272,7 @@ var controller = {
                     return res.status(200).send(
                         {
                             title: 'Inserción de Facturas',
-                            page: 'insertFacturas',
+                            page: 'Inserción de Facturas',
                             tbai_id: resul
                             //file: compressed
                         }
@@ -1296,7 +1298,7 @@ var controller = {
                 res.status(200).send({
                     tbai_id: json._id,
                     title: 'Inserción de Facturas',
-                    page: 'insertFacturas'
+                    page: 'Inserción de Facturas'
                 });
 
 
@@ -1304,7 +1306,7 @@ var controller = {
                 res.status(200).send({
                     tbai_id: -2,
                     title: 'Inserción de Facturas',
-                    page: 'insertFacturas'
+                    page: 'Inserción de Facturas'
                 });
             }
 
@@ -1312,7 +1314,7 @@ var controller = {
             res.status(200).send(
                 {
                     title: 'Inserción de Facturas',
-                    page: 'insertFacturas',
+                    page: 'Inserción de Facturas',
                     tbai_id: -3
                 }
             );
@@ -1328,7 +1330,7 @@ var controller = {
             keyspace: 'ticketbai',
             localDataCenter: 'datacenter1'
         });
-         
+
         for (var i = 0; i < index.length; i++) {
             //let nif = companies_nif_list[i][0];
             let file = index[i].split("/")[5];
@@ -1345,17 +1347,17 @@ var controller = {
             console.log(facturas.length);
             for (var j = 0; j < facturas.length; j++) {
                 let factura_j = facturas[j];
-               /* let data = {};
-                data._id = factura_j.id_tbai;
-                //data._id = factura_j._id;
-                data.nif = factura_j.nif;
-                data.fecha = moment(factura_j.fecha).toDate();
-                data.cantidad = factura_j.cantidad;
-                data.serie = factura_j.serie;
-                data.status = factura_j.status;
-                data.xml = factura_j.xml;
-                array.push(data);
-                */
+                /* let data = {};
+                 data._id = factura_j.id_tbai;
+                 //data._id = factura_j._id;
+                 data.nif = factura_j.nif;
+                 data.fecha = moment(factura_j.fecha).toDate();
+                 data.cantidad = factura_j.cantidad;
+                 data.serie = factura_j.serie;
+                 data.status = factura_j.status;
+                 data.xml = factura_j.xml;
+                 array.push(data);
+                 */
                 const insertQuery = "insert into facturas (nif, fecha, tbai_id, importe, num_factura, serie, xml) values (?, ?, ?, ?, ?, ?, ?)";
                 const params = [
                     factura_j.nif,
@@ -1367,13 +1369,13 @@ var controller = {
                     factura_j.xml
                 ];
                 await client.execute(insertQuery, params, { prepare: true }).catch((err) => {
-                   throw err;
+                    throw err;
                 });
-                
+
             }
             console.log("Guardada --> " + file);
             //await insert_mongo(array).then(() => { console.log("Guardada --> " + file) }).catch(() => { console.log("Error al guardar --> " + file) });
-            
+
 
 
 
@@ -1383,15 +1385,15 @@ var controller = {
 
     },
     agruparFacturas: async function (req, res) {
-        try{
-            //console.log("INICIO AGRUPAR SEMANA");
-            //await agruparSemana();
-            //console.log("INICIO AGRUPAR MES");
-            //await agruparMes();
+        try {
+            console.log("INICIO AGRUPAR SEMANA");
+            await agruparSemana();
+            console.log("INICIO AGRUPAR MES");
+            await agruparMes();
             console.log("INICIO AGRUPAR TRIMES");
             await agruparTrimes();
             res.status(200).send("OK");
-        }catch(err){
+        } catch (err) {
 
         }
     }
@@ -1399,8 +1401,10 @@ var controller = {
 };
 
 
-async function agruparMes(){
-    var nif_array = companies_nif_list.slice(0, 3000).map(n => n[0]);
+function agruparMes() {
+    return new Promise(async (resolve, reject) => {
+        var nif_array = companies_nif_list.slice(0, 3000).map(n => n[0]);
+        //var nif_array = ["15964763A"];
         for (var i = 0; i < nif_array.length; i++) {
 
             for (var t = moment("2021-01-01").toDate(); t < moment("2021-04-01").toDate(); t = moment(t).add(1, "months").toDate()) {
@@ -1412,6 +1416,7 @@ async function agruparMes(){
                         $lte: t_aux.add(1, "months").toDate()
                     }
                 }, "xml").exec();
+
                 if (facturas != null) {
                     var agrupacion = "";
                     var tbai_array = [];
@@ -1427,26 +1432,27 @@ async function agruparMes(){
                     data_to_insert.fechaFin = t_aux.subtract(1, "days").toDate();
                     data_to_insert.idents = tbai_array;
                     data_to_insert.agrupacion = zlib.gzipSync(agrupacion, GZIP_PARAMS).toString("base64");
-                    //await insert_agrupadas_mongo([data_to_insert]);
+                    
 
                     await new MesAgrupadas().collection.insertMany([data_to_insert], { ordered: false }, (err, docs) => {
-                        if (err) { console.log("Error en nif " + nif_array[i] + "ERROR --> "+err); }
+                        if (err) { console.log("Error en nif " + nif_array[i] + "ERROR --> " + err); }
                     });
 
                 } else {
                     console.log("Error al transformar las facturas del nif --> " + nif_array[i]);
                 }
             }
-            console.log("Insertado NIF --> " + nif_array[i]);
+            //console.log("Insertado NIF --> " + nif_array[i]);
         }
-
-        res.status(200).send("OK");
+        resolve("OK");
+    });
 }
 
-async function agruparSemana(){
-    var nif_array = companies_nif_list.slice(0, 3000).map(n => n[0]);
+function agruparSemana() {
+    return new Promise(async resolve => {
+        var nif_array = companies_nif_list.slice(0, 3000).map(n => n[0]);
         for (var i = 0; i < nif_array.length; i++) {
-
+    
             for (var t = moment("2021-01-04").toDate(); t < moment("2021-03-29").toDate(); t = moment(t).add(1, "weeks").toDate()) {
                 let t_aux = moment(t);
                 let facturas = await Factura.find({
@@ -1464,7 +1470,7 @@ async function agruparSemana(){
                         agrupacion += factura;
                         tbai_array.push(DATA.getIdentTBAI(factura));
                     }
-
+    
                     var data_to_insert = {};
                     data_to_insert.nif = nif_array[i];
                     data_to_insert.fechaInicio = t;
@@ -1472,28 +1478,31 @@ async function agruparSemana(){
                     data_to_insert.idents = tbai_array;
                     data_to_insert.agrupacion = zlib.gzipSync(agrupacion, GZIP_PARAMS).toString("base64");
                     //await insert_agrupadas_mongo([data_to_insert]);
-
+    
                     await new SemanaAgrupadas().collection.insertMany([data_to_insert], { ordered: false }, (err, docs) => {
-                        if (err) { console.log("Error en nif " + nif_array[i] + "ERROR --> "+err); }
+                        if (err) { console.log("Error en nif " + nif_array[i] + "ERROR --> " + err); }
                     });
-
+    
                 } else {
                     console.log("Error al transformar las facturas del nif --> " + nif_array[i]);
                 }
             }
-            console.log("Insertado NIF --> " + nif_array[i]);
+            //console.log("Insertado NIF --> " + nif_array[i]);
         }
+    
+        resolve("OK");
+    });
 
-        res.status(200).send("OK");
 }
 
-async function agruparTrimes(){
-    var nif_array = companies_nif_list.slice(0, 3000).map(n => n[0]);
+function agruparTrimes() {
+    return new Promise(async resolve => {
+        var nif_array = companies_nif_list.slice(0, 3000).map(n => n[0]);
         for (var i = 0; i < nif_array.length; i++) {
             let facturas = await Factura.find({
                 nif: nif_array[i]
             }, "xml").exec();
-
+    
             if (facturas != null) {
                 var agrupacion = "";
                 var tbai_array = [];
@@ -1502,14 +1511,14 @@ async function agruparTrimes(){
                     agrupacion += factura;
                     tbai_array.push(DATA.getIdentTBAI(factura));
                 }
-
+    
                 var data_to_insert = {};
                 data_to_insert.nif = nif_array[i];
                 data_to_insert.fechaInicio = new Date("2021-01-04T00:00:00");
                 data_to_insert.fechaFin = new Date("2021-03-28T00:00:00")
                 data_to_insert.idents = tbai_array;
                 data_to_insert.agrupacion = zlib.gzipSync(agrupacion, GZIP_PARAMS).toString("base64");
-        
+    
                 let numParticiones = 0;
                 //BYTES DE TODO EL DOCUMENTO A INSERTAR EN LA BD (NO PUEDE SUPERAR LOS 16MB)
                 let bytes = new TextEncoder().encode(JSON.stringify(data_to_insert)).byteLength;
@@ -1545,24 +1554,25 @@ async function agruparTrimes(){
                         new_data_to_insert.fechaFin = new Date("2021-03-28T00:00:00")
                         new_data_to_insert.idents = tbai_part_list;
                         new_data_to_insert.agrupacion = zlib.gzipSync(agrupacion_mongo, GZIP_PARAMS).toString("base64");
-
+    
                         insert_array.push(new_data_to_insert);
                         //console.log("fin");
                     }
                 }
-
+    
                 await new TriMesAgrupadas().collection.insertMany(insert_array, { ordered: false }, (err, docs) => {
-                    if (err) { console.log("Error en nif " + nif_array[i] + "ERROR --> "+err); }
+                    if (err) { console.log("Error en nif " + nif_array[i] + "ERROR --> " + err); }
                 });
-
+    
             } else {
                 console.log("Error al transformar las facturas del nif --> " + nif_array[i]);
             }
-            console.log("Insertado NIF --> " + nif_array[i]);
+            //console.log("Insertado NIF --> " + nif_array[i]);
         }
-
+    
         //res.status(200).send("OK");
-        console.log("FIN");
+        resolve("OK");
+    });
 }
 
 
@@ -1645,7 +1655,7 @@ async function findByIdCassandra(tbai_id, client) {
                     }
                 });
             }
-        }).catch(err => {reject(err)});
+        }).catch(err => { reject(err) });
 
     });
 }
@@ -1754,12 +1764,8 @@ function executeQuery(query) {
     });
 }
 
-
-function createEstadisticaDiaria(nif) {
+function createEstadisticaDiaAgrupadas(nif) {
     return new Promise((resolve, reject) => {
-        console.log("Estadistica diaria");
-
-
         try {
             var start = performance.now();
             //console.log("Dentro del try");
@@ -1769,51 +1775,49 @@ function createEstadisticaDiaria(nif) {
                 if (global_dia_estadistica.map(l => l.split(" // ")[0]).filter(n => n == `dia_${nif}`).length == 0) {//No existe la estadistica sobre ese nif
                     //console.log("No existe estadistica sobre el nif");
                     //dia_28693295J // [11.425,23.726000000000006,19.01833333333333,35.50857142857143,28.93166666666666,29.325000000000003,9.775,21.541249999999998,6.546666666666667,12.809999999999999,0,13.29,40.41166666666666,12.516,25.217142857142857,7.4174999999999995,7.968000000000001,53.916666666666664,27.663846153846155,12.25,11.325,16.88,31.11,16.79714285714286]
+                    var date = new Date("2021-03-19T00:00:00");
                     var buscar_datos_start = performance.now();
-                    Factura.find({
+                    TriMesAgrupadas.find({
                         nif: nif,
-                        fecha: new Date("2021-03-19T00:00:00")
-                    }, "cantidad xml", (err, query_dia_result) => {
+                        fechaInicio: { $lte: date },
+                        fechaFin: { $gte: date }
+                    }, "idents agrupacion", (err, query_dia_result) => {
                         var buscar_datos_fin = performance.now() - buscar_datos_start;
+                        //console.log(query_dia_result[0].idents);
+                        var json = { "00:00:00": { suma: 0, cantidad: 0, avg: 0 }, "01:00:00": { suma: 0, cantidad: 0, avg: 0 }, "02:00:00": { suma: 0, cantidad: 0, avg: 0 }, "03:00:00": { suma: 0, cantidad: 0, avg: 0 }, "04:00:00": { suma: 0, cantidad: 0, avg: 0 }, "05:00:00": { suma: 0, cantidad: 0, avg: 0 }, "06:00:00": { suma: 0, cantidad: 0, avg: 0 }, "07:00:00": { suma: 0, cantidad: 0, avg: 0 }, "08:00:00": { suma: 0, cantidad: 0, avg: 0 }, "09:00:00": { suma: 0, cantidad: 0, avg: 0 }, "10:00:00": { suma: 0, cantidad: 0, avg: 0 }, "11:00:00": { suma: 0, cantidad: 0, avg: 0 }, "12:00:00": { suma: 0, cantidad: 0, avg: 0 }, "13:00:00": { suma: 0, cantidad: 0, avg: 0 }, "14:00:00": { suma: 0, cantidad: 0, avg: 0 }, "15:00:00": { suma: 0, cantidad: 0, avg: 0 }, "16:00:00": { suma: 0, cantidad: 0, avg: 0 }, "17:00:00": { suma: 0, cantidad: 0, avg: 0 }, "18:00:00": { suma: 0, cantidad: 0, avg: 0 }, "19:00:00": { suma: 0, cantidad: 0, avg: 0 }, "20:00:00": { suma: 0, cantidad: 0, avg: 0 }, "21:00:00": { suma: 0, cantidad: 0, avg: 0 }, "22:00:00": { suma: 0, cantidad: 0, avg: 0 }, "23:00:00": { suma: 0, cantidad: 0, avg: 0 } };
                         var tratar_facturas_start = performance.now();
-                        var descomprimir_total=0;
-                        var json = {"00:00:00" : {suma: 0,cantidad: 0,avg: 0}, "01:00:00" : {suma: 0,cantidad: 0,avg: 0}, "02:00:00" :{suma: 0,cantidad: 0,avg: 0},"03:00:00" : {suma: 0,cantidad: 0,avg: 0}, "04:00:00" : {suma: 0,cantidad: 0,avg: 0},"05:00:00" : {suma: 0,cantidad: 0,avg: 0}, "06:00:00" : {suma: 0,cantidad: 0,avg: 0},"07:00:00" : {suma: 0,cantidad: 0,avg: 0}, "08:00:00" : {suma: 0,cantidad: 0,avg: 0},"09:00:00" : {suma: 0,cantidad: 0,avg: 0},"10:00:00" : {suma: 0,cantidad: 0,avg: 0}, "11:00:00" : {suma: 0,cantidad: 0,avg: 0},"12:00:00" : {suma: 0,cantidad: 0,avg: 0}, "13:00:00" : {suma: 0,cantidad: 0,avg: 0}, "14:00:00" : {suma: 0,cantidad: 0,avg: 0}, "15:00:00" : {suma: 0,cantidad: 0,avg: 0}, "16:00:00" : {suma: 0,cantidad: 0,avg: 0}, "17:00:00" : {suma: 0,cantidad: 0,avg: 0}, "18:00:00" : {suma: 0,cantidad: 0,avg: 0}, "19:00:00" :{suma: 0,cantidad: 0,avg: 0}, "20:00:00" :{suma: 0,cantidad: 0,avg: 0}, "21:00:00" : {suma: 0,cantidad: 0,avg: 0}, "22:00:00" :{ suma: 0,cantidad: 0,avg: 0}, "23:00:00" :{suma: 0,cantidad: 0,avg: 0}};
-                        query_dia_result.forEach((factura_com, index) => {
-                            var descomprimir_start = performance.now();
-                            let factura_descomp = zlib.gunzipSync(Buffer.from(factura_com.xml, "base64"), GZIP_PARAMS).toString();
-                            descomprimir_total += (performance.now() - descomprimir_start);
-                            let hora = DATA.getHoraExpedionFactura(factura_descomp);
-                            let cantidad = factura_com.cantidad;
-    
-                            let hora_split = hora.split(":")[0];
-                            
-                            json[hora_split+':00:00'].suma += cantidad;
-                            json[hora_split+':00:00'].cantidad ++;
-                            json[hora_split+':00:00'].avg = json[hora_split+':00:00'].suma / json[hora_split+':00:00'].cantidad;  
-                        });
+                        var descomprimir_total = 0;
+                        for (var i = 0; i < query_dia_result.length; i++) {
+                            var grupo = query_dia_result[i];
+                            let descomp_inicio = performance.now();
+                            var grupo_descomp = zlib.gunzipSync(Buffer.from(grupo.agrupacion, "base64"), GZIP_PARAMS).toString();
+                            descomprimir_total += performance.now() - descomp_inicio;
+                            var facturas_array = grupo_descomp.split(/(?=\<\?xml version="1\.0" encoding="utf-8"\?\>)/);
+                            grupo.idents.forEach((ident, index) => {
+                                if (moment(ident.split("-")[2], "DDMMYY").toDate().getTime() == date.getTime()) {
+                                    let factura = facturas_array[index];
+                                    let hora = DATA.getHoraExpedionFactura(factura);
+                                    let cantidad = DATA.getImporteTotalFactura(factura);
+
+                                    let hora_split = hora.split(":")[0];
+
+                                    json[hora_split + ':00:00'].suma += cantidad;
+                                    json[hora_split + ':00:00'].cantidad++;
+                                    json[hora_split + ':00:00'].avg = json[hora_split + ':00:00'].suma / json[hora_split + ':00:00'].cantidad;
+                                }
+                            });
+                        }
                         var tratar_facturas_fin = performance.now() - tratar_facturas_start;
                         var dia_nif = [];
-                        for(var i = 0; i < 24; i++){
-                            let hora = i.toString().padStart(2,0);                     
-                            dia_nif.push(json[hora+':00:00'].avg);
+                        //console.log(json);
+                        for (var i = 0; i < 24; i++) {
+                            let hora = i.toString().padStart(2, 0);
+                            dia_nif.push(json[hora + ':00:00'].avg);
                         }
-                        fs.appendFileSync('./files/estadisticas_diarias_stats_nif.txt', `BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas;CalcularEstadisticaGlobal;BuscarDatosNIF\n${buscar_datos_fin};${descomprimir_total};${tratar_facturas_fin - descomprimir_total}\n`);
+                        fs.appendFileSync('./files/estadisticas_diarias_stats_nif.txt', `NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas;CalcularEstadisticaGlobal\n${nif};${buscar_datos_fin};${descomprimir_total};${tratar_facturas_fin - descomprimir_total}\n`);
                         fs.appendFileSync('./estadisticas/2021-03-19_2021-03-19_global.txt', `dia_${nif} // [${dia_nif.toString()}]\n`);
                         resolve("OK");
-                        /*var dia_nif = [];
-                        var query_dia_descomp = query_dia_result.map(f => zlib.gunzipSync(Buffer.from(f.xml, "base64"), GZIP_PARAMS).toString());
-                        for (var t = moment("00:00:00", "HH:mm:ss").toDate(); t <= moment("23:00:00", "HH:mm:ss").toDate(); t = moment(t).add(1, "hours").toDate()) {
-                            let t_aux = t;
-                            let nif_array = query_dia_descomp.filter(f => moment(DATA.getHoraExpedionFactura(f), "HH:mm:ss").toDate() >= t && moment(DATA.getHoraExpedionFactura(f), "HH:mm:ss").toDate() < moment(t_aux).add(1, "hours").toDate());
-                            var nif_average = 0;
-                            if (nif_array.length > 0) {
-                                nif_average = nif_array.map(f => DATA.getImporteTotalFactura(f)).reduce((a, b) => a + b, 0) / nif_array.length;
-                            }
-                            dia_nif.push(nif_average);
-                        }
-                        fs.appendFileSync('./estadisticas/2021-03-19_2021-03-19_global.txt', `dia_${nif} // [${dia_nif.toString()}]\n`);
-                        resolve("OK");
-                        console.log(performance.now() - start);*/
+
                     });
                 } else {
                     resolve("OK");
@@ -1824,115 +1828,75 @@ function createEstadisticaDiaria(nif) {
                 var nif_list = companies_nif_list.slice(0, 3000).map(c => c[0]);
 
                 console.log("Busqueda start");
+                var date = new Date("2021-03-19T00:00:00");
                 var buscar_datos_start = performance.now();
-                Factura.aggregate([
+                SemanaAgrupadas.aggregate([
                     {
-                        $match : {
+                        $match: {
                             nif: {
-                                $in : nif_list
+                                $in: nif_list
                             },
-                            fecha: new Date("2021-03-19T00:00:00")
+                            fechaInicio: { $lte: date },
+                            fechaFin: { $gte: date }
                         }
                     },
                     {
-                        $project : {
-                            _id : "$_id",
+                        $project: {
+                            _id: "null",
                             nif: "$nif",
-                            fecha: "%fecha",
-                            cantidad: "$cantidad",
-                            xml : "$xml"
+                            idents: "$idents",
+                            agrupacion: "$agrupacion"
                         }
                     }
                 ]).allowDiskUse().exec((err, query_dia_result) => {
-                    if(err) throw err;
+                    if (err) throw err;
                     var buscar_datos_fin = performance.now() - buscar_datos_start;
-                    console.log("End Busqueda datos");
-                    console.log(query_dia_result.length);
                     const dia_labels = ["00:00:00", "01:00:00", "02:00:00", "03:00:00", "04:00:00", "05:00:00", "06:00:00", "07:00:00", "08:00:00", "09:00:00", "10:00:00", "11:00:00", "12:00:00", "13:00:00", "14:00:00", "15:00:00", "16:00:00", "17:00:00", "18:00:00", "19:00:00", "20:00:00", "21:00:00", "22:00:00", "23:00:00",];
                     var dia_nif = [];
                     var dia_sector = [];
 
                     var descomprimir_total = 0;
-                    var json = {"00:00:00" : {suma: 0,cantidad: 0,avg: 0}, "01:00:00" : {suma: 0,cantidad: 0,avg: 0}, "02:00:00" :{suma: 0,cantidad: 0,avg: 0},"03:00:00" : {suma: 0,cantidad: 0,avg: 0}, "04:00:00" : {suma: 0,cantidad: 0,avg: 0},"05:00:00" : {suma: 0,cantidad: 0,avg: 0}, "06:00:00" : {suma: 0,cantidad: 0,avg: 0},"07:00:00" : {suma: 0,cantidad: 0,avg: 0}, "08:00:00" : {suma: 0,cantidad: 0,avg: 0},"09:00:00" : {suma: 0,cantidad: 0,avg: 0},"10:00:00" : {suma: 0,cantidad: 0,avg: 0}, "11:00:00" : {suma: 0,cantidad: 0,avg: 0},"12:00:00" : {suma: 0,cantidad: 0,avg: 0}, "13:00:00" : {suma: 0,cantidad: 0,avg: 0}, "14:00:00" : {suma: 0,cantidad: 0,avg: 0}, "15:00:00" : {suma: 0,cantidad: 0,avg: 0}, "16:00:00" : {suma: 0,cantidad: 0,avg: 0}, "17:00:00" : {suma: 0,cantidad: 0,avg: 0}, "18:00:00" : {suma: 0,cantidad: 0,avg: 0}, "19:00:00" :{suma: 0,cantidad: 0,avg: 0}, "20:00:00" :{suma: 0,cantidad: 0,avg: 0}, "21:00:00" : {suma: 0,cantidad: 0,avg: 0}, "22:00:00" :{ suma: 0,cantidad: 0,avg: 0}, "23:00:00" :{suma: 0,cantidad: 0,avg: 0}};
-                    var json_nif = {"00:00:00" : {suma: 0,cantidad: 0,avg: 0}, "01:00:00" : {suma: 0,cantidad: 0,avg: 0}, "02:00:00" :{suma: 0,cantidad: 0,avg: 0},"03:00:00" : {suma: 0,cantidad: 0,avg: 0}, "04:00:00" : {suma: 0,cantidad: 0,avg: 0},"05:00:00" : {suma: 0,cantidad: 0,avg: 0}, "06:00:00" : {suma: 0,cantidad: 0,avg: 0},"07:00:00" : {suma: 0,cantidad: 0,avg: 0}, "08:00:00" : {suma: 0,cantidad: 0,avg: 0},"09:00:00" : {suma: 0,cantidad: 0,avg: 0},"10:00:00" : {suma: 0,cantidad: 0,avg: 0}, "11:00:00" : {suma: 0,cantidad: 0,avg: 0},"12:00:00" : {suma: 0,cantidad: 0,avg: 0}, "13:00:00" : {suma: 0,cantidad: 0,avg: 0}, "14:00:00" : {suma: 0,cantidad: 0,avg: 0}, "15:00:00" : {suma: 0,cantidad: 0,avg: 0}, "16:00:00" : {suma: 0,cantidad: 0,avg: 0}, "17:00:00" : {suma: 0,cantidad: 0,avg: 0}, "18:00:00" : {suma: 0,cantidad: 0,avg: 0}, "19:00:00" :{suma: 0,cantidad: 0,avg: 0}, "20:00:00" :{suma: 0,cantidad: 0,avg: 0}, "21:00:00" : {suma: 0,cantidad: 0,avg: 0}, "22:00:00" :{ suma: 0,cantidad: 0,avg: 0}, "23:00:00" :{suma: 0,cantidad: 0,avg: 0}};
+                    var json = { "00:00:00": { suma: 0, cantidad: 0, avg: 0 }, "01:00:00": { suma: 0, cantidad: 0, avg: 0 }, "02:00:00": { suma: 0, cantidad: 0, avg: 0 }, "03:00:00": { suma: 0, cantidad: 0, avg: 0 }, "04:00:00": { suma: 0, cantidad: 0, avg: 0 }, "05:00:00": { suma: 0, cantidad: 0, avg: 0 }, "06:00:00": { suma: 0, cantidad: 0, avg: 0 }, "07:00:00": { suma: 0, cantidad: 0, avg: 0 }, "08:00:00": { suma: 0, cantidad: 0, avg: 0 }, "09:00:00": { suma: 0, cantidad: 0, avg: 0 }, "10:00:00": { suma: 0, cantidad: 0, avg: 0 }, "11:00:00": { suma: 0, cantidad: 0, avg: 0 }, "12:00:00": { suma: 0, cantidad: 0, avg: 0 }, "13:00:00": { suma: 0, cantidad: 0, avg: 0 }, "14:00:00": { suma: 0, cantidad: 0, avg: 0 }, "15:00:00": { suma: 0, cantidad: 0, avg: 0 }, "16:00:00": { suma: 0, cantidad: 0, avg: 0 }, "17:00:00": { suma: 0, cantidad: 0, avg: 0 }, "18:00:00": { suma: 0, cantidad: 0, avg: 0 }, "19:00:00": { suma: 0, cantidad: 0, avg: 0 }, "20:00:00": { suma: 0, cantidad: 0, avg: 0 }, "21:00:00": { suma: 0, cantidad: 0, avg: 0 }, "22:00:00": { suma: 0, cantidad: 0, avg: 0 }, "23:00:00": { suma: 0, cantidad: 0, avg: 0 } };
+                    var json_nif = { "00:00:00": { suma: 0, cantidad: 0, avg: 0 }, "01:00:00": { suma: 0, cantidad: 0, avg: 0 }, "02:00:00": { suma: 0, cantidad: 0, avg: 0 }, "03:00:00": { suma: 0, cantidad: 0, avg: 0 }, "04:00:00": { suma: 0, cantidad: 0, avg: 0 }, "05:00:00": { suma: 0, cantidad: 0, avg: 0 }, "06:00:00": { suma: 0, cantidad: 0, avg: 0 }, "07:00:00": { suma: 0, cantidad: 0, avg: 0 }, "08:00:00": { suma: 0, cantidad: 0, avg: 0 }, "09:00:00": { suma: 0, cantidad: 0, avg: 0 }, "10:00:00": { suma: 0, cantidad: 0, avg: 0 }, "11:00:00": { suma: 0, cantidad: 0, avg: 0 }, "12:00:00": { suma: 0, cantidad: 0, avg: 0 }, "13:00:00": { suma: 0, cantidad: 0, avg: 0 }, "14:00:00": { suma: 0, cantidad: 0, avg: 0 }, "15:00:00": { suma: 0, cantidad: 0, avg: 0 }, "16:00:00": { suma: 0, cantidad: 0, avg: 0 }, "17:00:00": { suma: 0, cantidad: 0, avg: 0 }, "18:00:00": { suma: 0, cantidad: 0, avg: 0 }, "19:00:00": { suma: 0, cantidad: 0, avg: 0 }, "20:00:00": { suma: 0, cantidad: 0, avg: 0 }, "21:00:00": { suma: 0, cantidad: 0, avg: 0 }, "22:00:00": { suma: 0, cantidad: 0, avg: 0 }, "23:00:00": { suma: 0, cantidad: 0, avg: 0 } };
 
                     var tratar_facturas_start = performance.now();
-                    query_dia_result.forEach((factura_com, index) => {
-                        var descomprimir_start = performance.now();
-                        let factura_descomp = zlib.gunzipSync(Buffer.from(factura_com.xml, "base64"), GZIP_PARAMS).toString();
-                        descomprimir_total += (performance.now() - descomprimir_start);
-                        let hora = DATA.getHoraExpedionFactura(factura_descomp);
-                        let cantidad = factura_com.cantidad;
+                    var descomprimir_total = 0;
+                    for (var i = 0; i < query_dia_result.length; i++) {
+                        var grupo = query_dia_result[i];
+                        let descomp_inicio = performance.now();
+                        var grupo_descomp = zlib.gunzipSync(Buffer.from(grupo.agrupacion, "base64"), GZIP_PARAMS).toString();
+                        descomprimir_total += performance.now() - descomp_inicio;
+                        var facturas_array = grupo_descomp.split(/(?=\<\?xml version="1\.0" encoding="utf-8"\?\>)/);
+                        grupo.idents.forEach((ident, index) => {
+                            if (moment(ident.split("-")[2], "DDMMYY").toDate().getTime() == date.getTime()) {
+                                let factura = facturas_array[index];
+                                let hora = DATA.getHoraExpedionFactura(factura);
+                                let cantidad = DATA.getImporteTotalFactura(factura);
 
-                        let hora_split = hora.split(":")[0];
-                        
-                        json[hora_split+':00:00'].suma += cantidad;
-                        json[hora_split+':00:00'].cantidad ++;
-                        json[hora_split+':00:00'].avg = json[hora_split+':00:00'].suma / json[hora_split+':00:00'].cantidad;
-                        if(factura_com.nif == nif){
-                            json_nif[hora_split+':00:00'].suma += cantidad;
-                            json_nif[hora_split+':00:00'].cantidad ++;
-                            json_nif[hora_split+':00:00'].avg = json[hora_split+':00:00'].suma / json[hora_split+':00:00'].cantidad;
-                        }
+                                let hora_split = hora.split(":")[0];
 
-                    });
-                    console.log("End tratar facturas");
+                                json[hora_split + ':00:00'].suma += cantidad;
+                                json[hora_split + ':00:00'].cantidad++;
+                                json[hora_split + ':00:00'].avg = json[hora_split + ':00:00'].suma / json[hora_split + ':00:00'].cantidad;
+                                if (grupo.nif == nif) {
+                                    json_nif[hora_split + ':00:00'].suma += cantidad;
+                                    json_nif[hora_split + ':00:00'].cantidad++;
+                                    json_nif[hora_split + ':00:00'].avg = json[hora_split + ':00:00'].suma / json[hora_split + ':00:00'].cantidad;
+                                }
+                            }
+                        });
+                    }
                     var tratar_facturas_fin = performance.now() - tratar_facturas_start;
 
-                    for(var i = 0; i < 24; i++){
-                        let hora = i.toString().padStart(2,0);                     
-                        dia_nif.push(json_nif[hora+':00:00'].avg);
-                        dia_sector.push(json[hora+':00:00'].avg)
+                    for (var i = 0; i < 24; i++) {
+                        let hora = i.toString().padStart(2, 0);
+                        dia_nif.push(json_nif[hora + ':00:00'].avg);
+                        dia_sector.push(json[hora + ':00:00'].avg)
                     }
 
-                    fs.appendFileSync('./files/estadisticas_diarias_stats.txt', `BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas;CalcularEstadisticaGlobal;BuscarDatosNIF\n${buscar_datos_fin};${descomprimir_total};${tratar_facturas_fin - descomprimir_total}\n`);
+                    fs.appendFileSync('./files/estadisticas_diarias_stats.txt', `BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas;CalcularEstadisticaGlobal\n${buscar_datos_fin};${descomprimir_total};${tratar_facturas_fin - descomprimir_total}\n`);
                     fs.writeFileSync('./estadisticas/2021-03-19_2021-03-19_global.txt', `dia_labels // ["${dia_labels.join('","')}"]\ndia_sector // [${dia_sector.toString()}]\ndia_${nif} // [${dia_nif.toString()}]\n`);
                     resolve("OK");
-                    /*
-                    var tratar_facturas_start = performance.now();
-                    query_dia_result.forEach((factura_com, index) => {
-                        var descomprimir_start = performance.now();
-                        let factura_descomp = zlib.gunzipSync(Buffer.from(factura_com.xml, "base64"), GZIP_PARAMS).toString();
-                        descomprimir_total += (performance.now() - descomprimir_start);
-                        let group = [DATA.getHoraExpedionFactura(factura_descomp), factura_com.cantidad];
-                        hora_cantidad_global.push(group);
-
-                        if (factura_com.nif == nif) {
-                            //console.log("NIIIIIIIF");
-                            let group_nif = [DATA.getHoraExpedionFactura(factura_descomp), factura_com.cantidad];
-                            hora_cantidad_nif.push(group_nif);
-                        }
-                    });
-                    console.log("End tratar facturas");
-                    var tratar_facturas_fin = performance.now() - tratar_facturas_start;
-                    var calcular_estadistica_start = performance.now();
-                    //console.log(hora_cantidad_nif);
-                    for (var t = moment("00:00:00", "HH:mm:ss").toDate(); t <= moment("23:00:00", "HH:mm:ss").toDate(); t = moment(t).add(1, "hours")) {
-                        let t_plus_hour = t;
-
-                        let filtro_global = hora_cantidad_global.filter(f => moment(f[0], "HH:mm:ss").toDate() >= moment(t).toDate() && moment(f[0], "HH:mm:ss").toDate() < moment(t_plus_hour).add(1, "hours").toDate());
-                        console.log(filtro_global.length);
-                        let sum = filtro_global.map(f => f[1]).reduce((a, b) => a + b, 0);
-
-                        if (filtro_global.length == 0) {
-                            dia_sector.push(0);
-                        } else {
-                            dia_sector.push(sum / filtro_global.length);
-                        }
-
-                        let filtro_nif = hora_cantidad_nif.filter(f => moment(f[0], "HH:mm:ss").toDate() >= moment(t).toDate() && moment(f[0], "HH:mm:ss").toDate() < moment(t_plus_hour).add(1, "hours").toDate());
-                        let sum_nif = filtro_nif.map(f => f[1]).reduce((a, b) => a + b, 0);
-
-                        if (filtro_nif.length == 0) {
-                            dia_nif.push(0);
-                        } else {
-                            dia_nif.push(sum_nif / filtro_nif.length);
-                        }
-                        dia_labels.push(moment(t).format("HH:mm:ss"));
-                    }
-                    var calcular_estadistica_fin = performance.now() - calcular_estadistica_start;
-                    console.log("End Calcular estadistica");
-                    */
                 });
 
             }//end if
@@ -1944,41 +1908,213 @@ function createEstadisticaDiaria(nif) {
     });
 }
 
-function createEstadisticaSemanal(nif) {
-    //await mongoose.connect(mongoUrl + "/" + dbName).then(() => { console.log("Conexión a MongoDB realizada correctamente") });
+function createEstadisticaSemanaAgrupadas(nif) {
     return new Promise((resolve, reject) => {
-        console.log("Estadistica Semanal");
-        //const DIRECTORY_PATH = "C:\\Users\\877205\\Desktop\\FacturasInsert\\insertData\\";
-        //const index = fs.readFileSync(DIRECTORY_PATH + "index.txt").toString().split("\n");
-        //const nif_list = index.map(n => n.split("/")[5].split(".")[0]);
         try {
             var start = performance.now();
             //console.log("Dentro del try");
-            if (fs.existsSync("./estadisticas/2021-03-15_2021-03-21_global.txt")) {//Si existe la de un nif entonces existe la global
+            if (fs.existsSync("./estadisticas/2021-03-19_2021-03-19_global.txt")) {//Si existe la de un nif entonces existe la global
                 //console.log("Existe fichero?");
-                var global_semana_estadistica = fs.readFileSync("./estadisticas/2021-03-15_2021-03-21_global.txt").toString().split("\n");
-                if (global_semana_estadistica.map(l => l.split(" // ")[0]).filter(n => n == `semana_${nif}`).length == 0) {//No existe la estadistica sobre ese nif
+                var global_dia_estadistica = fs.readFileSync("./estadisticas/2021-03-19_2021-03-19_global.txt").toString().split("\n");
+                if (global_dia_estadistica.map(l => l.split(" // ")[0]).filter(n => n == `dia_${nif}`).length == 0) {//No existe la estadistica sobre ese nif
                     //console.log("No existe estadistica sobre el nif");
-                    Factura.find({
+                    //dia_28693295J // [11.425,23.726000000000006,19.01833333333333,35.50857142857143,28.93166666666666,29.325000000000003,9.775,21.541249999999998,6.546666666666667,12.809999999999999,0,13.29,40.41166666666666,12.516,25.217142857142857,7.4174999999999995,7.968000000000001,53.916666666666664,27.663846153846155,12.25,11.325,16.88,31.11,16.79714285714286]
+                    var date_ini = new Date("2021-03-15T00:00:00");
+                    var date_fin = new Date("2021-03-21T00:00:00");
+                    var buscar_datos_start = performance.now();
+                    SemanaAgrupadas.find({
                         nif: nif,
-                        fecha: {
-                            $gte: new Date("2021-03-15T00:00:00"),
-                            $lte: new Date("2021-03-21T23:59:59")
+                        fechaInicio: { $lte: date_ini },
+                        fechaFin: { $gte: date_fin }
+                    }, "idents agrupacion", (err, query_dia_result) => {
+                        var buscar_datos_fin = performance.now() - buscar_datos_start;
+                        //console.log(query_dia_result[0].idents);
+                        var json = { "00:00:00": { suma: 0, cantidad: 0, avg: 0 }, "01:00:00": { suma: 0, cantidad: 0, avg: 0 }, "02:00:00": { suma: 0, cantidad: 0, avg: 0 }, "03:00:00": { suma: 0, cantidad: 0, avg: 0 }, "04:00:00": { suma: 0, cantidad: 0, avg: 0 }, "05:00:00": { suma: 0, cantidad: 0, avg: 0 }, "06:00:00": { suma: 0, cantidad: 0, avg: 0 }, "07:00:00": { suma: 0, cantidad: 0, avg: 0 }, "08:00:00": { suma: 0, cantidad: 0, avg: 0 }, "09:00:00": { suma: 0, cantidad: 0, avg: 0 }, "10:00:00": { suma: 0, cantidad: 0, avg: 0 }, "11:00:00": { suma: 0, cantidad: 0, avg: 0 }, "12:00:00": { suma: 0, cantidad: 0, avg: 0 }, "13:00:00": { suma: 0, cantidad: 0, avg: 0 }, "14:00:00": { suma: 0, cantidad: 0, avg: 0 }, "15:00:00": { suma: 0, cantidad: 0, avg: 0 }, "16:00:00": { suma: 0, cantidad: 0, avg: 0 }, "17:00:00": { suma: 0, cantidad: 0, avg: 0 }, "18:00:00": { suma: 0, cantidad: 0, avg: 0 }, "19:00:00": { suma: 0, cantidad: 0, avg: 0 }, "20:00:00": { suma: 0, cantidad: 0, avg: 0 }, "21:00:00": { suma: 0, cantidad: 0, avg: 0 }, "22:00:00": { suma: 0, cantidad: 0, avg: 0 }, "23:00:00": { suma: 0, cantidad: 0, avg: 0 } };
+                        var tratar_facturas_start = performance.now();
+                        var descomprimir_total = 0;
+                        for (var i = 0; i < query_dia_result.length; i++) {
+                            var grupo = query_dia_result[i];
+                            let descomp_inicio = performance.now();
+                            var grupo_descomp = zlib.gunzipSync(Buffer.from(grupo.agrupacion, "base64"), GZIP_PARAMS).toString();
+                            descomprimir_total += performance.now() - descomp_inicio;
+                            var facturas_array = grupo_descomp.split(/(?=\<\?xml version="1\.0" encoding="utf-8"\?\>)/);
+                            grupo.idents.forEach((ident, index) => {
+                                if (moment(ident.split("-")[2], "DDMMYY").toDate().getTime() == date.getTime()) {
+                                    let factura = facturas_array[index];
+                                    let hora = DATA.getHoraExpedionFactura(factura);
+                                    let cantidad = DATA.getImporteTotalFactura(factura);
+
+                                    let hora_split = hora.split(":")[0];
+
+                                    json[hora_split + ':00:00'].suma += cantidad;
+                                    json[hora_split + ':00:00'].cantidad++;
+                                    json[hora_split + ':00:00'].avg = json[hora_split + ':00:00'].suma / json[hora_split + ':00:00'].cantidad;
+                                }
+                            });
                         }
-                    }, "nif fecha cantidad", (err, query_semana_result) => {
-                        var semana_nif = [];
-                        //var query_dia_descomp = query_dia_result.map(f => zlib.gunzipSync(Buffer.from(f.xml, "base64"), GZIP_PARAMS).toString());
-                        for (var t = moment("2021-03-15").toDate(); t <= moment("2021-03-21").toDate(); t = moment(t).add(1, "days").toDate()) {
-                            let t_aux = t;
-                            let nif_array = query_semana_result.filter(f => moment(f.fecha).toDate() >= t && moment(f.fecha).toDate() < moment(t_aux).add(1, "days").toDate());
-                            var nif_average = 0;
-                            if (nif_array.length > 0) {
-                                nif_average = nif_array.map(f => f.cantidad).reduce((a, b) => a + b, 0) / nif_array.length;
+                        var tratar_facturas_fin = performance.now() - tratar_facturas_start;
+                        var dia_nif = [];
+                        //console.log(json);
+                        for (var i = 0; i < 24; i++) {
+                            let hora = i.toString().padStart(2, 0);
+                            dia_nif.push(json[hora + ':00:00'].avg);
+                        }
+                        fs.appendFileSync('./files/estadisticas_diarias_stats_nif.txt', `NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas;CalcularEstadisticaGlobal\n${nif};${buscar_datos_fin};${descomprimir_total};${tratar_facturas_fin - descomprimir_total}\n`);
+                        fs.appendFileSync('./estadisticas/2021-03-19_2021-03-19_global.txt', `dia_${nif} // [${dia_nif.toString()}]\n`);
+                        resolve("OK");
+
+                    });
+                } else {
+                    resolve("OK");
+                }//end if
+            } else {//No existe la estadistica global ni la del nif, asi que tengo que crearlas
+                //console.log("No existe fichero");
+
+                var nif_list = companies_nif_list.slice(0, 3000).map(c => c[0]);
+
+                console.log("Busqueda start");
+                var date = new Date("2021-03-19T00:00:00");
+                var buscar_datos_start = performance.now();
+                SemanaAgrupadas.aggregate([
+                    {
+                        $match: {
+                            nif: {
+                                $in: nif_list
+                            },
+                            fechaInicio: { $lte: date },
+                            fechaFin: { $gte: date }
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: "null",
+                            nif: "$nif",
+                            idents: "$idents",
+                            agrupacion: "$agrupacion"
+                        }
+                    }
+                ]).allowDiskUse().exec((err, query_dia_result) => {
+                    if (err) throw err;
+                    var buscar_datos_fin = performance.now() - buscar_datos_start;
+                    const dia_labels = ["00:00:00", "01:00:00", "02:00:00", "03:00:00", "04:00:00", "05:00:00", "06:00:00", "07:00:00", "08:00:00", "09:00:00", "10:00:00", "11:00:00", "12:00:00", "13:00:00", "14:00:00", "15:00:00", "16:00:00", "17:00:00", "18:00:00", "19:00:00", "20:00:00", "21:00:00", "22:00:00", "23:00:00",];
+                    var dia_nif = [];
+                    var dia_sector = [];
+
+                    var descomprimir_total = 0;
+                    var json = { "00:00:00": { suma: 0, cantidad: 0, avg: 0 }, "01:00:00": { suma: 0, cantidad: 0, avg: 0 }, "02:00:00": { suma: 0, cantidad: 0, avg: 0 }, "03:00:00": { suma: 0, cantidad: 0, avg: 0 }, "04:00:00": { suma: 0, cantidad: 0, avg: 0 }, "05:00:00": { suma: 0, cantidad: 0, avg: 0 }, "06:00:00": { suma: 0, cantidad: 0, avg: 0 }, "07:00:00": { suma: 0, cantidad: 0, avg: 0 }, "08:00:00": { suma: 0, cantidad: 0, avg: 0 }, "09:00:00": { suma: 0, cantidad: 0, avg: 0 }, "10:00:00": { suma: 0, cantidad: 0, avg: 0 }, "11:00:00": { suma: 0, cantidad: 0, avg: 0 }, "12:00:00": { suma: 0, cantidad: 0, avg: 0 }, "13:00:00": { suma: 0, cantidad: 0, avg: 0 }, "14:00:00": { suma: 0, cantidad: 0, avg: 0 }, "15:00:00": { suma: 0, cantidad: 0, avg: 0 }, "16:00:00": { suma: 0, cantidad: 0, avg: 0 }, "17:00:00": { suma: 0, cantidad: 0, avg: 0 }, "18:00:00": { suma: 0, cantidad: 0, avg: 0 }, "19:00:00": { suma: 0, cantidad: 0, avg: 0 }, "20:00:00": { suma: 0, cantidad: 0, avg: 0 }, "21:00:00": { suma: 0, cantidad: 0, avg: 0 }, "22:00:00": { suma: 0, cantidad: 0, avg: 0 }, "23:00:00": { suma: 0, cantidad: 0, avg: 0 } };
+                    var json_nif = { "00:00:00": { suma: 0, cantidad: 0, avg: 0 }, "01:00:00": { suma: 0, cantidad: 0, avg: 0 }, "02:00:00": { suma: 0, cantidad: 0, avg: 0 }, "03:00:00": { suma: 0, cantidad: 0, avg: 0 }, "04:00:00": { suma: 0, cantidad: 0, avg: 0 }, "05:00:00": { suma: 0, cantidad: 0, avg: 0 }, "06:00:00": { suma: 0, cantidad: 0, avg: 0 }, "07:00:00": { suma: 0, cantidad: 0, avg: 0 }, "08:00:00": { suma: 0, cantidad: 0, avg: 0 }, "09:00:00": { suma: 0, cantidad: 0, avg: 0 }, "10:00:00": { suma: 0, cantidad: 0, avg: 0 }, "11:00:00": { suma: 0, cantidad: 0, avg: 0 }, "12:00:00": { suma: 0, cantidad: 0, avg: 0 }, "13:00:00": { suma: 0, cantidad: 0, avg: 0 }, "14:00:00": { suma: 0, cantidad: 0, avg: 0 }, "15:00:00": { suma: 0, cantidad: 0, avg: 0 }, "16:00:00": { suma: 0, cantidad: 0, avg: 0 }, "17:00:00": { suma: 0, cantidad: 0, avg: 0 }, "18:00:00": { suma: 0, cantidad: 0, avg: 0 }, "19:00:00": { suma: 0, cantidad: 0, avg: 0 }, "20:00:00": { suma: 0, cantidad: 0, avg: 0 }, "21:00:00": { suma: 0, cantidad: 0, avg: 0 }, "22:00:00": { suma: 0, cantidad: 0, avg: 0 }, "23:00:00": { suma: 0, cantidad: 0, avg: 0 } };
+
+                    var tratar_facturas_start = performance.now();
+                    var descomprimir_total = 0;
+                    for (var i = 0; i < query_dia_result.length; i++) {
+                        var grupo = query_dia_result[i];
+                        let descomp_inicio = performance.now();
+                        var grupo_descomp = zlib.gunzipSync(Buffer.from(grupo.agrupacion, "base64"), GZIP_PARAMS).toString();
+                        descomprimir_total += performance.now() - descomp_inicio;
+                        var facturas_array = grupo_descomp.split(/(?=\<\?xml version="1\.0" encoding="utf-8"\?\>)/);
+                        grupo.idents.forEach((ident, index) => {
+                            if (moment(ident.split("-")[2], "DDMMYY").toDate().getTime() == date.getTime()) {
+                                let factura = facturas_array[index];
+                                let hora = DATA.getHoraExpedionFactura(factura);
+                                let cantidad = DATA.getImporteTotalFactura(factura);
+
+                                let hora_split = hora.split(":")[0];
+
+                                json[hora_split + ':00:00'].suma += cantidad;
+                                json[hora_split + ':00:00'].cantidad++;
+                                json[hora_split + ':00:00'].avg = json[hora_split + ':00:00'].suma / json[hora_split + ':00:00'].cantidad;
+                                if (grupo.nif == nif) {
+                                    json_nif[hora_split + ':00:00'].suma += cantidad;
+                                    json_nif[hora_split + ':00:00'].cantidad++;
+                                    json_nif[hora_split + ':00:00'].avg = json[hora_split + ':00:00'].suma / json[hora_split + ':00:00'].cantidad;
+                                }
                             }
-                            semana_nif.push(nif_average);
+                        });
+                    }
+                    var tratar_facturas_fin = performance.now() - tratar_facturas_start;
+
+                    for (var i = 0; i < 24; i++) {
+                        let hora = i.toString().padStart(2, 0);
+                        dia_nif.push(json_nif[hora + ':00:00'].avg);
+                        dia_sector.push(json[hora + ':00:00'].avg)
+                    }
+
+                    fs.appendFileSync('./files/estadisticas_diarias_stats.txt', `BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas;CalcularEstadisticaGlobal\n${buscar_datos_fin};${descomprimir_total};${tratar_facturas_fin - descomprimir_total}\n`);
+                    fs.writeFileSync('./estadisticas/2021-03-19_2021-03-19_global.txt', `dia_labels // ["${dia_labels.join('","')}"]\ndia_sector // [${dia_sector.toString()}]\ndia_${nif} // [${dia_nif.toString()}]\n`);
+                    resolve("OK");
+                });
+
+            }//end if
+        } catch (err) {
+
+            //console.log(err);
+            reject(err);
+        }
+    });
+}
+
+function createEstadisticaSemanalAgrupadas(nif) {
+    return new Promise((resolve, reject) => {
+        console.log("Estadistica Mensual");
+
+        try {
+            var start = performance.now();
+            //console.log("Dentro del try");
+            if (fs.existsSync("./estadisticas/2021-03-01_2021-03-28_global.txt")) {//Si existe la de un nif entonces existe la global
+                //console.log("Existe fichero?");
+                var global_semana_estadistica = fs.readFileSync("./estadisticas/2021-03-01_2021-03-28_global.txt").toString().split("\n");
+                if (global_semana_estadistica.map(l => l.split(" // ")[0]).filter(n => n == `mes_${nif}`).length == 0) {//No existe la estadistica sobre ese nif
+                    //console.log("No existe estadistica sobre el nif");
+                    var date_start = new Date("2021-03-01T00:00:00");
+                    var date_fin = new Date("2021-03-28T00:00:00");
+                    var buscar_datos_start = performance.now();
+                    SemanaAgrupadas.find({
+                        nif: nif,
+                        fechaInicio: { $lte: date_start },
+                        fechaFin: { $gte: date_fin }
+                    }, "idents agrupacion", (err, query_semana_result) => {
+                        var buscar_datos_fin = performance.now() - buscar_datos_start;
+                        var semana_nif = [];
+                        var json = {};
+                        var descomprimir_total = 0;
+                        var tratar_facturas_start = performance.now();
+                        for (var i = 0; i < query_semana_result.length; i++) {
+                            var grupo = query_semana_result[i];
+                            var descomprimir_start = performance.now();
+                            var grupo_descomp = zlib.gunzipSync(Buffer.from(grupo.agrupacion, "base64"), GZIP_PARAMS).toString();
+                            descomprimir_total += performance.now() - descomprimir_start;
+                            var facturas_array = grupo_descomp.split(/(?=\<\?xml version="1\.0" encoding="utf-8"\?\>)/);
+                            grupo.idents.forEach((ident, index) => {
+                                let fecha = moment(ident.split("-")[2], "DDMMYY").toDate();
+                                if (fecha.getTime() >= date_start.getTime() && fecha.getTime() <= date_fin.getTime()) {
+                                    let factura = facturas_array[index];
+                                    let day = moment(fecha).format("DD");
+                                    if (!json.hasOwnProperty(day)) {
+                                        json[day] = {
+                                            suma: 0,
+                                            cantidad: 0,
+                                            avg: 0
+                                        }
+                                    }
+                                    json[day].suma += DATA.getImporteTotalFactura(factura);
+                                    json[day].cantidad++;
+                                    json[day].avg = json[day].suma / json[day].cantidad
+                                }
+                            });
                         }
-                        fs.appendFileSync('./estadisticas/2021-03-15_2021-03-21_global.txt', `semana_${nif} // [${semana_nif.toString()}]\n`);
-                        console.log(performance.now() - start);
+                        //console.log(json);
+                        var tratar_facturas_fin = performance.now() - tratar_facturas_start;
+                        for (var i = Number(moment(date_start).format("DD")); i <= Number(moment(date_fin).format("DD")); i++) {
+                            let day = i.toString();
+                            if (json.hasOwnProperty(day)) {
+                                semana_nif.push(json[day].avg);
+                            } else {
+                                semana_nif.push(0);
+                            }
+                        }
+                        fs.appendFileSync('./files/estadisticas_mensuales_stats_nif.txt', `NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas\n${nif};${buscar_datos_fin};${descomprimir_total};${tratar_facturas_fin - descomprimir_total}\n`);
+                        fs.appendFileSync('./estadisticas/2021-03-01_2021-03-28_global.txt', `mes_${nif} // [${semana_nif.toString()}]\n`);
+                        //console.log(performance.now() - start);
                         resolve("OK");
                     });
                 } else {
@@ -1987,7 +2123,7 @@ function createEstadisticaSemanal(nif) {
             } else {//No existe la estadistica global ni la del nif, asi que tengo que crearlas
                 //console.log("No existe fichero");
                 var tiempo_start = performance.now();
-                var nif_list = companies_nif_list.map(c => c[0]).slice(0, 1000);
+                var nif_list = companies_nif_list.map(c => c[0]).slice(0, 3000);
                 Factura.find({
                     nif: {
                         $in: nif_list
@@ -2022,7 +2158,237 @@ function createEstadisticaSemanal(nif) {
                         console.log(semana_labels);
                     }
                     fs.writeFileSync('./estadisticas/2021-03-15_2021-03-21_global.txt', `semana_labels // ["${semana_labels.join('","')}"]\nsemana_sector // [${semana_sector.toString()}]\nsemana_${nif} // [${semana_nif.toString()}]\n`);
-                    var tiempo_fin = performance.now() -tiempo_start;
+                    var tiempo_fin = performance.now() - tiempo_start;
+                    console.log(tiempo_fin);
+                    resolve("OK");
+                });
+
+            }//end if
+        } catch (err) {
+
+            //console.log(err);
+            reject(err);
+        }
+    });
+}
+
+
+function createEstadisticaDiaria(nif) {
+    return new Promise((resolve, reject) => {
+        console.log("Estadistica diaria");
+
+
+        try {
+            var start = performance.now();
+            //console.log("Dentro del try");
+            if (fs.existsSync("./estadisticas/2021-03-19_2021-03-19_global.txt")) {//Si existe la de un nif entonces existe la global
+                //console.log("Existe fichero?");
+                var global_dia_estadistica = fs.readFileSync("./estadisticas/2021-03-19_2021-03-19_global.txt").toString().split("\n");
+                if (global_dia_estadistica.map(l => l.split(" // ")[0]).filter(n => n == `dia_${nif}`).length == 0) {//No existe la estadistica sobre ese nif
+                    //console.log("No existe estadistica sobre el nif");
+                    //dia_28693295J // [11.425,23.726000000000006,19.01833333333333,35.50857142857143,28.93166666666666,29.325000000000003,9.775,21.541249999999998,6.546666666666667,12.809999999999999,0,13.29,40.41166666666666,12.516,25.217142857142857,7.4174999999999995,7.968000000000001,53.916666666666664,27.663846153846155,12.25,11.325,16.88,31.11,16.79714285714286]
+                    var buscar_datos_start = performance.now();
+                    Factura.find({
+                        nif: nif,
+                        fecha: new Date("2021-03-19T00:00:00")
+                    }, "cantidad xml", (err, query_dia_result) => {
+                        var buscar_datos_fin = performance.now() - buscar_datos_start;
+                        //console.log(query_dia_result.length);
+                        var tratar_facturas_start = performance.now();
+                        var descomprimir_total = 0;
+                        var json = { "00:00:00": { suma: 0, cantidad: 0, avg: 0 }, "01:00:00": { suma: 0, cantidad: 0, avg: 0 }, "02:00:00": { suma: 0, cantidad: 0, avg: 0 }, "03:00:00": { suma: 0, cantidad: 0, avg: 0 }, "04:00:00": { suma: 0, cantidad: 0, avg: 0 }, "05:00:00": { suma: 0, cantidad: 0, avg: 0 }, "06:00:00": { suma: 0, cantidad: 0, avg: 0 }, "07:00:00": { suma: 0, cantidad: 0, avg: 0 }, "08:00:00": { suma: 0, cantidad: 0, avg: 0 }, "09:00:00": { suma: 0, cantidad: 0, avg: 0 }, "10:00:00": { suma: 0, cantidad: 0, avg: 0 }, "11:00:00": { suma: 0, cantidad: 0, avg: 0 }, "12:00:00": { suma: 0, cantidad: 0, avg: 0 }, "13:00:00": { suma: 0, cantidad: 0, avg: 0 }, "14:00:00": { suma: 0, cantidad: 0, avg: 0 }, "15:00:00": { suma: 0, cantidad: 0, avg: 0 }, "16:00:00": { suma: 0, cantidad: 0, avg: 0 }, "17:00:00": { suma: 0, cantidad: 0, avg: 0 }, "18:00:00": { suma: 0, cantidad: 0, avg: 0 }, "19:00:00": { suma: 0, cantidad: 0, avg: 0 }, "20:00:00": { suma: 0, cantidad: 0, avg: 0 }, "21:00:00": { suma: 0, cantidad: 0, avg: 0 }, "22:00:00": { suma: 0, cantidad: 0, avg: 0 }, "23:00:00": { suma: 0, cantidad: 0, avg: 0 } };
+                        query_dia_result.forEach((factura_com, index) => {
+                            var descomprimir_start = performance.now();
+                            let factura_descomp = zlib.gunzipSync(Buffer.from(factura_com.xml, "base64"), GZIP_PARAMS).toString();
+                            descomprimir_total += (performance.now() - descomprimir_start);
+                            let hora = DATA.getHoraExpedionFactura(factura_descomp);
+                            let cantidad = factura_com.cantidad;
+
+                            let hora_split = hora.split(":")[0];
+
+                            json[hora_split + ':00:00'].suma += cantidad;
+                            json[hora_split + ':00:00'].cantidad++;
+                            json[hora_split + ':00:00'].avg = json[hora_split + ':00:00'].suma / json[hora_split + ':00:00'].cantidad;
+                        });
+                        var tratar_facturas_fin = performance.now() - tratar_facturas_start;
+                        var dia_nif = [];
+                        for (var i = 0; i < 24; i++) {
+                            let hora = i.toString().padStart(2, 0);
+                            dia_nif.push(json[hora + ':00:00'].avg);
+                        }
+                        fs.appendFileSync('./files/estadisticas_diarias_stats_nif.txt', `NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas;CalcularEstadisticaGlobal\n${nif};${buscar_datos_fin};${descomprimir_total};${tratar_facturas_fin - descomprimir_total}\n`);
+                        fs.appendFileSync('./estadisticas/2021-03-19_2021-03-19_global.txt', `dia_${nif} // [${dia_nif.toString()}]\n`);
+                        resolve("OK");
+
+                    });
+                } else {
+                    resolve("OK");
+                }//end if
+            } else {//No existe la estadistica global ni la del nif, asi que tengo que crearlas
+                //console.log("No existe fichero");
+
+                var nif_list = companies_nif_list.slice(0, 3000).map(c => c[0]);
+
+                console.log("Busqueda start");
+                var buscar_datos_start = performance.now();
+                Factura.aggregate([
+                    {
+                        $match: {
+                            nif: {
+                                $in: nif_list
+                            },
+                            fecha: new Date("2021-03-19T00:00:00")
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: "$_id",
+                            nif: "$nif",
+                            fecha: "%fecha",
+                            cantidad: "$cantidad",
+                            xml: "$xml"
+                        }
+                    }
+                ]).allowDiskUse().exec((err, query_dia_result) => {
+                    if (err) throw err;
+                    var buscar_datos_fin = performance.now() - buscar_datos_start;
+                    console.log("End Busqueda datos");
+                    console.log(query_dia_result.length);
+                    const dia_labels = ["00:00:00", "01:00:00", "02:00:00", "03:00:00", "04:00:00", "05:00:00", "06:00:00", "07:00:00", "08:00:00", "09:00:00", "10:00:00", "11:00:00", "12:00:00", "13:00:00", "14:00:00", "15:00:00", "16:00:00", "17:00:00", "18:00:00", "19:00:00", "20:00:00", "21:00:00", "22:00:00", "23:00:00",];
+                    var dia_nif = [];
+                    var dia_sector = [];
+
+                    var descomprimir_total = 0;
+                    var json = { "00:00:00": { suma: 0, cantidad: 0, avg: 0 }, "01:00:00": { suma: 0, cantidad: 0, avg: 0 }, "02:00:00": { suma: 0, cantidad: 0, avg: 0 }, "03:00:00": { suma: 0, cantidad: 0, avg: 0 }, "04:00:00": { suma: 0, cantidad: 0, avg: 0 }, "05:00:00": { suma: 0, cantidad: 0, avg: 0 }, "06:00:00": { suma: 0, cantidad: 0, avg: 0 }, "07:00:00": { suma: 0, cantidad: 0, avg: 0 }, "08:00:00": { suma: 0, cantidad: 0, avg: 0 }, "09:00:00": { suma: 0, cantidad: 0, avg: 0 }, "10:00:00": { suma: 0, cantidad: 0, avg: 0 }, "11:00:00": { suma: 0, cantidad: 0, avg: 0 }, "12:00:00": { suma: 0, cantidad: 0, avg: 0 }, "13:00:00": { suma: 0, cantidad: 0, avg: 0 }, "14:00:00": { suma: 0, cantidad: 0, avg: 0 }, "15:00:00": { suma: 0, cantidad: 0, avg: 0 }, "16:00:00": { suma: 0, cantidad: 0, avg: 0 }, "17:00:00": { suma: 0, cantidad: 0, avg: 0 }, "18:00:00": { suma: 0, cantidad: 0, avg: 0 }, "19:00:00": { suma: 0, cantidad: 0, avg: 0 }, "20:00:00": { suma: 0, cantidad: 0, avg: 0 }, "21:00:00": { suma: 0, cantidad: 0, avg: 0 }, "22:00:00": { suma: 0, cantidad: 0, avg: 0 }, "23:00:00": { suma: 0, cantidad: 0, avg: 0 } };
+                    var json_nif = { "00:00:00": { suma: 0, cantidad: 0, avg: 0 }, "01:00:00": { suma: 0, cantidad: 0, avg: 0 }, "02:00:00": { suma: 0, cantidad: 0, avg: 0 }, "03:00:00": { suma: 0, cantidad: 0, avg: 0 }, "04:00:00": { suma: 0, cantidad: 0, avg: 0 }, "05:00:00": { suma: 0, cantidad: 0, avg: 0 }, "06:00:00": { suma: 0, cantidad: 0, avg: 0 }, "07:00:00": { suma: 0, cantidad: 0, avg: 0 }, "08:00:00": { suma: 0, cantidad: 0, avg: 0 }, "09:00:00": { suma: 0, cantidad: 0, avg: 0 }, "10:00:00": { suma: 0, cantidad: 0, avg: 0 }, "11:00:00": { suma: 0, cantidad: 0, avg: 0 }, "12:00:00": { suma: 0, cantidad: 0, avg: 0 }, "13:00:00": { suma: 0, cantidad: 0, avg: 0 }, "14:00:00": { suma: 0, cantidad: 0, avg: 0 }, "15:00:00": { suma: 0, cantidad: 0, avg: 0 }, "16:00:00": { suma: 0, cantidad: 0, avg: 0 }, "17:00:00": { suma: 0, cantidad: 0, avg: 0 }, "18:00:00": { suma: 0, cantidad: 0, avg: 0 }, "19:00:00": { suma: 0, cantidad: 0, avg: 0 }, "20:00:00": { suma: 0, cantidad: 0, avg: 0 }, "21:00:00": { suma: 0, cantidad: 0, avg: 0 }, "22:00:00": { suma: 0, cantidad: 0, avg: 0 }, "23:00:00": { suma: 0, cantidad: 0, avg: 0 } };
+
+                    var tratar_facturas_start = performance.now();
+                    query_dia_result.forEach((factura_com, index) => {
+                        var descomprimir_start = performance.now();
+                        let factura_descomp = zlib.gunzipSync(Buffer.from(factura_com.xml, "base64"), GZIP_PARAMS).toString();
+                        descomprimir_total += (performance.now() - descomprimir_start);
+                        let hora = DATA.getHoraExpedionFactura(factura_descomp);
+                        let cantidad = factura_com.cantidad;
+
+                        let hora_split = hora.split(":")[0];
+
+                        json[hora_split + ':00:00'].suma += cantidad;
+                        json[hora_split + ':00:00'].cantidad++;
+                        json[hora_split + ':00:00'].avg = json[hora_split + ':00:00'].suma / json[hora_split + ':00:00'].cantidad;
+                        if (factura_com.nif == nif) {
+                            json_nif[hora_split + ':00:00'].suma += cantidad;
+                            json_nif[hora_split + ':00:00'].cantidad++;
+                            json_nif[hora_split + ':00:00'].avg = json[hora_split + ':00:00'].suma / json[hora_split + ':00:00'].cantidad;
+                        }
+
+                    });
+                    console.log("End tratar facturas");
+                    var tratar_facturas_fin = performance.now() - tratar_facturas_start;
+
+                    for (var i = 0; i < 24; i++) {
+                        let hora = i.toString().padStart(2, 0);
+                        dia_nif.push(json_nif[hora + ':00:00'].avg);
+                        dia_sector.push(json[hora + ':00:00'].avg)
+                    }
+
+                    fs.appendFileSync('./files/estadisticas_diarias_stats.txt', `BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas;CalcularEstadisticaGlobal;BuscarDatosNIF\n${buscar_datos_fin};${descomprimir_total};${tratar_facturas_fin - descomprimir_total}\n`);
+                    fs.writeFileSync('./estadisticas/2021-03-19_2021-03-19_global.txt', `dia_labels // ["${dia_labels.join('","')}"]\ndia_sector // [${dia_sector.toString()}]\ndia_${nif} // [${dia_nif.toString()}]\n`);
+                    resolve("OK");
+                });
+
+            }//end if
+        } catch (err) {
+
+            //console.log(err);
+            reject(err);
+        }
+    });
+}
+
+function createEstadisticaSemanal(nif) {
+    //await mongoose.connect(mongoUrl + "/" + dbName).then(() => { console.log("Conexión a MongoDB realizada correctamente") });
+    return new Promise((resolve, reject) => {
+        console.log("Estadistica Semanal");
+        //const DIRECTORY_PATH = "C:\\Users\\877205\\Desktop\\FacturasInsert\\insertData\\";
+        //const index = fs.readFileSync(DIRECTORY_PATH + "index.txt").toString().split("\n");
+        //const nif_list = index.map(n => n.split("/")[5].split(".")[0]);
+        try {
+            var start = performance.now();
+            //console.log("Dentro del try");
+            if (fs.existsSync("./estadisticas/2021-03-15_2021-03-21_global.txt")) {//Si existe la de un nif entonces existe la global
+                //console.log("Existe fichero?");
+                var global_semana_estadistica = fs.readFileSync("./estadisticas/2021-03-15_2021-03-21_global.txt").toString().split("\n");
+                if (global_semana_estadistica.map(l => l.split(" // ")[0]).filter(n => n == `semana_${nif}`).length == 0) {//No existe la estadistica sobre ese nif
+                    //console.log("No existe estadistica sobre el nif");
+                    var buscar_datos_start = performance.now();
+                    Factura.find({
+                        nif: nif,
+                        fecha: {
+                            $gte: new Date("2021-03-15T00:00:00"),
+                            $lte: new Date("2021-03-21T23:59:59")
+                        }
+                    }, "nif fecha cantidad", (err, query_semana_result) => {
+                        var buscar_datos_fin = performance.now() - buscar_datos_start;
+                        var semana_nif = [];
+                        //var query_dia_descomp = query_dia_result.map(f => zlib.gunzipSync(Buffer.from(f.xml, "base64"), GZIP_PARAMS).toString());
+                        var tratar_facturas_start = performance.now();
+                        for (var t = moment("2021-03-15").toDate(); t <= moment("2021-03-21").toDate(); t = moment(t).add(1, "days").toDate()) {
+                            let t_aux = t;
+                            let nif_array = query_semana_result.filter(f => moment(f.fecha).toDate() >= t && moment(f.fecha).toDate() < moment(t_aux).add(1, "days").toDate());
+                            var nif_average = 0;
+                            if (nif_array.length > 0) {
+                                nif_average = nif_array.map(f => f.cantidad).reduce((a, b) => a + b, 0) / nif_array.length;
+                            }
+                            semana_nif.push(nif_average);
+                        }
+                        var tratar_facturas_fin = performance.now() - tratar_facturas_start;
+                        fs.appendFileSync('./files/estadisticas_semanales_stats_nif.txt', `NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas;CalcularEstadisticaGlobal\n${nif};${buscar_datos_fin};${0};${tratar_facturas_fin - 0}\n`);
+                        fs.appendFileSync('./estadisticas/2021-03-15_2021-03-21_global.txt', `semana_${nif} // [${semana_nif.toString()}]\n`);
+                        //console.log(performance.now() - start);
+                        resolve("OK");
+                    });
+                } else {
+                    resolve("OK");
+                }//end if
+            } else {//No existe la estadistica global ni la del nif, asi que tengo que crearlas
+                //console.log("No existe fichero");
+                var tiempo_start = performance.now();
+                var nif_list = companies_nif_list.map(c => c[0]).slice(0, 3000);
+                Factura.find({
+                    nif: {
+                        $in: nif_list
+                    },
+                    fecha: {
+                        $gte: new Date("2021-03-15T00:00:00"),
+                        $lte: new Date("2021-03-21T23:59:59")
+                    }
+                }, "nif fecha cantidad", (err, query_semana_result) => {
+                    var semana_labels = [];
+                    var semana_nif = [];
+                    var semana_sector = [];
+
+
+                    for (var t = moment("2021-03-15").toDate(); t <= moment("2021-03-21").toDate(); t = moment(t).add(1, "days").toDate()) {
+                        let t_aux = t;
+                        let global_array = query_semana_result.filter(f => (moment(f.fecha).toDate() >= t) && (moment(f.fecha).toDate() < moment(t_aux).add(1, "days").toDate()));
+                        var global_average = 0;
+                        if (global_array.length > 0) {
+                            global_average = global_array.map(f => f.cantidad).reduce((a, b) => a + b, 0) / global_array.length;
+                        }
+                        //console.log(global_array);
+
+                        let nif_array = query_semana_result.filter(f => f.nif == nif).filter(f => moment(f.fecha).toDate() >= t && moment(f.fecha).toDate() < moment(t_aux).add(1, "days").toDate());
+                        var nif_average = 0;
+                        if (nif_array.length > 0) {
+                            nif_average = nif_array.map(f => f.cantidad).reduce((a, b) => a + b, 0) / nif_array.length;
+                        }
+                        semana_nif.push(nif_average);
+                        semana_sector.push(global_average);
+                        semana_labels.push(moment(t).format("YYYY-MM-DD"));
+                        console.log(semana_labels);
+                    }
+                    fs.writeFileSync('./estadisticas/2021-03-15_2021-03-21_global.txt', `semana_labels // ["${semana_labels.join('","')}"]\nsemana_sector // [${semana_sector.toString()}]\nsemana_${nif} // [${semana_nif.toString()}]\n`);
+                    var tiempo_fin = performance.now() - tiempo_start;
                     console.log(tiempo_fin);
                     resolve("OK");
                 });
@@ -2040,9 +2406,7 @@ function createEstadisticaMensual(nif) {
     //await mongoose.connect(mongoUrl + "/" + dbName).then(() => { console.log("Conexión a MongoDB realizada correctamente") });
     return new Promise((resolve, reject) => {
         console.log("Estadistica Mensual");
-        //const DIRECTORY_PATH = "C:\\Users\\877205\\Desktop\\FacturasInsert\\insertData\\";
-        //const index = fs.readFileSync(DIRECTORY_PATH + "index.txt").toString().split("\n");
-        //const nif_list = index.map(n => n.split("/")[5].split(".")[0]);
+
         try {
             var start = performance.now();
             //console.log("Dentro del try");
@@ -2051,26 +2415,52 @@ function createEstadisticaMensual(nif) {
                 var global_mes_estadistica = fs.readFileSync("./estadisticas/2021-03-01_2021-03-28_global.txt").toString().split("\n");
                 if (global_mes_estadistica.map(l => l.split(" // ")[0]).filter(n => n == `mes_${nif}`).length == 0) {//No existe la estadistica sobre ese nif
                     //console.log("No existe estadistica sobre el nif");
+                    var date_ini = new Date("2021-03-01T00:00:00");
+                    var date_fin = new Date("2021-03-28T00:00:00");
+                    var buscar_datos_start = performance.now();
                     Factura.find({
                         nif: nif,
                         fecha: {
-                            $gte: new Date("2021-03-01T00:00:00"),
-                            $lte: new Date("2021-03-28T23:59:59")
+                            $gte: date_ini,
+                            $lte: date_fin
                         }
                     }, "nif fecha cantidad", (err, query_mes_result) => {
+                        var buscar_datos_fin = performance.now() - buscar_datos_start;
                         var mes_nif = [];
+                        var json = {};
                         //var query_dia_descomp = query_dia_result.map(f => zlib.gunzipSync(Buffer.from(f.xml, "base64"), GZIP_PARAMS).toString());
-                        for (var t = moment("2021-03-01").toDate(); t <= moment("2021-03-28").toDate(); t = moment(t).add(1, "days").toDate()) {
-                            let t_aux = t;
-                            let nif_array = query_mes_result.filter(f => moment(f.fecha).toDate() >= t && moment(f.fecha).toDate() < moment(t_aux).add(1, "days").toDate());
-                            var nif_average = 0;
-                            if (nif_array.length > 0) {
-                                nif_average = nif_array.map(f => f.cantidad).reduce((a, b) => a + b, 0) / nif_array.length;
+                        var tratar_facturas_start = performance.now();
+
+                        query_mes_result.forEach((factura, index) => {
+                            let day = moment(factura.fecha).format("DD").padStart(2, 0);
+                            if (!json.hasOwnProperty(day)) {
+                                json[day] = {
+                                    suma: 0,
+                                    cantidad: 0,
+                                    avg: 0
+                                };
                             }
-                            mes_nif.push(nif_average);
+
+                            json[day].suma += factura.cantidad;
+                            json[day].cantidad++;
+                            json[day].avg = json[day].suma / json[day].cantidad;
+
+                        });
+                        //console.log(json);
+                        var tratar_facturas_fin = performance.now() - tratar_facturas_start;
+
+                        for (var i = Number(moment(date_ini).format("DD")); i <= Number(moment(date_fin).format("DD")); i++) {
+                            let day = i.toString().padStart(2, 0);
+                            if (json.hasOwnProperty(day)) {
+                                mes_nif.push(json[day].avg);
+                            } else {
+                                mes_nif.push(0);
+                            }
                         }
+
+                        fs.appendFileSync('./files/estadisticas_mensuales_stats_nif.txt', `NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas\n${nif};${buscar_datos_fin};${0};${tratar_facturas_fin - 0}\n`);
                         fs.appendFileSync('./estadisticas/2021-03-01_2021-03-28_global.txt', `mes_${nif} // [${mes_nif.toString()}]\n`);
-                        console.log(performance.now() - start);
+                        //console.log(performance.now() - start);
                         resolve("OK");
                     });
                 } else {
@@ -2266,12 +2656,15 @@ async function estadisticasHosteleria(nif) {
 
     try {
         const res = await createEstadisticaDiaria(nif);
+        //const res = await createEstadisticaDiaAgrupadas(nif);
         console.log("Dia --> " + res);
         try {
             const res_1 = await createEstadisticaSemanal(nif);
+            //const res_1 =  await createEstadisticaSemanalAgrupadas(nif);
             console.log("Semana --> " + res_1);
             try {
-                const res_2 = await createEstadisticaMensual(nif);
+                //const res_2 = await createEstadisticaMensual(nif);
+                const res_2 = await createEstadisticaSemanalAgrupadas(nif);
                 console.log("Mes --> " + res_2);
                 try {
                     const res_3 = await createEstadisticaTrimestre(nif);
@@ -2331,9 +2724,9 @@ async function pruebasEstadisticasHosteleria() {
     const nif_list = ["15964763A", "24624714V", "53766353N", "88326204V", "18650180D"];
 
 
-    for(var i = 0; i < nif_list.length; i++){
+    for (var i = 0; i < nif_list.length; i++) {
         let nif = nif_list[i];
-        for(var j = 0; j < 5; j++){
+        for (var j = 0; j < 5; j++) {
             var busqueda_facturas_filtro_start = performance.now();
             await Factura.aggregate([
                 {
@@ -2358,31 +2751,31 @@ async function pruebasEstadisticasHosteleria() {
             var obtener_facturas_start = performance.now();
             let query_2_result = await executeQuery({ nif: nif });
             var obtener_facturas_fin = performance.now();
-        
+
             var array_facturas_descomp = [];
             //var tiempo_descomprimir = 0;
             var descomprimir_start = performance.now();
             for (var k = 0; k < query_2_result.length; k++) {
-        
+
                 let factura_descomp = await unCompressData(query_2_result[k].xml).catch((err) => { console.log("Error al descomprimir en query_2") });
                 //tiempo_descomprimir += (performance.now()-descomprimir_start);
                 //let json = parser.xml2json(factura_descomp, {compact: true, ignoreAttributes: true, ignoreDeclaration: true, spaces: '\t'});
                 array_facturas_descomp.push(factura_descomp);
             }
             var descomprimir_fin = performance.now();
-        
+
             //console.log(array_facturas_descomp[0]);
             var sumar_start = performance.now();
             let suma = array_facturas_descomp.map(f => DATA.getImporteTotalFactura(f)).filter(i => i >= 10).reduce((a, b) => a + b, 0);
             var sumar_fin = performance.now();
             //console.log(suma);
             fs.writeFileSync("./files/estadisticas_hosteleria.csv", nif + ";" + (busqueda_facturas_filtro_fin - busqueda_facturas_filtro_start) + ";" + (obtener_facturas_fin - obtener_facturas_start) + ";" + (descomprimir_fin - descomprimir_start) + ";" + (sumar_fin - sumar_start) + "\n", { flag: "a" });
-        } 
+        }
     }
-        
 
 
-    
+
+
 
 
     console.log("OK");
