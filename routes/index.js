@@ -27,6 +27,7 @@ router.get('/gr', projectController.gr);
 router.get('/statistics', projectController.statistics);
 router.get('/showstatistics', projectController.showStatistics);
 router.get('/estadisticaspormenor', projectController.showStatisticsMenor);
+router.get('/estadisticaspormayor', projectController.showStatisticsMayor);
 
 router.get("/insertfacturasestadisticas", projectController.insertFacturasEstadisticas);
 router.get("/createdata", projectController.createData);

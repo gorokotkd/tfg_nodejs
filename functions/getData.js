@@ -34,6 +34,11 @@ function getImporteTotalFactura(xml) {
     return Number(xpath.select("//Factura/DatosFactura/ImporteTotalFactura/text()", doc).toString());
 }
 
+function getCodigoPais(xml){
+    var doc = new dom().parseFromString(xml);
+    return xpath.select("//CodigoPais/text()", doc).toString();
+}
+
 function getNumFactura(xml) {
     var doc = new dom().parseFromString(xml);
     return xpath.select("//Factura/CabeceraFactura/NumFactura/text()", doc).toString();
@@ -98,5 +103,8 @@ module.exports = {
     },
     getDetallesFactura : function(xml){
         return getDetallesFactura(xml);
+    },
+    getCodigoPais : function(xml){
+        return getCodigoPais(xml);
     }
 }

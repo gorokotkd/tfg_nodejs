@@ -167,7 +167,7 @@ async function createData(){
     const SAVE_PATH = "/Users/gorkaalvarez/Desktop/tbaiData/";
     const MAX_NIF = 70;
     var total_facturas = 0;
-    var companies_nif_list_slice = companies_nif_list.slice(4000, 4080);
+    var companies_nif_list_slice = companies_nif_list.slice(4000, 4070);
     for(var i = 0; i < MAX_NIF; i++){
         var facturas_array = [];
         const nif_name = companies_nif_list_slice[i];

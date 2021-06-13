@@ -265,7 +265,7 @@ function generarSujetos(json, options = {
     emitidaPorTercerosODestinatario: false //Indica si quiero el elemento emitida por terceros
 }) {
     if (options.hasOwnProperty('destinatarios')) {
-        if (options.destinatarios > 0) {
+        if (options.destinatarios.numeroDestinatarios > 0) {
             generarDestinatarios(json, options.destinatarios);
             json.VariosDestinatarios = "S";
         }
@@ -290,11 +290,11 @@ function generarDestinatarios(json, dest) {
 
     var max_dest = getRandomInt(1, 101);
     if (dest.numeroDestinatarios > 0 && dest.numeroDestinatarios < 101) {
-        max_dest = numDest;
+        max_dest = dest.numeroDestinatarios;
     }
     for (var i = 0; i < max_dest; i++) {
         var destinatario = {};
-        if (getRandomInt(0, 2) == 0) { //NIF
+        if (getRandomInt(0, 100) >= 70) { //NIF
             destinatario.NIF = rand_dni();
         } else {//IDOtro
             destinatario.IDOtro = {
