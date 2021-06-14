@@ -1,0 +1,2 @@
+BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas
+470211.9320998192;0;2039.6767001152039

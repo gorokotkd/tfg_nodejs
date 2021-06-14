@@ -29,7 +29,7 @@ const client = new cassandra.Client({
   keyspace: 'ticketbai',
   localDataCenter: 'datacenter1'
 });
-/*
+
 client.connect()
   .then(function () {
       console.log('Connected to cluster with %d host(s): %j', client.hosts.length, client.hosts.keys());
@@ -39,7 +39,7 @@ client.connect()
       console.error('There was an error when connecting', err);
       return client.shutdown().then(() => { throw err; });
 });
-*/
+
 /**
  * Listen on provided port, on all network interfaces.
  */

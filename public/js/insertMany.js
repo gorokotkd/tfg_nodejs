@@ -139,13 +139,13 @@ function createCharts(stats) {
     var labels_compress = ["Cassandra", "MongoDB Total"];
     labels_compress.push();
     var dataset_data = [stats.comprimir_total_cassandra, stats.comprimir_mongo.reduce((a, b) => a + b, 0)];
-    var dataset_color = ["rgba(54, 162, 235, 0.2)", "rgba(255, 99, 132, 0.2)"];
+    var dataset_color = ["rgba(54, 162, 235, 0.9)", "rgba(255, 99, 132, 0.9)"];
     var dataset_border = ['rgb(54, 162, 235)', 'rgb(255, 99, 132)'];
 
     for (var i = 1; i <= stats.comprimir_mongo.length; i++) {
         labels_compress.push("MongoDB Part_" + i);
         dataset_data.push(stats.comprimir_mongo[i - 1]);
-        dataset_color.push("rgba(153, 102, 255, 0.2)");
+        dataset_color.push("rgba(153, 102, 255, 0.9)");
         dataset_border.push('rgb(153, 102, 255)');
     }
 
