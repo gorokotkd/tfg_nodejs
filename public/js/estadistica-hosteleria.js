@@ -68,7 +68,9 @@ const char_options = {
 
 function calcStatistics() {
     $('#charts').hide();
+    $('#error').hide();
     $('#loading_gif').show();
+    
     //let sector = $('#sector').val();
     let nif = $('#nif').val();
 
@@ -77,7 +79,12 @@ function calcStatistics() {
         url: "/showstatistics?sector=hosteleria&nif=" + nif,
         cache: false,
         async: false,
-        success: function (res) {
+        error: function(xhr, status, error){
+          $('#loading_gif').hide();
+          $('#error').show();
+        },
+        success: function (res, status, xhr) {
+          
             if (Chart.getChart('ventas-diarias') != null) {
                 Chart.getChart('ventas-diarias').destroy();
             }
@@ -86,9 +93,6 @@ function calcStatistics() {
             }
             if (Chart.getChart('ventas-mensuales') != null) {
                 Chart.getChart('ventas-mensuales').destroy();
-            }
-            if (Chart.getChart('ventas-triMes') != null) {
-                Chart.getChart('ventas-triMes').destroy();
             }
             var dia_data = {
                 labels: res.dia_labels,
@@ -226,50 +230,6 @@ function calcStatistics() {
             var mes_ctx = document.getElementById('ventas-mensuales');
             var mes_chart = new Chart(mes_ctx, mes_config);
 
-            var triMes_data = {
-                labels: res.triMes_labels,
-                datasets: [{
-                    label: "Ventas del Sector",
-                    data: res.triMes_sector,
-                    fill: false,
-                    lineTension: 0.3,
-                    backgroundColor: "rgba(75, 192, 192, 0.05)",
-                    borderColor: "rgba(75, 192, 192, 1)",
-                    pointRadius: 3,
-                    pointBackgroundColor: "rgba(75, 192, 192, 1)",
-                    pointBorderColor: "rgba(75, 192, 192, 1)",
-                    pointHoverRadius: 3,
-                    pointHoverBackgroundColor: "rgba(75, 192, 192, 1)",
-                    pointHoverBorderColor: "rgba(75, 192, 192, 1)",
-                    pointHitRadius: 10,
-                    pointBorderWidth: 2
-                },
-                {
-                    label: "Ventas de la empresa",
-                    data: res.triMes_nif,
-                    fill: false,
-                    borderColor: "rgb(255, 99, 132)",
-                    lineTension: 0.3,
-                    backgroundColor: "rgba(255, 99, 132, 0.05)",
-                    borderColor: "rgba(255, 99, 132, 1)",
-                    pointRadius: 3,
-                    pointBackgroundColor: "rgba(255, 99, 132, 1)",
-                    pointBorderColor: "rgba(255, 99, 132, 1)",
-                    pointHoverRadius: 3,
-                    pointHoverBackgroundColor: "rgba(255, 99, 132, 1)",
-                    pointHoverBorderColor: "rgba(255, 99, 132, 1)",
-                    pointHitRadius: 10
-                }]
-            };
-
-            var triMes_config = {
-                type: "line",
-                data: triMes_data,
-                options: char_options
-            }
-
-            var triMes_ctx = document.getElementById('ventas-triMes');
-            var triMes_chart = new Chart(triMes_ctx, triMes_config);
 
             $('#loading_gif').hide();
             $('#charts').show();

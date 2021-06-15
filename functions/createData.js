@@ -164,12 +164,17 @@ function generarFactura(nif_name, fecha){
 
 async function createData(){
     //await mongoose.connect(mongoUrl + "/" + dbName).then(() => { console.log("Conexión a MongoDB realizada correctamente") });
-    const SAVE_PATH = "/Users/gorkaalvarez/Desktop/tbaiData/";
-    const MAX_NIF = 70;
+    //const SAVE_PATH = "/Users/gorkaalvarez/Desktop/tbaiData/";
+    const SAVE_PATH = "C:\\Users\\877205\\Desktop\\NodeJS\\tfg_nodejs\\facturas\\";
+    const MAX_NIF = 10;
     var total_facturas = 0;
-    var companies_nif_list_slice = companies_nif_list.slice(4000, 4070);
+    var privateKey = fs.readFileSync('./keys/user1.pem');
+        var sig = new SignedXml();
+        sig.addReference("//*[local-name(.)='Cabecera' or local-name(.) = 'Sujetos' or local-name(.) = 'Factura' or local-name(.) = 'HuellaTBAI']");
+        sig.signingKey = privateKey;
+    //var companies_nif_list_slice = companies_nif_list.slice(4000, 4070);
     for(var i = 0; i < MAX_NIF; i++){
-        var facturas_array = [];
+        /*var facturas_array = [];
         const nif_name = companies_nif_list_slice[i];
         for(var j = moment("2021-01-01"); j <= moment("2021-03-31"); j = moment(j).add(1, "days")){//Por cada uno de los dias
             //console.log(moment(j).format("YYYY-MM-DD"));
@@ -185,13 +190,30 @@ async function createData(){
                 let factura = await generarFactura(nif_name, j);
                 facturas_array.push(factura);
             }//end for
-        }//end for
+        }//end for*/
+        data_generator.sujetos_config.nif = ["28693295J", "european parliament"];
+        data_generator.cabecera_factura_config.serieFactura = "28693295J"+moment("2021-03-19").format("DDMMYYHHmmss");
+        data_generator.cabecera_factura_config.NumFactura = getRandomInt(0,1000001);
+        data_generator.cabecera_factura_config.FechaExpedicionFactura = moment("2021-03-19").format("DD-MM-YYYY");
+        data_generator.datos_factura_config.detallesFactura.numDetalles = 2;
+        data_generator.datos_factura_config.detallesFactura.minImporteUnitario = 0.5;
+        data_generator.datos_factura_config.detallesFactura.maxImporteUnitario = 10;
+        data_generator.datos_factura_config.detallesFactura.tipoImpositivo = 21;
+
+        let data = data_generator.generate(data_generator.sujetos_config, data_generator.cabecera_factura_config, data_generator.datos_factura_config, data_generator.huellaTBAI_config);
+        let xml = transformer.generate(data);
+        sig.computeSignature(xml);
+        
+        let factura = sig.getSignedXml();
+
+        fs.appendFileSync(SAVE_PATH+"28693295J-"+i+".xml", factura);
+/*
         total_facturas += facturas_array.length; 
         console.log(`NIF --> ${nif_name[0]} // Numero Facturas Emitidas --> ${facturas_array.length} // Total de Facturas --> ${total_facturas}`);
         //console.log(facturas_array);
         fs.appendFileSync(SAVE_PATH+"nif-facturas-emitidas.txt", `NIF --> ${nif_name[0]} // Numero Facturas Emitidas --> ${facturas_array.length}\n`);
         fs.appendFileSync(SAVE_PATH+`${nif_name[0]}.json`, JSON.stringify(facturas_array));
-        fs.appendFileSync(SAVE_PATH+"index.txt", `${nif_name[0]}.json\n`);
+        fs.appendFileSync(SAVE_PATH+"index.txt", `${nif_name[0]}.json\n`);*/
     }//end for
 }//end function
 

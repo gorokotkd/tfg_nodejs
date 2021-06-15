@@ -1,2 +1,6 @@
 BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas;CalcularEstadisticaGlobal;BuscarDatosNIF
 223506.5872001648;57150.04429721832;638038.7194027901
+BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas;CalcularEstadisticaGlobal;BuscarDatosNIF
+235057.47849988937;48764.312738895416;624560.5642614365
+BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas;CalcularEstadisticaGlobal;BuscarDatosNIF
+256132.9415998459;59098.82449245453;585373.348007679
