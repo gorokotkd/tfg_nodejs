@@ -43,7 +43,7 @@
                                         <label for="nif">Introduce el NIF de la empresa a mostrar la Estadística</label>
                                         <input type="text" style="text-align:center;"
                                             class="form-control form-control-user" placeholder="12345678A" id="nif"
-                                            name="nif" onblur="this.value=removeSpaces(this.value)">
+                                            name="nif" onblur="this.value=removeSpaces(this.value).toUpperCase();">
                                     </div>
                                     <div class="form-group row">
                                         <button type="button" class="btn btn-primary btn-user btn-block" onclick=calcStatistics()>Mostrar

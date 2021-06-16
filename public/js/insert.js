@@ -33,8 +33,8 @@ function enviarForm() {
         $('#error-desconocido').hide();
       } else {
         var canvas = document.getElementById('qrcode');
-        var url = `localhost:3000/gr?id=${encodeURIComponent(res.tbai_id)}`;
-        //var url = `158.227.112.237:3000/gr?id=${encodeURIComponent(res.tbai_id)}`;
+        //var url = `localhost:3000/gr?id=${encodeURIComponent(res.tbai_id)}`;
+        var url = `158.227.112.237:3000/gr?id=${encodeURIComponent(res.tbai_id)}`;
         QRCode.toCanvas(canvas, url, function (err) {
           if (err) {
             console.log(err);

@@ -14,8 +14,8 @@ function enviarForm() {
             var context = canvas.getContext('2d');
             context.clearRect(0, 0, canvas.width, canvas.height);
 
-            var url = `localhost:3000/gr?id=${encodeURIComponent(res.tbai_id)}`;
-            //var url = `158.227.112.237:3000/gr?id=${encodeURIComponent(res.tbai_id)}`;
+            //var url = `localhost:3000/gr?id=${encodeURIComponent(res.tbai_id)}`;
+            var url = `158.227.112.237:3000/gr?id=${encodeURIComponent(res.tbai_id)}`;
             QRCode.toCanvas(canvas, url, function (err) {
                 if (err) {
                     console.log(err);

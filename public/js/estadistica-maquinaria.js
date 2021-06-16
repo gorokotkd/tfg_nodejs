@@ -88,6 +88,11 @@ function calcStatistics() {
         url: "/showstatistics?sector=maquinaria&nif=" + nif,
         cache: false,
         async: false,
+        error: function(xhr, status, error){
+          $('#loading-gif').hide();
+          $('#error').html("Error: " + xhr.responseText);
+          $('#error').show();
+        },
         success: function (res) {
             if (Chart.getChart('exportaciones-ventas') != null) {
                 Chart.getChart('exportaciones-ventas').destroy();

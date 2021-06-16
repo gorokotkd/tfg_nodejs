@@ -58,3 +58,13 @@ NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas;CalcularEstadisticaGlo
 88326204V;29.31119966506958;24.877995014190674;225.42270517349243
 NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas;CalcularEstadisticaGlobal
 18650180D;4.264899730682373;1.6919994354248047;13.710200309753418
+NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas;CalcularEstadisticaGlobal
+77719748B;127.97609996795654;21.33930253982544;258.48589754104614
+NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas;CalcularEstadisticaGlobal
+;14.533699999563396;0;0.08639999944716692
+NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas;CalcularEstadisticaGlobal
+28693295J;32.97840000037104;20.661300000734627;300.6573999989778
+NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas;CalcularEstadisticaGlobal
+12345678L;20.59639999270439;0;0.08089999854564667
+NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas;CalcularEstadisticaGlobal
+12345678A;19.43639999628067;0;0.08030000329017639

@@ -178,138 +178,47 @@ var controller = {
         let sector = req.query.sector;
         let nif = req.query.nif;
         let resul;
-        switch (sector) {
-            case "hosteleria":
-                resul = await estadisticasHosteleria(nif);
-                //console.log(resul);
-                if(resul == null){
-                    res.status(500).send("Error");
+        const regex = /^[0-9]{8}[A-Z]$/;
+        if(!String(nif).match(regex)){//El nif no tiene el formato correcto
+            res.status(400).send("El nif no tiene el formato correcto (8 números seguidos de una letra mayúscula)");
+        }else{
+            if(await existeNif(nif)){
+                switch (sector) {
+                    case "hosteleria":
+                        resul = await estadisticasHosteleria(nif);
+                        //console.log(resul);
+                        if (resul == null) {
+                            res.status(500).send("Error");
+                        }
+                        res.status(200).send(resul);
+                        break;
+                    case "maquinaria":
+                        resul = await estadisticasMaquinaria(nif);
+                        if (resul == null) {
+                            res.status(500).send("Error");
+                        }
+                        res.status(200).send(resul);
+                        break;
+                    default:
+                        res.status(400).send("Incorrent Query");
+                        break;
                 }
-                res.status(200).send(resul);
-                break;
-            case "maquinaria":
-                resul = await estadisticasMaquinaria(nif);
-                if(resul == null){
-                    res.status(500).send("Error");
-                }
-                res.status(200).send(resul);
-                break;
-            default:
-                res.status(400).send("Incorrent Query");
-                break;
+            }else{
+                res.status(400).send("El nif introducido no se encuentra registrado."); 
+            }
+            
         }
+        
     },
     insertMany: async function (req, res) {
 
         var num_agrupadas = req.query.num;
-
-        const client = new cassandra.Client({
-            contactPoints: ['127.0.0.1'],
-            keyspace: 'ticketbai',
-            localDataCenter: 'datacenter1'
+        insertManyAgrupadas(num_agrupadas).then(resul => {
+            res.status(200).send(resul);
+        }).catch(err => {
+            res.status(500).send(err);
         });
-        var tbai_list = [];
 
-        const nif = "15964763A";
-        var facturas_bd = await Factura.find({
-            nif: nif
-        }, "_id xml").limit(Number(num_agrupadas)).exec();
-        var agrupacion = "";
-        var fecha_inicio_agrupacion;
-        var fecha_fin_agrupacion;
-        for (var i = 0; i < facturas_bd.length; i++) {
-            let factura = zlib.gunzipSync(Buffer.from(facturas_bd[i].xml, "base64"), GZIP_PARAMS).toString();
-            if (i == 0) {
-                fecha_inicio_agrupacion = DATA.getFechaExp(factura);
-            } else if (i == facturas_bd.length - 1) {
-                fecha_fin_agrupacion = DATA.getFechaExp(factura);
-            }
-            agrupacion += factura;
-            tbai_list.push(facturas_bd[i]._id);
-        }
-
-
-        var compresion_start = performance.now();
-        var agrupacion_compress = await compressData(agrupacion);
-        var compresion_fin = performance.now();
-
-        const insert_query = "insert into facturas_agrupadas (nif, fecha_inicio, agrupacion, fecha_fin, tbai_id_list) values (?,?,?,?,?)";
-        const params = [
-            nif,
-            moment(fecha_inicio_agrupacion, "DD-MM-YYYY").format("YYYY-MM-DD"),
-            agrupacion_compress,
-            moment(fecha_fin_agrupacion, "DD-MM-YYYY").format("YYYY-MM-DD"),
-            tbai_list
-        ];
-        console.log("INSERT");
-        var insertar_cassandra_start = performance.now();
-        try {
-            await client.execute(insert_query, params, { prepare: true });
-        } catch (err) {
-            console.log(err);
-        }
-
-        var insert_cassandra_fin = performance.now();
-        console.log("INSERT MONGO");
-        /**Comprobación de particiones para insertar en Mongo */
-
-        var data_to_insert = {};
-        data_to_insert.nif = nif;
-        data_to_insert.fechaInicio = moment(fecha_inicio_agrupacion, "DD-MM-YYYY").toDate();
-        data_to_insert.fechaFin = moment(fecha_fin_agrupacion, "DD-MM-YYYY").toDate();
-        data_to_insert.idents = tbai_list;
-        data_to_insert.agrupacion = agrupacion_compress;
-
-        let numParticiones = 0;
-        //BYTES DE TODO EL DOCUMENTO A INSERTAR EN LA BD (NO PUEDE SUPERAR LOS 16MB)
-        let bytes = new TextEncoder().encode(JSON.stringify(data_to_insert)).byteLength;
-        //CALCULO EL NUMERO DE PARTICIONES DEL DOCUMENTO
-        if (bytes % (15 * MB) == 0) {
-            numParticiones = Math.floor(bytes / (15 * MB));
-        } else {
-            numParticiones = 1 + Math.floor(bytes / (15 * MB));
-        }
-        var insert_array = [];
-        var comprimir_mongo = [];
-        if (numParticiones == 1) {
-            insert_array.push(data_to_insert);
-            comprimir_mongo.push(compresion_fin - compresion_start);
-        } else {
-            for (var j = 0; j < numParticiones; j++) {
-                var agrupacion_mongo = "";
-                var tbai_part_list = [];
-                for (var k = Math.round(((j * num_agrupadas) / numParticiones)); k < Math.round((j + 1) * num_agrupadas) / numParticiones; k++) {
-                    let factura = zlib.gunzipSync(Buffer.from(facturas_bd[k].xml, "base64"), GZIP_PARAMS).toString();
-                    agrupacion_mongo += factura;
-                    tbai_part_list.push(DATA.getIdentTBAI(factura));
-                }
-                var compress_mongo_start = performance.now();
-                let agrupacion_mongo_compress = await compressData(agrupacion_mongo);
-                var compress_mongo_fin = performance.now();
-                let new_data_to_insert = {};
-                new_data_to_insert.nif = nif;
-                new_data_to_insert.fechaInicio = moment(fecha_inicio_agrupacion, "DD-MM-YYYY").toDate();
-                new_data_to_insert.fechaFin = moment(fecha_fin_agrupacion, "DD-MM-YYYY").toDate();
-                new_data_to_insert.idents = tbai_part_list;
-                new_data_to_insert.agrupacion = agrupacion_mongo_compress;
-
-                insert_array.push(new_data_to_insert);
-                comprimir_mongo.push(compress_mongo_fin - compress_mongo_start);
-            }
-        }
-        var insert_mongo_start = performance.now();
-        await insert_agrupadas_mongo(insert_array);
-        var insert_mongo_fin = performance.now();
-
-        res.status(200).send({
-            tbai_id: tbai_list[tbai_list.length - 1],
-            stats: {
-                insert_cassandra: insert_cassandra_fin - insertar_cassandra_start,
-                insert_mongo: insert_mongo_fin - insert_mongo_start,
-                comprimir_total_cassandra: compresion_fin - compresion_start,
-                comprimir_mongo: comprimir_mongo
-            }
-        });
 
 
     },
@@ -911,15 +820,18 @@ var controller = {
         });
     },
     gr: async function (req, res) {
-        const regex = /^TBAI-[0-9]{8}[A-Z]-[0-9]{6}-.{13}-[0-9]{3}$/;;
+        const regex = /^TBAI-[0-9]{8}[A-Z]-[0-9]{6}-.{13}-[0-9]{3}$/;
         //document.getElementById('loading_gif').style.display = "block";
         var tbai_id = String(req.query.id);
         if (!tbai_id.match(regex)) {
-            res.status(200).render('gr', {
+            res.status(200).render('error', {
                 title: 'Búsqueda de Facturas',
                 page: 'Búsqueda de Facturas',
-                error: '<script>document.getElementById("data").style.display = "none";</script><script>document.getElementById("tbai_error").style.display = "block";</script>',
-                data: ""
+                error: {
+                    status: 400,
+                    reason: "El identificador de la factura está mal formado."
+                }
+
             });
         } else {
 
@@ -931,19 +843,83 @@ var controller = {
                 socketOptions: { readTimeout: 0 }
             });
 
-            var result_mongo = await findByTBAI(tbai_id);
+            if (tbai_id.split("-")[1] == "15964763A") {
+                //Busco dentro de la agrupacion. Es simplemente para que busque las facturas de ese nif dentro de la coleccion de 
+                //facturas agrupadas en lugar de la de facturas individuales.
+                let nif = tbai_id.split("-")[1];
+                let fecha = tbai_id.split("-")[2];
+                var busqueda_datos_start = performance.now();
+                let docs = await FacturaAgrupada.find({
+                    nif: nif,
+                    fechaInicio: {
+                        $lte: moment(fecha, "DDMMYY").toDate()
+                    },
+                    fechaFin: {
+                        $gte: moment(fecha, "DDMMYY").toDate()
+                    }
+                });
+                var busqueda_datos_fin = performance.now();
+                for (var i = 0; i < docs.length; i++) {
+                    if (docs[i].idents.includes(tbai_id)) {
+                        var pos = Array.from(docs[i].idents).indexOf(tbai_id);
+                        var agrupacion = docs[i].agrupacion;
+                        var descompresion_start = performance.now();
 
-            var result_cassandra = {
-                stats: {}
-            };
-            try {
-                var result_cassandra = await findByIdCassandra(tbai_id, client);
-            } catch (err) {
+                        let resul = zlib.gunzipSync(Buffer.from(agrupacion, "base64"), GZIP_PARAMS).toString();
+                        var descompresion_fin = performance.now();
 
-                var result_cassandra = {
-                    stats: {}
-                };
+                        var busqueda_factura_start = performance.now();
+                        var facturas_array = resul.split(/(?=\<\?xml version="1\.0" encoding="utf-8"\?\>)/);
+                        let data = facturas_array[pos];
+                        var busqueda_factura_fin = performance.now();
+
+
+                        var result_mongo = {
+                            code: 200,
+                            agrupada: true,
+                            data: {
+                                tbai_id: tbai_id,
+                                nif_emisor: DATA.getNif(data),
+                                serie_factura: DATA.getSerieFactura(data),
+                                num_factura: DATA.getNumFactura(data),
+                                importe_factura: DATA.getImporteTotalFactura(data),
+                                fecha_exp: DATA.getFechaExp(data)
+                            },
+                            stats: {
+                                busqueda_datos: busqueda_datos_fin - busqueda_datos_start,
+                                descompresion: descompresion_fin - descompresion_start,
+                                busqueda_factura: busqueda_factura_fin - busqueda_factura_start
+                            }
+                        };
+
+                    }
+                }//END FOR
+                //END BUSQUEDA MONGO
+
+                try {
+                    var result_cassandra = await findAgrupadasCassandra(tbai_id, client);
+                } catch (err) {
+                    var result_cassandra = {
+                        stats: {}
+                    };
+                }
+
+
+
+            } else {
+                var result_mongo = await findByTBAI(tbai_id);
+
+                try {
+                    var result_cassandra = await findByIdCassandra(tbai_id, client);
+                } catch (err) {
+
+                    var result_cassandra = {
+                        stats: {}
+                    };
+                }
             }
+
+
 
 
             let script = `
@@ -1341,7 +1317,8 @@ var controller = {
                 }
             );
         }
-    }, insertFacturasEstadisticas: async function (req, res) {
+    },
+    insertFacturasEstadisticas: async function (req, res) {
 
         //const DIRECTORY_PATH = "/Users/gorkaalvarez/Desktop/tbaiData/";
         const DIRECTORY_PATH = "C:\\Users\\877205\\Desktop\\tbaiData\\";
@@ -1422,6 +1399,143 @@ var controller = {
 
 };
 
+
+async function existeNif(nif){
+    let res = await Factura.findOne({
+        nif: nif
+    });
+
+    if(res == null){
+        return false;
+    }else{
+        return true;
+    }
+}
+
+function insertManyAgrupadas(num_agrupadas) {
+    return new Promise((resolve, reject) => {
+        const client = new cassandra.Client({
+            contactPoints: ['127.0.0.1'],
+            keyspace: 'ticketbai',
+            localDataCenter: 'datacenter1'
+        });
+        var tbai_list = [];
+
+        const nif = "15964763A";
+        Factura.find({
+            nif: nif
+        }, "_id xml").limit(Number(num_agrupadas)).exec((err, facturas_bd) => {
+            var agrupacion = "";
+            var fecha_inicio_agrupacion;
+            var fecha_fin_agrupacion;
+            for (var i = 0; i < facturas_bd.length; i++) {
+                let factura = zlib.gunzipSync(Buffer.from(facturas_bd[i].xml, "base64"), GZIP_PARAMS).toString();
+                if (i == 0) {
+                    fecha_inicio_agrupacion = DATA.getFechaExp(factura);
+                } else if (i == facturas_bd.length - 1) {
+                    fecha_fin_agrupacion = DATA.getFechaExp(factura);
+                }
+                agrupacion += factura;
+                tbai_list.push(facturas_bd[i]._id);
+            }
+
+
+            var compresion_start = performance.now();
+            var agrupacion_compress = zlib.gzipSync(agrupacion, GZIP_PARAMS).toString("base64"); //await compressData(agrupacion);
+            var compresion_fin = performance.now();
+
+
+            console.log("INSERT MONGO");
+            /**Comprobación de particiones para insertar en Mongo */
+
+            var data_to_insert = {};
+            data_to_insert.nif = nif;
+            data_to_insert.fechaInicio = moment(fecha_inicio_agrupacion, "DD-MM-YYYY").toDate();
+            data_to_insert.fechaFin = moment(fecha_fin_agrupacion, "DD-MM-YYYY").toDate();
+            data_to_insert.idents = tbai_list;
+            data_to_insert.agrupacion = agrupacion_compress;
+
+            let numParticiones = 0;
+            //BYTES DE TODO EL DOCUMENTO A INSERTAR EN LA BD (NO PUEDE SUPERAR LOS 16MB)
+            let bytes = new TextEncoder().encode(JSON.stringify(data_to_insert)).byteLength;
+            //CALCULO EL NUMERO DE PARTICIONES DEL DOCUMENTO
+            if (bytes % (15 * MB) == 0) {
+                numParticiones = Math.floor(bytes / (15 * MB));
+            } else {
+                numParticiones = 1 + Math.floor(bytes / (15 * MB));
+            }
+            var insert_array = [];
+            var comprimir_mongo = [];
+            if (numParticiones == 1) {
+                insert_array.push(data_to_insert);
+                comprimir_mongo.push(compresion_fin - compresion_start);
+            } else {
+                for (var j = 0; j < numParticiones; j++) {
+                    var agrupacion_mongo = "";
+                    var tbai_part_list = [];
+                    for (var k = Math.round(((j * num_agrupadas) / numParticiones)); k < Math.round((j + 1) * num_agrupadas) / numParticiones; k++) {
+                        let factura = zlib.gunzipSync(Buffer.from(facturas_bd[k].xml, "base64"), GZIP_PARAMS).toString();
+                        agrupacion_mongo += factura;
+                        tbai_part_list.push(DATA.getIdentTBAI(factura));
+                    }
+                    var compress_mongo_start = performance.now();
+                    let agrupacion_mongo_compress = zlib.gzipSync(agrupacion_mongo, GZIP_PARAMS).toString("base64"); //await compressData(agrupacion_mongo);
+                    var compress_mongo_fin = performance.now();
+                    let new_data_to_insert = {};
+                    new_data_to_insert.nif = nif;
+                    new_data_to_insert.fechaInicio = moment(fecha_inicio_agrupacion, "DD-MM-YYYY").toDate();
+                    new_data_to_insert.fechaFin = moment(fecha_fin_agrupacion, "DD-MM-YYYY").toDate();
+                    new_data_to_insert.idents = tbai_part_list;
+                    new_data_to_insert.agrupacion = agrupacion_mongo_compress;
+
+                    insert_array.push(new_data_to_insert);
+                    comprimir_mongo.push(compress_mongo_fin - compress_mongo_start);
+                }
+            }
+            var insert_mongo_start = performance.now();
+            //await insert_agrupadas_mongo(insert_array);
+            const group = new AgrupacionFactura();
+            group.collection.insertMany(insert_array, { ordered: false }, (err, docs) => {
+                var insert_mongo_fin = performance.now();
+                if (err) { console.log(err); }
+
+
+
+                const insert_query = "insert into facturas_agrupadas (nif, fecha_inicio, agrupacion, fecha_fin, tbai_id_list) values (?,?,?,?,?)";
+                const params = [
+                    nif,
+                    moment(fecha_inicio_agrupacion, "DD-MM-YYYY").format("YYYY-MM-DD"),
+                    agrupacion_compress,
+                    moment(fecha_fin_agrupacion, "DD-MM-YYYY").format("YYYY-MM-DD"),
+                    tbai_list
+                ];
+                console.log("INSERT Cassandra");
+                var insertar_cassandra_start = performance.now();
+                try {
+                    client.execute(insert_query, params, { prepare: true }).then(resul => {
+                        var insert_cassandra_fin = performance.now();
+                        resolve({
+                            tbai_id: tbai_list[tbai_list.length - 1],
+                            stats: {
+                                insert_cassandra: insert_cassandra_fin - insertar_cassandra_start,
+                                insert_mongo: insert_mongo_fin - insert_mongo_start,
+                                comprimir_total_cassandra: compresion_fin - compresion_start,
+                                comprimir_mongo: comprimir_mongo
+                            }
+                        });
+
+                    }).catch(err => {
+                        reject(err);
+                    });
+                } catch (err) {
+                    reject(err);
+                }
+            });
+
+        });
+
+    });
+}
 
 async function estadisticasMaquinaria(nif) {
     try {
@@ -1777,9 +1891,61 @@ function agruparTrimes() {
     });
 }
 
+function findAgrupadasCassandra(tbai_id, client) {
+    return new Promise((resolve, reject) => {
+        const query_gr = "select fecha_fin, tbai_id_list, agrupacion from facturas_agrupadas where nif=? and fecha_inicio <= ?";
+        const params_gr = [
+            tbai_id.split("-")[1],
+            moment(tbai_id.split("-")[2], "DDMMYY").format("YYYY-MM-DD")
+        ];
+        var busqueda_bd_start = performance.now();
+        client.execute(query_gr, params_gr, { prepare: true }).then((res) => {
+            var agrupacion = "";
+            var tbai_list;
+            for (var i = 0; i < res.rowLength; i++) {
+                if (moment(res.rows[i].fecha_fin, "YYYY-MM-DD").toDate() >= moment(tbai_id.split("-")[2], "DDMMYY").toDate()) {
+                    agrupacion = res.rows[i].agrupacion;
+                    tbai_list = res.rows[i].tbai_id_list;
+                    break;
+                }
+            }
+            var busqueda_bd_fin = performance.now();
+            var descompresion_start = performance.now();
+            unCompressData(agrupacion).then((resul) => {
+                var descompresion_fin = performance.now();
+                var busqueda_factura_start = performance.now();
 
+                var pos = Array.from(tbai_list).indexOf(tbai_id);
+                var facturas_array = resul.split(/(?=\<\?xml version="1\.0" encoding="utf-8"\?\>)/);
+                let data = facturas_array[pos];
 
-async function findByIdCassandra(tbai_id, client) {
+                var busqueda_factura_fin = performance.now();
+
+                resolve({
+                    code: 200,
+                    agrupada: true,
+                    data: {
+                        tbai_id: tbai_id,
+                        nif_emisor: DATA.getNif(data),
+                        serie_factura: DATA.getSerieFactura(data),
+                        num_factura: DATA.getNumFactura(data),
+                        importe_factura: DATA.getImporteTotalFactura(data),
+                        fecha_exp: DATA.getFechaExp(data)
+                    },
+                    stats: {
+                        busqueda_datos: busqueda_bd_fin - busqueda_bd_start,
+                        descompresion: descompresion_fin - descompresion_start,
+                        busqueda_factura: busqueda_factura_fin - busqueda_factura_start
+                    }
+                });
+            });
+        }).catch(err => {
+            reject(err);
+        });
+    });
+}
+
+function findByIdCassandra(tbai_id, client) {
     return new Promise((resolve, reject) => {
         const query_indiv = "select nif, fecha, tbai_id, importe, num_factura, serie from facturas where nif=? and fecha=? and tbai_id = ?";
         const params_indiv = [
@@ -2970,12 +3136,12 @@ async function estadisticasHosteleria(nif) {
                     var mes_labels = JSON.parse(mes_file[0].split(" // ")[1]);
                     var mes_sector = JSON.parse(mes_file[1].split(" // ")[1]);
                     var mes_nif = JSON.parse(mes_file.filter(l_1 => l_1.split(" // ")[0] == `mes_${nif}`)[0].split(" // ")[1]);
-/*
-                    var triMes_file = fs.readFileSync('./estadisticas/2021-01-01_2021-03-28_global.txt').toString().split('\n');
-                    var triMes_labels = JSON.parse(triMes_file[0].split(" // ")[1]);
-                    var triMes_sector = JSON.parse(triMes_file[1].split(" // ")[1]);
-                    var triMes_nif = JSON.parse(triMes_file.filter(l_1 => l_1.split(" // ")[0] == `triMes_${nif}`)[0].split(" // ")[1]);
-*/
+                    /*
+                                        var triMes_file = fs.readFileSync('./estadisticas/2021-01-01_2021-03-28_global.txt').toString().split('\n');
+                                        var triMes_labels = JSON.parse(triMes_file[0].split(" // ")[1]);
+                                        var triMes_sector = JSON.parse(triMes_file[1].split(" // ")[1]);
+                                        var triMes_nif = JSON.parse(triMes_file.filter(l_1 => l_1.split(" // ")[0] == `triMes_${nif}`)[0].split(" // ")[1]);
+                    */
 
 
                     return {

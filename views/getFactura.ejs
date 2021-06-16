@@ -38,7 +38,7 @@
                     <div class="row justify-content-center">
                         <form class="user" method="get" action="gr" style="width: 500px">
                             <div class="form-group col-mb-12">
-                                <input type="text" style="text-align:center;" class="form-control form-control-user" placeholder="TBAI-12345678A-210121-abcdefghijklm-123" id="id" name="id" onblur="this.value=removeSpaces(this.value)">
+                                <input type="text" style="text-align:center;" class="form-control form-control-user" placeholder="TBAI-12345678A-210121-abcdefghijklm-123" pattern="^TBAI-[0-9]{8}[A-Z]-[0-9]{6}-.{13}-[0-9]{3}$" id="id" name="id" onblur="this.value=removeSpaces(this.value)">
                             </div>
                             <div class="form-group row">
                                 <button type="submit" class="btn btn-primary btn-user btn-block">Solicitar Factura !</button>

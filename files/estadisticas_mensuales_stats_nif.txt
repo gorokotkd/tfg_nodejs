@@ -58,3 +58,13 @@ NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas
 88326204V;831.0714001655579;0;8.96180009841919
 NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas
 18650180D;129.78310012817383;0;0.8774003982543945
+NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas
+77719748B;442.8424000740051;0;10.59570026397705
+NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas
+;2.9407999999821186;0;0.002500000409781933
+NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas
+28693295J;87.58479999937117;0;13.082500000484288
+NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas
+12345678L;2.7122000008821487;0;0.0073000043630599976
+NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas
+12345678A;2.758199989795685;0;0.0029000043869018555

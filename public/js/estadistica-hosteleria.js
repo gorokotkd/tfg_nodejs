@@ -81,6 +81,7 @@ function calcStatistics() {
         async: false,
         error: function(xhr, status, error){
           $('#loading_gif').hide();
+          $('#error').html("Error: " + xhr.responseText);
           $('#error').show();
         },
         success: function (res, status, xhr) {
