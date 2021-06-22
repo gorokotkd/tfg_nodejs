@@ -68,3 +68,5 @@ NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas;CalcularEstadisticaGlo
 12345678L;20.59639999270439;0;0.08089999854564667
 NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas;CalcularEstadisticaGlobal
 12345678A;19.43639999628067;0;0.08030000329017639
+NIF;BuscarDatosGlobal;DescomprimirFacturas;TratarFacturas;CalcularEstadisticaGlobal
+49518214L;4.358999967575073;0;0.07400000095367432
